@@ -6,6 +6,7 @@
 #include "GameplayEffect.h"
 #include "DGameplayEffect.generated.h"
 
+#define LOCTEXT_NAMESPACE "DGameplayEffect"
 #define INFINITY_TURN -1
 
 UENUM(BlueprintType)
@@ -17,7 +18,7 @@ enum class EMBuffType : uint8
 };
 
 UENUM(BlueprintType)
-enum class EMDamageType : uint8
+enum class EDDamageType : uint8
 {
 	Physical	UMETA(Displayname = "Physical"),
 	Frost		UMETA(Displayname = "Frost"),
@@ -65,6 +66,7 @@ private:
 };
 
 /**
+ * 回合制战斗专用GE
  * 
  */
 UCLASS()
@@ -73,15 +75,36 @@ class DEMO_API UDGameplayEffect : public UGameplayEffect
 	GENERATED_BODY()
 
 public:
+
+	UDGameplayEffect();
+
+#if WITH_EDITORONLY_DATA
+	/** Allow us to show the Status of the class (valid configurations or invalid configurations) while configuring in the Editor */
+	UPROPERTY(VisibleAnywhere, Transient, Category = "PorjectT")
+	mutable FText About = LOCTEXT("Warning", "警告: 不允许使用HasDuration特性以及自带的Period属性; 一旦使用，后果无法估测");
+#endif
+
+	/** 技能等级/环数 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectT")
+	int32 Level = 1;
 	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectM")
-	EMDamageType DamageType;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectT")
+	EDDamageType DamageType = EDDamageType::Physical;
+
+	/** 持续回合数 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectT", meta=(EditCondition="DurationPolicy != EGameplayEffectDurationType::Instant", EditConditionHides))
+	int32 TurnDuration = 1;
+
+	/**
+	 * 周期触发，每多少回合触发一次. 0代表施加该GE后直到移除前持续有效
+	 * 例如，寒冰护甲，buff生效期间护甲始终+2，设置为0即可
+	 * 例如，暴风雪，每回合需要造成伤害的，需要设置为1
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectT", meta=(EditCondition="DurationPolicy != EGameplayEffectDurationType::Instant", EditConditionHides))
+	int32 TurnPeriod = 0;
 	
 	// Todo 目标和施术者
 	// Todo 持续，且影响双方的buff，例如：吸血
 	// Todo 如果是持续性效果，如何取得运行时执行了第几秒（次）
-
 	// Todo 暴击机制
-
-	
 };

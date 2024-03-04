@@ -3,6 +3,9 @@
 
 #include "DAbilitySystemComponent.h"
 
+#include "AbilitySystemStats.h"
+#include "DGameplayEffect.h"
+
 void UDAbilitySystemComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
@@ -21,16 +24,51 @@ int32 UDAbilitySystemComponent::GetActiveEffectTurnRemainingAndDuration() const
 	return 0;
 }
 
-FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyGameplayEffectSpecToSelf(
-	const FGameplayEffectSpec& GameplayEffect, FPredictionKey PredictionKey)
+bool UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass)
 {
-	return Super::ApplyGameplayEffectSpecToSelf(GameplayEffect, PredictionKey);
+	if (!GameplayEffectClass.Get())
+		return false;
+
+	const UDGameplayEffect* GameplayEffectDef = GameplayEffectClass->GetDefaultObject<UDGameplayEffect>();
+	if (!GameplayEffectDef)
+		return false;
+	
+	FGameplayEffectContextHandle EffectContextHandle = MakeEffectContext();
+	EffectContextHandle.AddSourceObject(this->GetOwner());
+	const FGameplayEffectSpecHandle SpecHandle = this->MakeOutgoingSpec(GameplayEffectDef, EffectContextHandle);
+	if (SpecHandle.IsValid())
+	{
+		const FActiveGameplayEffectHandle ActiveGEHandle = ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		if(ActiveGEHandle.WasSuccessfullyApplied())
+		{
+			// 将GE收纳至回合制容器中进行管理
+			if (GameplayEffectDef->DurationPolicy != EGameplayEffectDurationType::Instant)
+			{
+				
+			}
+		}
+	}
+	
+	return false;
 }
 
-FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyGameplayEffectSpecToTarget(
-	const FGameplayEffectSpec& GameplayEffect, UAbilitySystemComponent* Target, FPredictionKey PredictionKey)
+FGameplayEffectSpecHandle UDAbilitySystemComponent::MakeOutgoingSpec(
+	const UDGameplayEffect* GameplayEffectObject,
+	FGameplayEffectContextHandle Context) const
 {
-	return Super::ApplyGameplayEffectSpecToTarget(GameplayEffect, Target, PredictionKey);
+	SCOPE_CYCLE_COUNTER(STAT_GetOutgoingSpec);
+	if (Context.IsValid() == false)
+	{
+		Context = MakeEffectContext();
+	}
+
+	if (GameplayEffectObject)
+	{
+		FGameplayEffectSpec* NewSpec = new FGameplayEffectSpec(GameplayEffectObject, Context, GameplayEffectObject->Level);
+		return FGameplayEffectSpecHandle(NewSpec);
+	}
+
+	return FGameplayEffectSpecHandle(nullptr);
 }
 
 bool UDAbilitySystemComponent::MoveBegin()
@@ -63,6 +101,14 @@ void UDAbilitySystemComponent::JumpEnd()
 	Container.AddTag(FGameplayTag::RequestGameplayTag(FName("GAS.Ability.Movement.Jump")));
 	
 	CancelAbilities(&Container);
+}
+
+void UDAbilitySystemComponent::BattleBegin()
+{
+}
+
+void UDAbilitySystemComponent::OnHit()
+{
 }
 
 void UDAbilitySystemComponent::BeginTurn()

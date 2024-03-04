@@ -8,6 +8,7 @@
 #include "DAbilitySystemComponent.generated.h"
 
 class AMCharacter;
+class UDGameplayEffect;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGEAppliedDelegate, const FGameplayTag&, Tag, const float, TimeRemaining);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGERemovedDelegate, const FGameplayTag&, Tag);
@@ -35,13 +36,10 @@ public:
 
 	UFUNCTION(Blueprintable, Category = "ProjectT")
 	int32 GetActiveEffectTurnRemainingAndDuration() const;
-
-
-	virtual FActiveGameplayEffectHandle ApplyGameplayEffectSpecToSelf(const FGameplayEffectSpec& GameplayEffect, FPredictionKey PredictionKey) override;
-
-	virtual FActiveGameplayEffectHandle ApplyGameplayEffectSpecToTarget(const FGameplayEffectSpec& GameplayEffect, UAbilitySystemComponent* Target, FPredictionKey PredictionKey) override;
 	
-	
+	bool ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass);
+
+	FGameplayEffectSpecHandle MakeOutgoingSpec(const UDGameplayEffect* GameplayEffectObject, FGameplayEffectContextHandle Context) const;
 	// 受到近战攻击时触发的效果
 	
 	// 受到近战攻击时给对方施加效果
@@ -60,8 +58,14 @@ public:
 	void Jump();
 	void JumpEnd();
 
+	void BattleBegin();
+
+	void OnHit();
+
+	/** 回合开始，施加回合制效果等*/
 	void BeginTurn();
 
+	/** 回合结束，施加回合制效果等*/
 	void EndTurn();
 
 protected:
