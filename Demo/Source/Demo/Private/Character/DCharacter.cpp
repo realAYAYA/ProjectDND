@@ -3,12 +3,18 @@
 
 #include "DCharacter.h"
 
+#include "GameplayAbilitySystem/DAbilitySystemComponent.h"
+
 // Sets default values
 ADCharacter::ADCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Gameplay Ability System
+	AbilitySystemComponent = CreateDefaultSubobject<UDAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 }
 
 // Called when the game starts or when spawned

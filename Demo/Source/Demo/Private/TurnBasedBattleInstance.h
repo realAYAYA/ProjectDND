@@ -41,4 +41,6 @@ private:
 
 	UFUNCTION()
 	void OnTurnNumChanged();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

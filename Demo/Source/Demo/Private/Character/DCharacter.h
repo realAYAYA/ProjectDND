@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "DCharacter.generated.h"
 
+class UDAbilitySystemComponent;
+
 UCLASS()
 class ADCharacter : public ACharacter
 {
@@ -14,6 +16,9 @@ class ADCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ADCharacter();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UDAbilitySystemComponent* AbilitySystemComponent;
 
 protected:
 	// Called when the game starts or when spawned
@@ -26,4 +31,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	
 };

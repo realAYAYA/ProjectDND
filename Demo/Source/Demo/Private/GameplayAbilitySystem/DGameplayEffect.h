@@ -30,6 +30,13 @@ enum class EDDamageType : uint8
 };
 
 /**
+ * 解释：GAS对GE的维护由UAbilitySystemComponent中的一组FActiveGameplayEffect（基于FastArray）的同步实现的
+ * 驱动方式是通过FTimer来进行持续时间和周期的计算，而回合制则需要根据Runtime下的回合数进行驱动
+ * 问题在于，根据对GAS的研究，FActiveGameplayEffect实现过于底层很难进行拓展
+ * 针对于此，作者的思路是按照FActiveGameplayEffect数组的思路实现一组与之平行存在的数据，该组数据则仅仅对回合制驱动下的相关数据进行追踪
+ */
+
+/**
  * Turn-based Active GameplayEffect instance
  *	-回合制专用GE实例
  *	-基于回合制记录GE的生命周期
@@ -47,9 +54,6 @@ struct DEMO_API FTurnBasedActiveGameplayEffect : public FFastArraySerializerItem
 	int32 StartTurn = 1;
 
 	UPROPERTY()
-	int32 Handle = -1;
-
-	UPROPERTY()
 	FActiveGameplayEffectHandle ActiveGameplayEffectHandle;
 };
 
@@ -58,12 +62,19 @@ struct DEMO_API FTurnBasedActiveGameplayEffectsContainer : public FFastArraySeri
 {
 	GENERATED_USTRUCT_BODY();
 
+	FTurnBasedActiveGameplayEffect* GetActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
+	const FTurnBasedActiveGameplayEffect* GetActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle) const;
+
+	FTurnBasedActiveGameplayEffect* ApplyActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
+
+	bool RemoveActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
 	
 private:
 	
 	UPROPERTY()
 	TArray<FTurnBasedActiveGameplayEffect>	GameplayEffects_Internal;
 };
+
 
 /**
  * 回合制战斗专用GE
@@ -81,7 +92,7 @@ public:
 #if WITH_EDITORONLY_DATA
 	/** Allow us to show the Status of the class (valid configurations or invalid configurations) while configuring in the Editor */
 	UPROPERTY(VisibleAnywhere, Transient, Category = "PorjectT")
-	mutable FText About = LOCTEXT("Warning", "警告: 不允许使用HasDuration特性以及自带的Period属性; 一旦使用，后果无法估测");
+	mutable FText Warning = LOCTEXT("Warning", "警告: 不允许使用HasDuration特性以及自带的Period属性; 一旦使用，后果无法估测");
 #endif
 
 	/** 技能等级/环数 */

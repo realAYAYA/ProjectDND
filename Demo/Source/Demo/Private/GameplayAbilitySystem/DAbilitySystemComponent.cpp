@@ -3,8 +3,7 @@
 
 #include "DAbilitySystemComponent.h"
 
-#include "AbilitySystemStats.h"
-#include "DGameplayEffect.h"
+#include "Net/UnrealNetwork.h"
 
 void UDAbilitySystemComponent::InitializeComponent()
 {
@@ -24,18 +23,18 @@ int32 UDAbilitySystemComponent::GetActiveEffectTurnRemainingAndDuration() const
 	return 0;
 }
 
-bool UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass)
+bool UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, const int32 Level)
 {
 	if (!GameplayEffectClass.Get())
 		return false;
 
 	const UDGameplayEffect* GameplayEffectDef = GameplayEffectClass->GetDefaultObject<UDGameplayEffect>();
-	if (!GameplayEffectDef)
+	if (!GameplayEffectDef || GameplayEffectDef->DurationPolicy == EGameplayEffectDurationType::HasDuration)
 		return false;
 	
 	FGameplayEffectContextHandle EffectContextHandle = MakeEffectContext();
 	EffectContextHandle.AddSourceObject(this->GetOwner());
-	const FGameplayEffectSpecHandle SpecHandle = this->MakeOutgoingSpec(GameplayEffectDef, EffectContextHandle);
+	const FGameplayEffectSpecHandle SpecHandle = this->MakeOutgoingSpec(GameplayEffectClass, Level, EffectContextHandle);
 	if (SpecHandle.IsValid())
 	{
 		const FActiveGameplayEffectHandle ActiveGEHandle = ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
@@ -50,25 +49,6 @@ bool UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToSelf(const TSubclas
 	}
 	
 	return false;
-}
-
-FGameplayEffectSpecHandle UDAbilitySystemComponent::MakeOutgoingSpec(
-	const UDGameplayEffect* GameplayEffectObject,
-	FGameplayEffectContextHandle Context) const
-{
-	SCOPE_CYCLE_COUNTER(STAT_GetOutgoingSpec);
-	if (Context.IsValid() == false)
-	{
-		Context = MakeEffectContext();
-	}
-
-	if (GameplayEffectObject)
-	{
-		FGameplayEffectSpec* NewSpec = new FGameplayEffectSpec(GameplayEffectObject, Context, GameplayEffectObject->Level);
-		return FGameplayEffectSpecHandle(NewSpec);
-	}
-
-	return FGameplayEffectSpecHandle(nullptr);
 }
 
 bool UDAbilitySystemComponent::MoveBegin()
@@ -131,4 +111,18 @@ void UDAbilitySystemComponent::OnGEApplied(
 void UDAbilitySystemComponent::OnGERemoved(const FActiveGameplayEffect& Effect) const
 {
 	OnGERemovedCallback.Broadcast(Effect.Spec.Def->GetAssetTags().First());
+}
+
+void UDAbilitySystemComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	// Fast Arrays don't use push model, but there's no harm in marking them with it.
+	// The flag will just be ignored.
+	FDoRepLifetimeParams Params;
+	Params.bIsPushBased = true;
+
+	Params.Condition = COND_Dynamic;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UDAbilitySystemComponent, TurnBasedActiveGameplayEffectsContainer, Params);
+	
+
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

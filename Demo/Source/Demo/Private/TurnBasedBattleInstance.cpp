@@ -30,3 +30,11 @@ void ATurnBasedBattleInstance::OnTurnNumChanged()
 {
 }
 
+void ATurnBasedBattleInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+
+	
+	
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
