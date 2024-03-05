@@ -3,6 +3,18 @@
 
 FGameplayAbilityGlobalTags FGameplayAbilityGlobalTags::GasTags;
 
+void FTurnBasedActiveGameplayEffect::PreReplicatedRemove(const FTurnBasedActiveGameplayEffectsContainer& InArray)
+{
+}
+
+void FTurnBasedActiveGameplayEffect::PostReplicatedAdd(const FTurnBasedActiveGameplayEffectsContainer& InArray)
+{
+}
+
+void FTurnBasedActiveGameplayEffect::PostReplicatedChange(const FTurnBasedActiveGameplayEffectsContainer& InArray)
+{
+}
+
 FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::GetActiveGameplayEffect(
 	const FActiveGameplayEffectHandle& Handle)
 {
@@ -31,12 +43,32 @@ const FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::
 	return nullptr;
 }
 
-
 FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::ApplyActiveGameplayEffect(
-	const FActiveGameplayEffectHandle& Handle)
+	const FActiveGameplayEffectHandle& Handle,
+	const UDGameplayEffect* GameplayEffect)
 {
-	return nullptr;
+	FTurnBasedActiveGameplayEffect* TurnBasedActiveGameplayEffect = GetActiveGameplayEffect(Handle);
+	if (!TurnBasedActiveGameplayEffect)
+	{
+		const int32 Idx = GameplayEffects_Internal.Add(FTurnBasedActiveGameplayEffect(Handle, GameplayEffect->TurnDuration));
+		return &GameplayEffects_Internal[Idx];
+	}
+	else
+	{
+		if (GameplayEffect->StackDurationRefreshPolicy == EGameplayEffectStackingDurationPolicy::RefreshOnSuccessfulApplication)
+		{
+			TurnBasedActiveGameplayEffect->DurationTurn = GameplayEffect->TurnDuration;
+		}
+
+		if (GameplayEffect->StackPeriodResetPolicy == EGameplayEffectStackingPeriodPolicy::ResetOnSuccessfulApplication)
+		{
+			TurnBasedActiveGameplayEffect->CurrentTurn = 0;
+		}
+	}
+
+	return TurnBasedActiveGameplayEffect;
 }
+
 
 bool FTurnBasedActiveGameplayEffectsContainer::RemoveActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle)
 {
@@ -54,8 +86,13 @@ bool FTurnBasedActiveGameplayEffectsContainer::RemoveActiveGameplayEffect(const 
 	if (Idx == INDEX_NONE)
 		return false;
 	
-	GameplayEffects_Internal.RemoveAtSwap(Idx, 1, false);
+	GameplayEffects_Internal.RemoveAtSwap(Idx);
 	return true;
+}
+
+void FTurnBasedActiveGameplayEffectsContainer::CheckTurnDuration()
+{
+	
 }
 
 UDGameplayEffect::UDGameplayEffect()

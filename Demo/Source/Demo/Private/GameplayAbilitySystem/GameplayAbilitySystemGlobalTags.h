@@ -37,6 +37,8 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		Test		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Test"), TEXT("ProjectD"));
 	}
 
+	static bool IsDeBuff(const FGameplayTag& Tag) { return false; }
+
 	FORCEINLINE static const FGameplayAbilityGlobalTags& Get() { return GasTags; }
 
 private:

@@ -9,16 +9,46 @@ void UDAbilitySystemComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
+
+	TurnBasedActiveGameplayEffectsContainer.Owner = this;
+
 	OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &UDAbilitySystemComponent::OnGEApplied);
 	ActiveGameplayEffects.OnActiveGameplayEffectRemovedDelegate.AddUObject(this, &UDAbilitySystemComponent::OnGERemoved);
 }
 
-void UDAbilitySystemComponent::CheckTurnDurationExpired(FActiveGameplayEffectHandle Handle)
+void UDAbilitySystemComponent::CheckTurnDurationExpired()
 {
-	
+	TArray<int32> RemoveList;
+	for (int32 i = 0; i < TurnBasedActiveGameplayEffectsContainer.GameplayEffects_Internal.Num(); i++)
+	{
+		FTurnBasedActiveGameplayEffect& TurnBasedActiveGameplayEffect = TurnBasedActiveGameplayEffectsContainer.GameplayEffects_Internal[i];
+		const FActiveGameplayEffect* ActiveGameplayEffect = GetActiveGameplayEffect(TurnBasedActiveGameplayEffect.ActiveGameplayEffectHandle);
+
+		const UDGameplayEffect* GameplayEffectDef = Cast<UDGameplayEffect>(ActiveGameplayEffect->Spec.Def);
+		if (!GameplayEffectDef)
+			continue;
+		
+		TurnBasedActiveGameplayEffect.CurrentTurn += 1;
+		if (GameplayEffectDef->TurnPeriod > 0 && TurnBasedActiveGameplayEffect.CurrentTurn % GameplayEffectDef->TurnPeriod != 0)
+		{
+			// 施加周期效果
+			ActiveGameplayEffects.ExecutePeriodicGameplayEffect(TurnBasedActiveGameplayEffect.ActiveGameplayEffectHandle);
+		}
+
+		if (TurnBasedActiveGameplayEffect.CurrentTurn == TurnBasedActiveGameplayEffect.DurationTurn)
+		{
+			RemoveActiveGameplayEffect(TurnBasedActiveGameplayEffect.ActiveGameplayEffectHandle, - 1);
+			RemoveList.Add(i);
+		}
+	}
+
+	for (const int32 Idx : RemoveList)
+	{
+		TurnBasedActiveGameplayEffectsContainer.GameplayEffects_Internal.RemoveAtSwap(Idx, 1, false);
+	}
 }
 
-int32 UDAbilitySystemComponent::GetActiveEffectTurnRemainingAndDuration() const
+int32 UDAbilitySystemComponent::GetActiveEffectRemainingTurnAndDuration() const
 {
 	return 0;
 }
@@ -43,12 +73,25 @@ bool UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToSelf(const TSubclas
 			// 将GE收纳至回合制容器中进行管理
 			if (GameplayEffectDef->DurationPolicy != EGameplayEffectDurationType::Instant)
 			{
-				
+				TurnBasedActiveGameplayEffectsContainer.ApplyActiveGameplayEffect(ActiveGEHandle, GameplayEffectDef);
 			}
 		}
 	}
 	
 	return false;
+}
+
+bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
+	FActiveGameplayEffectHandle Handle,
+	int32 StacksToRemove)
+{
+	const bool bRemoveDone = Super::RemoveActiveGameplayEffect(Handle, StacksToRemove);
+	if (bRemoveDone)
+	{
+		TurnBasedActiveGameplayEffectsContainer.RemoveActiveGameplayEffect(Handle);
+	}
+
+	return bRemoveDone;
 }
 
 bool UDAbilitySystemComponent::MoveBegin()

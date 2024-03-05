@@ -9,6 +9,10 @@
 #define LOCTEXT_NAMESPACE "DGameplayEffect"
 #define INFINITY_TURN -1
 
+class UDGameplayEffect;
+class UDAbilitySystemComponent;
+struct FTurnBasedActiveGameplayEffectsContainer;
+
 UENUM(BlueprintType)
 enum class EMBuffType : uint8
 {
@@ -34,6 +38,7 @@ enum class EDDamageType : uint8
  * 驱动方式是通过FTimer来进行持续时间和周期的计算，而回合制则需要根据Runtime下的回合数进行驱动
  * 问题在于，根据对GAS的研究，FActiveGameplayEffect实现过于底层很难进行拓展
  * 针对于此，作者的思路是按照FActiveGameplayEffect数组的思路实现一组与之平行存在的数据，该组数据则仅仅对回合制驱动下的相关数据进行追踪
+ * 回合制下的buff被移除的情形具体可分为：1.回合时间消耗完；2.Stack归零；3.被外力移除
  */
 
 /**
@@ -47,11 +52,27 @@ struct DEMO_API FTurnBasedActiveGameplayEffect : public FFastArraySerializerItem
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY()
-	int32 TurnDuration = INFINITY_TURN;
+	FTurnBasedActiveGameplayEffect()
+		: ActiveGameplayEffectHandle(INDEX_NONE)
+	{
+		
+	}
+
+	FTurnBasedActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle, const int32 Period = 1, const int32 Duration = INFINITY_TURN)
+	{
+		ActiveGameplayEffectHandle = Handle;
+		DurationTurn = Duration;
+	}
+
+	void PreReplicatedRemove(const FTurnBasedActiveGameplayEffectsContainer &InArray);
+	void PostReplicatedAdd(const FTurnBasedActiveGameplayEffectsContainer &InArray);
+	void PostReplicatedChange(const FTurnBasedActiveGameplayEffectsContainer &InArray);
 
 	UPROPERTY()
-	int32 StartTurn = 1;
+	int32 CurrentTurn = 0;
+	
+	UPROPERTY()
+	int32 DurationTurn = INFINITY_TURN;
 
 	UPROPERTY()
 	FActiveGameplayEffectHandle ActiveGameplayEffectHandle;
@@ -65,14 +86,17 @@ struct DEMO_API FTurnBasedActiveGameplayEffectsContainer : public FFastArraySeri
 	FTurnBasedActiveGameplayEffect* GetActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
 	const FTurnBasedActiveGameplayEffect* GetActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle) const;
 
-	FTurnBasedActiveGameplayEffect* ApplyActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
+	FTurnBasedActiveGameplayEffect* ApplyActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle, const UDGameplayEffect* GameplayEffect);
 
 	bool RemoveActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
-	
-private:
+
+	void CheckTurnDuration();
 	
 	UPROPERTY()
 	TArray<FTurnBasedActiveGameplayEffect>	GameplayEffects_Internal;
+
+	UPROPERTY()
+	UDAbilitySystemComponent* Owner = nullptr;
 };
 
 

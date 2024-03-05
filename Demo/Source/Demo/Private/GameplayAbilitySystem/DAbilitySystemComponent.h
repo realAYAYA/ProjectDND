@@ -43,12 +43,17 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "ProjectD")
 	FOnGERemovedDelegate OnGERemovedCallback;
 
-	void CheckTurnDurationExpired(FActiveGameplayEffectHandle Handle);
+	void CheckTurnDurationExpired();
 
 	UFUNCTION(Blueprintable, Category = "ProjectD")
-	int32 GetActiveEffectTurnRemainingAndDuration() const;
-	
+	int32 GetActiveEffectRemainingTurnAndDuration() const;
+
+	/** 回合制专用GE施加 */
 	bool ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, const int32 Level = 1);
+
+	/** Removes GameplayEffect by Handle. StacksToRemove=-1 will remove all stacks. */
+	bool RemoveTurnBasedActiveGameplayEffect(FActiveGameplayEffectHandle Handle, int32 StacksToRemove=-1);
+	
 	
 	// 受到近战攻击时触发的效果
 	
