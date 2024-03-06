@@ -47,6 +47,9 @@ struct DEMO_API FTurnBasedActiveGameplayEffect : public FFastArraySerializerItem
 	{
 		ActiveGameplayEffectHandle = Handle;
 		DurationTurn = Duration;
+		PeriodTurn = Period;
+		
+		ClientCachedTurn = DurationTurn;
 	}
 
 	void PreReplicatedRemove(const FTurnBasedActiveGameplayEffectsContainer &InArray);
@@ -59,6 +62,11 @@ struct DEMO_API FTurnBasedActiveGameplayEffect : public FFastArraySerializerItem
 	// 持续回合数，不一定由技能定义初始化，可能来自实际游戏性决定
 	UPROPERTY()
 	int32 DurationTurn = INFINITY_TURN;
+
+	UPROPERTY()
+	int32 PeriodTurn = 1;
+	
+	int32 ClientCachedTurn = 0;
 
 	UPROPERTY()
 	FActiveGameplayEffectHandle ActiveGameplayEffectHandle;

@@ -16,6 +16,7 @@ void FTurnBasedActiveGameplayEffect::PostReplicatedAdd(const FTurnBasedActiveGam
 
 void FTurnBasedActiveGameplayEffect::PostReplicatedChange(const FTurnBasedActiveGameplayEffectsContainer& InArray)
 {
+	
 }
 
 FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::GetActiveGameplayEffect(
