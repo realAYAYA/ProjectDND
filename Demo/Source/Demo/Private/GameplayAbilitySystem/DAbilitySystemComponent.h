@@ -27,10 +27,10 @@ public:
 
 #if WITH_EDITORONLY_DATA
 	/**  */
-	UPROPERTY(VisibleAnywhere, Transient, Category = "PorjectT")
+	UPROPERTY(VisibleAnywhere, Transient, Category = "PorjectD")
 	mutable FText Warning1 = LOCTEXT("Warning1", "警告: 不允许使用HasDuration特性以及自带的Period属性; 一旦使用，后果无法估测");
 
-	UPROPERTY(VisibleAnywhere, Transient, Category = "PorjectT")
+	UPROPERTY(VisibleAnywhere, Transient, Category = "PorjectD")
 	mutable FText Warning2 = LOCTEXT("Warning2", "警告: 不允许使用ApplyGameplayEffectSpecToSelf()或ApplyGameplayEffectSpecToTarget()方法; 一旦使用，后果无法估测");
 #endif
 
@@ -43,16 +43,19 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "ProjectD")
 	FOnGERemovedDelegate OnGERemovedCallback;
 
+	// Only called by server
 	void CheckTurnDurationExpired();
 
+	void ExecuteTurnBasedPeriodicEffect(const FActiveGameplayEffectHandle& Handle);
+
 	UFUNCTION(Blueprintable, Category = "ProjectD")
-	int32 GetActiveEffectRemainingTurnAndDuration() const;
+	int32 GetActiveEffectRemainingTurn(const FActiveGameplayEffectHandle& ActiveHandle) const;
 
 	/** 回合制专用GE施加 */
-	bool ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, const int32 Level = 1);
+	bool ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, const int32 Level = 1, const int32 CustomDuration = -1);
 
 	/** Removes GameplayEffect by Handle. StacksToRemove=-1 will remove all stacks. */
-	bool RemoveTurnBasedActiveGameplayEffect(FActiveGameplayEffectHandle Handle, int32 StacksToRemove=-1);
+	bool RemoveTurnBasedActiveGameplayEffect(const FActiveGameplayEffectHandle Handle, const int32 StacksToRemove = -1);
 	
 	
 	// 受到近战攻击时触发的效果
@@ -92,9 +95,7 @@ protected:
 	//void OnTakingDamage();
 
 	//void OnTakingHostileBehavior();
-
 	
-
 	void OnGEApplied(UAbilitySystemComponent* Asc, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle Handle) const;
 
 	void OnGERemoved(const FActiveGameplayEffect& Effect) const;

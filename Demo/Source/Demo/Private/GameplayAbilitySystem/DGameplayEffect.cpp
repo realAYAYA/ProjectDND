@@ -1,5 +1,8 @@
 ﻿#include "DGameplayEffect.h"
+
+#include "DAbilitySystemComponent.h"
 #include  "GameplayAbilitySystemGlobalTags.h"
+#include "Engine/PackageMapClient.h"
 
 FGameplayAbilityGlobalTags FGameplayAbilityGlobalTags::GasTags;
 
@@ -45,25 +48,31 @@ const FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::
 
 FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::ApplyActiveGameplayEffect(
 	const FActiveGameplayEffectHandle& Handle,
-	const UDGameplayEffect* GameplayEffect)
+	const UDGameplayEffect* GameplayEffect,
+	int32 CustomDuration)
 {
+	if (CustomDuration <= 0)
+		CustomDuration = GameplayEffect->TurnDuration;
+	
 	FTurnBasedActiveGameplayEffect* TurnBasedActiveGameplayEffect = GetActiveGameplayEffect(Handle);
 	if (!TurnBasedActiveGameplayEffect)
 	{
-		const int32 Idx = GameplayEffects_Internal.Add(FTurnBasedActiveGameplayEffect(Handle, GameplayEffect->TurnDuration));
+		const int32 Idx = GameplayEffects_Internal.Add(FTurnBasedActiveGameplayEffect(Handle, CustomDuration));
 		return &GameplayEffects_Internal[Idx];
 	}
 	else
 	{
 		if (GameplayEffect->StackDurationRefreshPolicy == EGameplayEffectStackingDurationPolicy::RefreshOnSuccessfulApplication)
 		{
-			TurnBasedActiveGameplayEffect->DurationTurn = GameplayEffect->TurnDuration;
+			TurnBasedActiveGameplayEffect->DurationTurn = CustomDuration;
 		}
 
 		if (GameplayEffect->StackPeriodResetPolicy == EGameplayEffectStackingPeriodPolicy::ResetOnSuccessfulApplication)
 		{
 			TurnBasedActiveGameplayEffect->CurrentTurn = 0;
 		}
+
+		MarkItemDirty(*TurnBasedActiveGameplayEffect);
 	}
 
 	return TurnBasedActiveGameplayEffect;
@@ -72,6 +81,17 @@ FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::ApplyA
 
 bool FTurnBasedActiveGameplayEffectsContainer::RemoveActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle)
 {
+	// Lyra style
+	/*for (auto EntryIt = GameplayEffects_Internal.CreateIterator(); EntryIt; ++EntryIt)
+	{
+		FTurnBasedActiveGameplayEffect& Entry = *EntryIt;
+		if (Entry.ActiveGameplayEffectHandle == Handle)
+		{
+			EntryIt.RemoveCurrent();
+			MarkArrayDirty();
+		}
+	}*/
+	
 	int32 Idx = INDEX_NONE;
 	for (int32 i = 0; i < GameplayEffects_Internal.Num(); i++)
 	{
@@ -87,12 +107,119 @@ bool FTurnBasedActiveGameplayEffectsContainer::RemoveActiveGameplayEffect(const 
 		return false;
 	
 	GameplayEffects_Internal.RemoveAtSwap(Idx);
+	MarkArrayDirty();
 	return true;
 }
 
 void FTurnBasedActiveGameplayEffectsContainer::CheckTurnDuration()
 {
+	TArray<int32> RemoveList;
+	for (int32 i = 0; i < GameplayEffects_Internal.Num(); i++)
+	{
+		FTurnBasedActiveGameplayEffect& TurnBasedActiveGameplayEffect = GameplayEffects_Internal[i];
+		const FActiveGameplayEffect* ActiveGameplayEffect = Owner->GetActiveGameplayEffect(TurnBasedActiveGameplayEffect.ActiveGameplayEffectHandle);
+
+		const UDGameplayEffect* GameplayEffectDef = Cast<UDGameplayEffect>(ActiveGameplayEffect->Spec.Def);
+		if (!GameplayEffectDef)
+			continue;
+		
+		TurnBasedActiveGameplayEffect.CurrentTurn += 1;
+		if (GameplayEffectDef->TurnPeriod > 0 && TurnBasedActiveGameplayEffect.CurrentTurn % GameplayEffectDef->TurnPeriod != 0)
+		{
+			// 施加周期效果
+			Owner->ExecuteTurnBasedPeriodicEffect(TurnBasedActiveGameplayEffect.ActiveGameplayEffectHandle);
+		}
+		
+		if (TurnBasedActiveGameplayEffect.CurrentTurn == TurnBasedActiveGameplayEffect.DurationTurn)
+		{
+			Owner->RemoveActiveGameplayEffect(TurnBasedActiveGameplayEffect.ActiveGameplayEffectHandle, - 1);
+			RemoveList.Add(i);
+		}
+	}
+
+	for (const int32 Idx : RemoveList)
+	{
+		GameplayEffects_Internal.RemoveAtSwap(Idx, 1, false);
+	}
+
+	if (RemoveList.Num() > 0)
+		MarkArrayDirty();
+}
+
+int32 FTurnBasedActiveGameplayEffectsContainer::GetActiveEffectRemainingTurn(
+	const FActiveGameplayEffectHandle& ActiveHandle) const
+{
+	for (const auto& Elem : GameplayEffects_Internal)
+	{
+		if (Elem.ActiveGameplayEffectHandle == ActiveHandle)
+		{
+			return Elem.DurationTurn - Elem.CurrentTurn;
+		}
+	}
 	
+	return 0;
+}
+
+void FTurnBasedActiveGameplayEffectsContainer::RegisterWithOwner(UDAbilitySystemComponent* InOwner)
+{
+	if (Owner != InOwner && InOwner != nullptr)
+	{
+		Owner = InOwner;
+		OwnerIsNetAuthority = Owner->IsOwnerActorAuthoritative();
+	}
+}
+
+bool FTurnBasedActiveGameplayEffectsContainer::NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParams)
+{
+	// NOTE: Changes to this testing needs to be reflected in GetReplicatedCondition(), which is what is used if the container has a dynamic lifetime condition, COND_Dynamic, set.
+	// These tests are only needed when sending and the instance isn't using the COND_Dynamic lifetime condition, in which case NetDeltaSerialize wouldn't be called unless it should replicate.
+	if (!IsUsingReplicationCondition() && DeltaParams.Writer != nullptr && Owner != nullptr)
+	{
+		const EGameplayEffectReplicationMode ReplicationMode = Owner->ReplicationMode;
+		if (ReplicationMode == EGameplayEffectReplicationMode::Minimal)
+		{
+			return false;
+		}
+		else if (ReplicationMode == EGameplayEffectReplicationMode::Mixed)
+		{
+			if (UPackageMapClient* Client = Cast<UPackageMapClient>(DeltaParams.Map))
+			{
+				UNetConnection* Connection = Client->GetConnection();
+
+				// Even in mixed mode, we should always replicate out to client side recorded replays so it has all information.
+				if (!Connection->IsReplay() || IsNetAuthority())
+				{
+					// In mixed mode, we only want to replicate to the owner of this channel, minimal replication
+					// data will go to everyone else.
+					const AActor* ParentOwner = Owner->GetOwner();
+					const UNetConnection* ParentOwnerNetConnection = ParentOwner->GetNetConnection();
+					if (!ParentOwner->IsOwnedBy(Connection->OwningActor) && (ParentOwnerNetConnection != Connection))
+					{
+						bool bIsChildConnection = false;
+						for (const UChildConnection* ChildConnection : Connection->Children)
+						{
+							if (ParentOwner->IsOwnedBy(ChildConnection->OwningActor) || (ChildConnection == ParentOwnerNetConnection))
+							{
+								bIsChildConnection = true;
+								break;
+							}
+						}
+						
+						if (!bIsChildConnection)
+						{
+							return false;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	const bool RetVal = FastArrayDeltaSerialize<FTurnBasedActiveGameplayEffect>(GameplayEffects_Internal, DeltaParams, *this);
+
+	// This section has been moved into new PostReplicatedReceive() method that is invoked after every call to FastArrayDeltaSerialize<> that results in data being modified
+	
+	return RetVal;
 }
 
 UDGameplayEffect::UDGameplayEffect()

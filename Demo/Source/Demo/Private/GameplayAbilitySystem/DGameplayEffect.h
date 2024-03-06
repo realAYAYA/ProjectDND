@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
+
+#include "DGameDefine.h"
+
 #include "DGameplayEffect.generated.h"
 
 #define LOCTEXT_NAMESPACE "DGameplayEffect"
@@ -13,25 +16,7 @@ class UDGameplayEffect;
 class UDAbilitySystemComponent;
 struct FTurnBasedActiveGameplayEffectsContainer;
 
-UENUM(BlueprintType)
-enum class EMBuffType : uint8
-{
-	None		UMETA(Displayname = "None"),	// 用于无法被驱散的效果
-	Spell		UMETA(Displayname = "Spell"),
-	Combat		UMETA(Displayname = "Combat"),
-};
-
-UENUM(BlueprintType)
-enum class EDDamageType : uint8
-{
-	Physical	UMETA(Displayname = "Physical"),
-	Frost		UMETA(Displayname = "Frost"),
-	Flame		UMETA(Displayname = "Flame"),
-	Nature		UMETA(Displayname = "Nature"),
-	Divine		UMETA(Displayname = "Divine"),
-	Shadow		UMETA(Displayname = "Shadow"),
-	Chaos		UMETA(Displayname = "Chaos"),
-};
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnActiveGameplayEffectTurnChange, const FActiveGameplayEffectHandle&, int32 CurrentTurn, int32 Duration);
 
 /**
  * 解释：GAS对GE的维护由UAbilitySystemComponent中的一组FActiveGameplayEffect（基于FastArray）的同步实现的
@@ -70,7 +55,8 @@ struct DEMO_API FTurnBasedActiveGameplayEffect : public FFastArraySerializerItem
 
 	UPROPERTY()
 	int32 CurrentTurn = 0;
-	
+
+	// 持续回合数，不一定由技能定义初始化，可能来自实际游戏性决定
 	UPROPERTY()
 	int32 DurationTurn = INFINITY_TURN;
 
@@ -86,17 +72,40 @@ struct DEMO_API FTurnBasedActiveGameplayEffectsContainer : public FFastArraySeri
 	FTurnBasedActiveGameplayEffect* GetActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
 	const FTurnBasedActiveGameplayEffect* GetActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle) const;
 
-	FTurnBasedActiveGameplayEffect* ApplyActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle, const UDGameplayEffect* GameplayEffect);
+	FTurnBasedActiveGameplayEffect* ApplyActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle, const UDGameplayEffect* GameplayEffect, int32 CustomDuration = -1);
 
 	bool RemoveActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
-
+	
 	void CheckTurnDuration();
+
+	int32 GetActiveEffectRemainingTurn(const FActiveGameplayEffectHandle& ActiveHandle) const;
+
+	/** Return whether the container is using COND_Dynamic and setting the proper condition at runtime. */
+	bool IsUsingReplicationCondition() const { return bIsUsingReplicationCondition; }
+
+	/** Set whether the container is using COND_Dynamic and setting the proper condition at runtime. */
+	void SetIsUsingReplicationCondition(const bool bInIsUsingReplicationCondition) { bIsUsingReplicationCondition = bInIsUsingReplicationCondition; }
+
+	bool IsNetAuthority() const { return OwnerIsNetAuthority; }
+	void RegisterWithOwner(UDAbilitySystemComponent* InOwner);	
+	
+	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParams);
 	
 	UPROPERTY()
 	TArray<FTurnBasedActiveGameplayEffect>	GameplayEffects_Internal;
 
 	UPROPERTY()
 	UDAbilitySystemComponent* Owner = nullptr;
+
+	bool OwnerIsNetAuthority;
+
+	uint8 bIsUsingReplicationCondition : 1;
+};
+
+template<>
+struct TStructOpsTypeTraits<FTurnBasedActiveGameplayEffectsContainer> : public TStructOpsTypeTraitsBase2<FTurnBasedActiveGameplayEffectsContainer>
+{
+	enum { WithNetDeltaSerializer = true };
 };
 
 
@@ -120,14 +129,14 @@ public:
 #endif
 
 	/** 技能等级/环数 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectT")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectD")
 	int32 Level = 1;
 	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectT")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectD")
 	EDDamageType DamageType = EDDamageType::Physical;
 
 	/** 持续回合数 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectT", meta=(EditCondition="DurationPolicy != EGameplayEffectDurationType::Instant", EditConditionHides))
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectD", meta=(EditCondition="DurationPolicy != EGameplayEffectDurationType::Instant", EditConditionHides))
 	int32 TurnDuration = 1;
 
 	/**
@@ -135,7 +144,7 @@ public:
 	 * 例如，寒冰护甲，buff生效期间护甲始终+2，设置为0即可
 	 * 例如，暴风雪，每回合需要造成伤害的，需要设置为1
 	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectT", meta=(EditCondition="DurationPolicy != EGameplayEffectDurationType::Instant", EditConditionHides))
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectD", meta=(EditCondition="DurationPolicy != EGameplayEffectDurationType::Instant", EditConditionHides))
 	int32 TurnPeriod = 0;
 	
 	// Todo 目标和施术者

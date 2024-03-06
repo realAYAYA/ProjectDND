@@ -28,6 +28,7 @@ void ATurnBasedBattleInstance::Tick(float DeltaTime)
 
 void ATurnBasedBattleInstance::OnTurnNumChanged()
 {
+	
 }
 
 void ATurnBasedBattleInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
