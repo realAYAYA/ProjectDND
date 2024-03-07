@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TurnBasedBattleInstance.generated.h"
 
+class ADCharacter;
 /**
 * 回合制战斗实例
 * 生成一场战斗，管理参与各个战斗单位
@@ -21,13 +22,31 @@ public:
 	// Sets default values for this actor's properties
 	ATurnBasedBattleInstance();
 
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	int32 GetCurrentTurnNum() const { return CurrentTurnNum; }
+
+	UPROPERTY(ReplicatedUsing = OnCurrentCharacterChange)
+	ADCharacter* CurrentCharacter;
+
+	UPROPERTY(ReplicatedUsing = OnCharacterListChange)
+	TArray<ADCharacter*> CharacterList;
+
+	UPROPERTY(ReplicatedUsing = OnTurnNumChanged)
+	int32 CurrentTurnNum = 0;
+
+	UFUNCTION()
+	void OnCurrentCharacterChange();
+
+	UFUNCTION()
+	void OnCharacterListChange();
+
+	UFUNCTION()
+	void OnTurnNumChanged();
+
 protected:
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	int32 GetCurrentTurnNum() const { return CurrentTurnNum; }
 	
 public:
 	
@@ -35,12 +54,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-
-	UPROPERTY(ReplicatedUsing = OnTurnNumChanged)
-	int32 CurrentTurnNum = 0;
-
-	UFUNCTION()
-	void OnTurnNumChanged();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
