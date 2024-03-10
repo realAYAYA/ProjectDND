@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "DCharacter.generated.h"
 
+class ATurnBasedBattleInstance;
 class UDAbilitySystemComponent;
 
 UCLASS()
@@ -31,5 +32,33 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+private:
+
+public:
+	
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnBattleInstance)
+	ATurnBasedBattleInstance* BattleInstance;
+	void SetBattleInstance(ATurnBasedBattleInstance* In);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "OnBattleInstance")
+	void K2_OnBattleInstance();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
+	void K2_YourTurn();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
+	void K2_BattleEnd();
+
+	UFUNCTION()
+	void OnBattleInstance();
+	
+	UFUNCTION(Client, Reliable)
+	void NotifyYourTurn();
+	void YourTurn();// Called by Server
+
+	void ReqTurnEnd();// Called by Server
+
+	UFUNCTION(Client, Reliable)
+	void OnBattleEnd();
 	
 };

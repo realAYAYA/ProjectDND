@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Character/DCharacter.h"
 #include "GameFramework/Actor.h"
 #include "TurnBasedBattleInstance.generated.h"
 
@@ -22,6 +23,9 @@ public:
 	// Sets default values for this actor's properties
 	ATurnBasedBattleInstance();
 
+	UFUNCTION(BlueprintCallable, Category = "ProjectD", Server, Reliable)
+	void K2_BuildBattleQueue(const TArray<ADCharacter*>& InCharacters);
+
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	int32 GetCurrentTurnNum() const { return CurrentTurnNum; }
 
@@ -33,6 +37,10 @@ public:
 
 	UPROPERTY(ReplicatedUsing = OnTurnNumChanged)
 	int32 CurrentTurnNum = 0;
+	
+	void ReqTurnEnd(const ADCharacter* InCharacter);
+
+	void YourTurn(const ADCharacter* InCharacter);// 下一个单位的回合
 
 	UFUNCTION()
 	void OnCurrentCharacterChange();
@@ -42,6 +50,9 @@ public:
 
 	UFUNCTION()
 	void OnTurnNumChanged();
+
+	// 合并两场战斗
+	void MergeBattle(ATurnBasedBattleInstance* In);
 
 protected:
 	
