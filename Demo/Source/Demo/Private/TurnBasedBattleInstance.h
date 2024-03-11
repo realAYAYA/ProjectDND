@@ -35,6 +35,9 @@ public:
 	UPROPERTY(ReplicatedUsing = OnCharacterListChange)
 	TArray<ADCharacter*> CharacterList;
 
+	UPROPERTY(ReplicatedUsing = OnCharacterListChange)
+	TArray<int32> CharacterIdList;
+
 	UPROPERTY(ReplicatedUsing = OnTurnNumChanged)
 	int32 CurrentTurnNum = 0;
 	

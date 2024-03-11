@@ -25,20 +25,19 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+	virtual void PostNetInit() override;
+
+public:
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-private:
 
 public:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnBattleInstance)
 	ATurnBasedBattleInstance* BattleInstance;
-	void SetBattleInstance(ATurnBasedBattleInstance* In);
+	void SetBattleInstance(ATurnBasedBattleInstance* In);// Called by server
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "OnBattleInstance")
 	void K2_OnBattleInstance();
@@ -46,7 +45,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
 	void K2_YourTurn();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
+	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleEnd")
 	void K2_BattleEnd();
 
 	UFUNCTION()
@@ -60,5 +59,23 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void OnBattleEnd();
+
+private:
+
+
+	/** 网络同步相关*/
 	
+public:
+
+	UFUNCTION(Blueprintable, Category = "ProjectD")
+	int64 GetRoleId() const { return ReplicatedRoleId; }
+
+private:
+
+	UPROPERTY(ReplicatedUsing = OnCharacterIdChange)
+	int64 ReplicatedRoleId = 0;
+	int64 OldRoleId = 0;
+
+	UFUNCTION()
+	void OnCharacterIdChange();
 };

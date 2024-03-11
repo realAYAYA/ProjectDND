@@ -6,6 +6,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DBlueprintFunctionLibrary.generated.h"
 
+class UDGameInstance;
+class ADCharacter;
 /**
  * 
  */
@@ -13,5 +15,13 @@ UCLASS()
 class DEMO_API UDBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
-	
+
+public:
+
+	UFUNCTION(BlueprintCallable, Category= "ProjectD", meta = (WorldContext = "WorldContextObject"))
+	static UDGameInstance* GetDGameInstance(const UObject* WorldContextObject);
+
+	/** 给定Id, 查找关卡中的角色*/
+	UFUNCTION(BlueprintCallable, Category= "ProjectD", meta = (WorldContext = "WorldContextObject"))
+	static ADCharacter* FindCharacterByRoleId(const UObject* WorldContextObject, const int64 Id);
 };

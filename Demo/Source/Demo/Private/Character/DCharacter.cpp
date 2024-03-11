@@ -3,6 +3,8 @@
 
 #include "DCharacter.h"
 
+#include "DCharacterManager.h"
+#include "DGameInstance.h"
 #include "DPlayerController.h"
 #include "TurnBasedBattleInstance.h"
 #include "GameFramework/PlayerState.h"
@@ -19,27 +21,49 @@ ADCharacter::ADCharacter()
 	AbilitySystemComponent = CreateDefaultSubobject<UDAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+#if WITH_EDITOR
+#else
+	
+#endif
 }
 
 // Called when the game starts or when spawned
 void ADCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Network & Replicated
+	if (GetNetMode() != NM_Client)
+	{
+		// 由服务器为角色下发唯一Id
+		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
+		{
+			ReplicatedRoleId = GameInstance->CharacterManager->GenerateRoleId();
+			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);
+		}
+	}
+}
+
+void ADCharacter::PostNetInit()
+{
+	if (GetNetMode() == NM_Client)
+	{
+		// 注册自己的信息
+		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
+		{
+			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);
+		}
+	}
 	
+	Super::PostNetInit();
 }
 
 // Called every frame
 void ADCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
-void ADCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	
 }
 
 void ADCharacter::SetBattleInstance(ATurnBasedBattleInstance* In)
@@ -78,20 +102,34 @@ void ADCharacter::ReqTurnEnd()
 {
 	if (BattleInstance)
 		BattleInstance->ReqTurnEnd(this);
+	
 }
 
 void ADCharacter::OnBattleEnd_Implementation()
 {
 }
 
+void ADCharacter::OnCharacterIdChange()
+{
+	if (GetNetMode() == NM_Client)
+	{
+		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
+		{
+			GameInstance->CharacterManager->UnRegisterCharacter(OldRoleId);// 移除旧信息
+			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);// 重新注册角色信息
+			OldRoleId = ReplicatedRoleId;
+		}
+	}
+}
+
 void ADCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-
 	FDoRepLifetimeParams SharedParams;
 	SharedParams.bIsPushBased = true;
 	
 	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
 	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, BattleInstance, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, ReplicatedRoleId, SharedParams);
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
