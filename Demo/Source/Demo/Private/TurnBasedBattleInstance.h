@@ -24,7 +24,7 @@ public:
 	ATurnBasedBattleInstance();
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", Server, Reliable)
-	void K2_BuildBattleQueue(const TArray<ADCharacter*>& InCharacters);
+	void K2_BuildBattleQueue(const TArray<int64>& CharacterIds);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	int32 GetCurrentTurnNum() const { return CurrentTurnNum; }
@@ -32,7 +32,7 @@ public:
 	UPROPERTY(ReplicatedUsing = OnCurrentCharacterChange)
 	ADCharacter* CurrentCharacter;
 
-	UPROPERTY(ReplicatedUsing = OnCharacterListChange)
+	UPROPERTY()
 	TArray<ADCharacter*> CharacterList;
 
 	UPROPERTY(ReplicatedUsing = OnCharacterListChange)
@@ -43,7 +43,7 @@ public:
 	
 	void ReqTurnEnd(const ADCharacter* InCharacter);
 
-	void YourTurn(const ADCharacter* InCharacter);// 下一个单位的回合
+	void YourTurn(ADCharacter* InCharacter);// 下一个单位的回合
 
 	UFUNCTION()
 	void OnCurrentCharacterChange();

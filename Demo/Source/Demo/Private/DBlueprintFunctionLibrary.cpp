@@ -21,3 +21,11 @@ ADCharacter* UDBlueprintFunctionLibrary::FindCharacterByRoleId(const UObject* Wo
 	
 	return nullptr;
 }
+
+UDCharacterManager* UDBlueprintFunctionLibrary::GetCharacterManager(const UObject* WorldContextObject)
+{
+	if (const auto* GameInstance = GetDGameInstance(WorldContextObject))
+		return GameInstance->CharacterManager;
+
+	return nullptr;
+}

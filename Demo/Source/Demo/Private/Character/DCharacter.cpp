@@ -21,17 +21,11 @@ ADCharacter::ADCharacter()
 	AbilitySystemComponent = CreateDefaultSubobject<UDAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-
-#if WITH_EDITOR
-#else
-	
-#endif
 }
 
-// Called when the game starts or when spawned
-void ADCharacter::BeginPlay()
+void ADCharacter::BeginReplication()
 {
-	Super::BeginPlay();
+	Super::BeginReplication();
 
 	// Network & Replicated
 	if (GetNetMode() != NM_Client)
@@ -43,6 +37,13 @@ void ADCharacter::BeginPlay()
 			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);
 		}
 	}
+}
+
+// Called when the game starts or when spawned
+void ADCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
 }
 
 void ADCharacter::PostNetInit()
@@ -96,13 +97,6 @@ void ADCharacter::YourTurn()
 			PC->YourTurn(this);
 		}
 	}
-}
-
-void ADCharacter::ReqTurnEnd()
-{
-	if (BattleInstance)
-		BattleInstance->ReqTurnEnd(this);
-	
 }
 
 void ADCharacter::OnBattleEnd_Implementation()

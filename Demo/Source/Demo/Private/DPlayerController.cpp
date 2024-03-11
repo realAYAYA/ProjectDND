@@ -3,16 +3,24 @@
 
 #include "DPlayerController.h"
 
+#include "TurnBasedBattleInstance.h"
 #include "Character/DCharacter.h"
 
 void ADPlayerController::K2_TurnEnd()
 {
+	// 当前并不是自己的回合
+	if (const auto* DCharacter = Cast<ADCharacter>(this->GetPawn()))
+	{
+		if (DCharacter->BattleInstance->CurrentCharacter != DCharacter)
+			return;
+	}
+	
+	ReqTurnEnd();
 }
 
-void ADPlayerController::NotifyOnBattle_Implementation()
+void ADPlayerController::OnBattle_Implementation(const ADCharacter* InCharacter)
 {
-	ClientOnBattle();
-	
+	K2_OnBattle(InCharacter);
 }
 
 void ADPlayerController::GetInBattle(ATurnBasedBattleInstance* BattleInstance)
@@ -20,28 +28,24 @@ void ADPlayerController::GetInBattle(ATurnBasedBattleInstance* BattleInstance)
 	if (auto* DCharacter = Cast<ADCharacter>(this->GetPawn()))
 	{
 		DCharacter->SetBattleInstance(BattleInstance);
-		NotifyOnBattle();
+		OnBattle(DCharacter);
 	}
 }
 
 void ADPlayerController::BattleEnd_Implementation()
 {
+	BattleEnd();
 }
 
-void ADPlayerController::NotifyYourTurn_Implementation(const ADCharacter* InCharacter)
+void ADPlayerController::YourTurn_Implementation(const ADCharacter* InCharacter)
 {
-	
-}
-
-void ADPlayerController::YourTurn(const ADCharacter* InCharacter)
-{
-	NotifyYourTurn(InCharacter);
+	K2_YourTurn(InCharacter);
 }
 
 void ADPlayerController::ReqTurnEnd_Implementation()
 {
-	if (auto* DCharacter = Cast<ADCharacter>(this->GetPawn()))
+	if (const auto* DCharacter = Cast<ADCharacter>(this->GetPawn()))
 	{
-		DCharacter->ReqTurnEnd();
+		DCharacter->BattleInstance->ReqTurnEnd(DCharacter);
 	}
 }

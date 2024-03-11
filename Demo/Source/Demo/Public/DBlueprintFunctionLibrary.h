@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DBlueprintFunctionLibrary.generated.h"
 
+class UDCharacterManager;
 class UDGameInstance;
 class ADCharacter;
 /**
@@ -24,4 +25,7 @@ public:
 	/** 给定Id, 查找关卡中的角色*/
 	UFUNCTION(BlueprintCallable, Category= "ProjectD", meta = (WorldContext = "WorldContextObject"))
 	static ADCharacter* FindCharacterByRoleId(const UObject* WorldContextObject, const int64 Id);
+
+	UFUNCTION(BlueprintCallable, Category= "ProjectD", meta = (WorldContext = "WorldContextObject"))
+	static UDCharacterManager* GetCharacterManager(const UObject* WorldContextObject);
 };

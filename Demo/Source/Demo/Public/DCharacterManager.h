@@ -6,10 +6,13 @@
 #include "DCharacterManager.generated.h"
 
 class ADCharacter;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterSpawn, int64, Id);
+
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class UDCharacterManager : public UObject
 {
 	GENERATED_BODY()
@@ -20,7 +23,11 @@ public:
 
 	void Reset();
 
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	ADCharacter* Find(const int64 Id);
+
+	UPROPERTY(BlueprintAssignable, Category = "ProjectD")
+	FOnCharacterSpawn OnCharacterSpawn;
 
 	void RegisterCharacter(const int64 Id, ADCharacter* In);
 

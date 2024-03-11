@@ -15,7 +15,7 @@ void UDCharacterManager::Reset()
 
 ADCharacter* UDCharacterManager::Find(const int64 Id)
 {
-	return *Characters.Find(Id);
+	return Characters.Contains(Id) ? *Characters.Find(Id) : nullptr;
 }
 
 void UDCharacterManager::RegisterCharacter(const int64 Id, ADCharacter* In)
@@ -30,5 +30,5 @@ void UDCharacterManager::UnRegisterCharacter(const int64 Id)
 
 int64 UDCharacterManager::GenerateRoleId()
 {
-	return SerialNum++;
+	return ++SerialNum;
 }

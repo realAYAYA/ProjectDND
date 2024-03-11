@@ -22,9 +22,14 @@ public:
 	UDAbilitySystemComponent* AbilitySystemComponent;
 
 protected:
+
+	// 在BeginPlay之前执行
+	virtual void BeginReplication() override;
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// 网络同步初始化后执行
 	virtual void PostNetInit() override;
 
 public:
@@ -55,8 +60,6 @@ public:
 	void NotifyYourTurn();
 	void YourTurn();// Called by Server
 
-	void ReqTurnEnd();// Called by Server
-
 	UFUNCTION(Client, Reliable)
 	void OnBattleEnd();
 
@@ -67,7 +70,7 @@ private:
 	
 public:
 
-	UFUNCTION(Blueprintable, Category = "ProjectD")
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	int64 GetRoleId() const { return ReplicatedRoleId; }
 
 private:
