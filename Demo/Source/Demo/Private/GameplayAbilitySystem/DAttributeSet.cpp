@@ -29,6 +29,37 @@ void UDAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackD
 			CharacterMovement->MaxWalkSpeed = GetMaxMoveSpeed();
 		}
 	}
+	else if (Data.EvaluatedData.Attribute == GetMoveDistanceAttribute())
+	{
+		SetMoveDistance(FMath::Clamp(GetMoveDistance(), 0.0f, GetMoveDistance()));
+	}
+}
+
+void UDAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxMoveSpeed, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Health, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxHealth, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Mana, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxMana, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Energy, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxEnergy, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Rage, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxRage, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, CastSpeed, COND_None, REPNOTIFY_OnChanged);
+	
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+
+void UDAttributeSet::OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldMaxMoveSpeed)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxMoveSpeed, OldMaxMoveSpeed);
+}
+
+void UDAttributeSet::OnRep_MoveDistance(const FGameplayAttributeData& OldMoveDistanced)
+{
+	
 }
 
 void UDAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldMana)
@@ -82,25 +113,4 @@ void UDAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHeath)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxHealth, OldMaxHeath);
 	OnMaxHealthChanged.Broadcast(GetMaxHealth());
-}
-
-void UDAttributeSet::OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldMaxMoveSpeed)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxMoveSpeed, OldMaxMoveSpeed);
-}
-
-void UDAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
-{
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Health, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxHealth, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxMoveSpeed, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Mana, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxMana, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Energy, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxEnergy, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Rage, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxRage, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, CastSpeed, COND_None, REPNOTIFY_OnChanged);
-	
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

@@ -35,6 +35,18 @@ public:
 	// -------------------------------------------------------------------------------
 	//		Battle Properties
 	// -------------------------------------------------------------------------------
+
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnRep_MoveDistance)
+	FGameplayAttributeData MoveDistance;
+	ATTRIBUTE_ACCESSORS(UDAttributeSet, MoveDistance)
+
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
+	FGameplayAttributeData MoveCost;
+	ATTRIBUTE_ACCESSORS(UDAttributeSet, MoveCost)
+
+	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_MaxMoveSpeed)
+	FGameplayAttributeData MaxMoveSpeed;
+	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxMoveSpeed)
 	
 	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes")
 	FGameplayAttributeData Strength;
@@ -55,10 +67,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes")
 	FGameplayAttributeData Stamina;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, Stamina)
-
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_MaxMoveSpeed)
-	FGameplayAttributeData MaxMoveSpeed;
-	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxMoveSpeed)
+	
 	
 	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
@@ -251,6 +260,12 @@ protected:
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 	UFUNCTION()
+	virtual void OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldMaxMoveSpeed);
+
+	UFUNCTION()
+	virtual void OnRep_MoveDistance(const FGameplayAttributeData& OldMoveDistanced);
+
+	UFUNCTION()
 	virtual void OnRep_Health(const FGameplayAttributeData& OldHeath);
 
 	UFUNCTION()
@@ -276,7 +291,4 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_CastSpeed(const FGameplayAttributeData& OldCastSpeed);
-
-	UFUNCTION()
-	virtual void OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldMaxMoveSpeed);
 };
