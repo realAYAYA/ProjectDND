@@ -35,6 +35,8 @@ public:
 
 	int64 GenerateRoleId();// Only called by server
 
+	void Foreach(const TFunction<bool(ADCharacter*)>& InFunc);
+
 private:
 	
 	UPROPERTY()

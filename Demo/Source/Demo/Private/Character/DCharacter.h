@@ -32,6 +32,8 @@ protected:
 	// 网络同步初始化后执行
 	virtual void PostNetInit() override;
 
+	virtual void BeginDestroy() override;
+
 public:
 	
 	// Called every frame

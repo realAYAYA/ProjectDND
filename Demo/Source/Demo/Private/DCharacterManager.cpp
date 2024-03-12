@@ -32,3 +32,15 @@ int64 UDCharacterManager::GenerateRoleId()
 {
 	return ++SerialNum;
 }
+
+void UDCharacterManager::Foreach(const TFunction<bool(ADCharacter*)>& InFunc)
+{
+	for (const auto Elem : Characters)
+	{
+		if (Elem.Value)
+		{
+			if (!InFunc(Elem.Value))
+				return;
+		}
+	}
+}

@@ -6,7 +6,6 @@
 #include "DCharacterManager.h"
 #include "DGameInstance.h"
 #include "DPlayerController.h"
-#include "TurnBasedBattleInstance.h"
 #include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -28,12 +27,11 @@ void ADCharacter::BeginReplication()
 	Super::BeginReplication();
 
 	// Network & Replicated
-	if (GetNetMode() != NM_Client)
+	if (HasAuthority())
 	{
-		// 由服务器为角色下发唯一Id
 		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
 		{
-			ReplicatedRoleId = GameInstance->CharacterManager->GenerateRoleId();
+			ReplicatedRoleId = GameInstance->CharacterManager->GenerateRoleId();// 由服务器为角色下发唯一Id
 			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);
 		}
 	}
@@ -48,7 +46,7 @@ void ADCharacter::BeginPlay()
 
 void ADCharacter::PostNetInit()
 {
-	if (GetNetMode() == NM_Client)
+	if (!HasAuthority())
 	{
 		// 注册自己的信息
 		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
@@ -58,6 +56,16 @@ void ADCharacter::PostNetInit()
 	}
 	
 	Super::PostNetInit();
+}
+
+void ADCharacter::BeginDestroy()
+{
+	/*if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
+	{
+		GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);
+	}*/
+	
+	Super::BeginDestroy();
 }
 
 // Called every frame
@@ -72,7 +80,7 @@ void ADCharacter::SetBattleInstance(ATurnBasedBattleInstance* In)
 	BattleInstance = In;
 	
 #if !UE_SERVER // 如果不是以DS编译，而是以Listening Server启动方式时，OnRep不会在主机上调用，需要手动触发
-	if (GetNetMode() != NM_Client)
+	if (HasAuthority())
 	{
 		OnBattleInstance();
 	}
@@ -105,7 +113,7 @@ void ADCharacter::OnBattleEnd_Implementation()
 
 void ADCharacter::OnCharacterIdChange()
 {
-	if (GetNetMode() == NM_Client)
+	if (!HasAuthority())
 	{
 		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
 		{
