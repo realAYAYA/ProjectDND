@@ -19,7 +19,7 @@ class UAbilityTask_Move : public UAbilityTask
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "ProjectM", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility"))
+	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility"))
 	static UAbilityTask_Move* CreateMoveTask(UGameplayAbility* OwningAbility, ADCharacter* InCharacterOwner, FVector InDestination);
 
 	virtual void Activate() override;
@@ -28,7 +28,7 @@ public:
 
 	virtual void TickTask(float DeltaTime) override;
 
-protected:
+protected: 
 
 	UPROPERTY()
 	ADCharacter* Caster;

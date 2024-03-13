@@ -16,7 +16,7 @@ UAbilityTask_Move* UAbilityTask_Move::CreateMoveTask(
 	UAbilityTask_Move* Task = NewAbilityTask<UAbilityTask_Move>(OwningAbility);
 
 	Task->bTickingTask = true;
-	Task->Caster = InCharacterOwner;
+	Task->Caster = InCharacterOwner; 
 	Task->Destination = InDestination;
 
 	//SetAbilitySystemComponent(InCharacterOwner)
@@ -49,20 +49,8 @@ void UAbilityTask_Move::TickTask(float DeltaTime)
 		return;
 	}
 
+	// Todo 计算移动消耗 扣除移动力
+
 	CastTime += DeltaTime;
 	
-	// 抵达位置 | 冲锋超时
-	if ((Caster->GetActorLocation() - Destination).Length() - Caster->GetCapsuleComponent()->GetScaledCapsuleRadius() <= 60.0f
-		|| CastTime >= 3)
-	{
-		Caster->GetCharacterMovement()->MaxAcceleration = 1500;
-		//OnAbilityTaskEnd.Broadcast();
-		EndTask();
-		return;
-	}
-	
-	// 否则，维持冲锋状态
-	const FVector Dir = (Destination - Caster->GetActorLocation()).GetSafeNormal();
-	Caster->SetActorRotation(Dir.Rotation());
-	Caster->AddMovementInput(Caster->GetActorForwardVector(), 1.0f);
 }
