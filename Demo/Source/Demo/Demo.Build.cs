@@ -15,7 +15,9 @@ public class Demo : ModuleRules
 			"GameplayAbilities",
 			"GameplayTags", 
 			"GameplayTasks",
-			"NetCore",
+			"NetCore", 
+			"AIModule",
+			"NavigationSystem"
 		});
 
 		// Uncomment if you are using Slate UI

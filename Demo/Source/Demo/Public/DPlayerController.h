@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "DPlayerController.generated.h"
 
+class UPathFollowingComponent;
 class ADCharacter;
 class ATurnBasedBattleInstance;
 /**
@@ -18,6 +19,24 @@ class ADPlayerController : public APlayerController
 
 public:
 
+	ADPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	virtual void Reset() override;
+
+	virtual void OnPossess(APawn* InPawn) override;
+
+	virtual void OnUnPossess() override;
+
+	virtual void OnRep_Pawn() override;
+
+private:
+
+	/** Component used for moving along a path. */
+	UPROPERTY(VisibleDefaultsOnly, Category = AI)
+	TObjectPtr<UPathFollowingComponent> PathFollowingComponent;
+	
+public:
+	
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
 	void K2_YourTurn(const ADCharacter* InCharacter);
 
