@@ -5,20 +5,34 @@
 
 #include "GameplayAbilitySystem/Tasks/AbilityTask_Move.h"
 
+bool UGA_Move::CanActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags,
+	FGameplayTagContainer* OptionalRelevantTags) const
+{
+	bool Result = Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+	if (!Result)
+		return Result;
+
+	// 是否已经抵达目的地
+	Result = true;
+
+	return Result;
+}
+
 void UGA_Move::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* OwnerInfo,
                                const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, OwnerInfo, ActivationInfo, TriggerEventData);
 
-	/*// 根据目标位置，计算冲锋的目的地
-	FVector Destination = Target->GetActorLocation();
-	//const float Radius = Target->GetCapsuleComponent()->GetScaledCapsuleRadius() + 5.0f;
-	const FVector Dir = UKismetMathLibrary::Normal(Target->GetActorLocation() - Caster->GetActorLocation(), 0.0001);
-	Destination = Destination - Dir * Radius;
+	ADCharacter* Caster = Cast<ADCharacter>(OwnerInfo->AvatarActor);
 
 	// Task
-	ChargeTask = UAbilityTask_Move::CreateMoveTask(this, Caster, Destination);
-	ChargeTask->ReadyForActivation();// 启动任务*/
+	//ChargeTask = UAbilityTask_Move::CreateMoveTask(this, Caster, Destination);
+
+	ChargeTask->ReadyForActivation();// 启动任务
 }
 
 void UGA_Move::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

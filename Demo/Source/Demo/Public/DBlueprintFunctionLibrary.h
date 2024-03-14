@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DBlueprintFunctionLibrary.generated.h"
 
+class UNavigationPath;
 class UDCharacterManager;
 class UDGameInstance;
 class ADCharacter;
@@ -28,4 +29,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category= "ProjectD", meta = (WorldContext = "WorldContextObject"))
 	static UDCharacterManager* GetCharacterManager(const UObject* WorldContextObject);
+
+
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	static UNavigationPath* FindPath(AController* Controller, const FVector& GoalLocation);
 };
