@@ -76,38 +76,6 @@ bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
 	return bRemoveDone;
 }
 
-bool UDAbilitySystemComponent::MoveBegin()
-{
-	FGameplayTagContainer Container;
-	Container.AddTag(FGameplayTag::RequestGameplayTag(FName("GAS.Ability.Movement.Move")));
-	
-	return TryActivateAbilitiesByTag(Container, true);
-}
-
-void UDAbilitySystemComponent::MoveEnd()
-{
-	FGameplayTagContainer Container;
-	Container.AddTag(FGameplayTag::RequestGameplayTag(FName("GAS.Ability.Movement.Move")));
-	
-	CancelAbilities(&Container);
-}
-
-void UDAbilitySystemComponent::Jump()
-{
-	FGameplayTagContainer Container;
-	Container.AddTag(FGameplayTag::RequestGameplayTag(FName("GAS.Ability.Movement.Jump")));
-	
-	TryActivateAbilitiesByTag(Container, true);
-}
-
-void UDAbilitySystemComponent::JumpEnd()
-{
-	FGameplayTagContainer Container;
-	Container.AddTag(FGameplayTag::RequestGameplayTag(FName("GAS.Ability.Movement.Jump")));
-	
-	CancelAbilities(&Container);
-}
-
 void UDAbilitySystemComponent::BattleBegin()
 {
 }

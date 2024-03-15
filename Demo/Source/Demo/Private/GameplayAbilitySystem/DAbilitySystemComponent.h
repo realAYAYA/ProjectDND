@@ -58,23 +58,25 @@ public:
 	bool RemoveTurnBasedActiveGameplayEffect(const FActiveGameplayEffectHandle Handle, const int32 StacksToRemove = -1);
 	
 	
-	// 受到近战攻击时触发的效果
+	// 受到近战攻击时触发的能力
 	
 	// 受到近战攻击时给对方施加效果
+
+	// 受到法术敌对行为时触发的能力
 
 	// 受到法术伤害时给对方施加效果
 
 	// 近战攻击敌人时触发的效果
 
-	// 攻击敌人时给对方施加效果
+	// 远程攻击敌人时给对方施加效果
+
+	// 向敌方施法时给对方的效果
 
 	// 施放法术时触发的效果
-	
-	bool MoveBegin();
-	void MoveEnd();
 
-	void Jump();
-	void JumpEnd();
+	// 监听地方的行为（或被通知）
+
+	// 反应技能
 
 	void BattleBegin();
 

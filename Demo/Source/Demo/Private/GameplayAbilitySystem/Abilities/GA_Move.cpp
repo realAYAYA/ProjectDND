@@ -22,15 +22,21 @@ bool UGA_Move::CanActivateAbility(
 	return Result;
 }
 
-void UGA_Move::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* OwnerInfo,
-                               const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UGA_Move::ActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* OwnerInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, OwnerInfo, ActivationInfo, TriggerEventData);
 
 	ADCharacter* Caster = Cast<ADCharacter>(OwnerInfo->AvatarActor);
 
 	// Task
-	//ChargeTask = UAbilityTask_Move::CreateMoveTask(this, Caster, Destination);
+	FVector Destination;
+	UAbilityTask_Move* ChargeTask = UAbilityTask_Move::CreateMoveTask(this, Caster, Destination);
+	this->ActiveTasks.Add(ChargeTask);
+	ChargeTask->SetAbilitySystemComponent(OwnerInfo->AbilitySystemComponent.Get());
 
 	ChargeTask->ReadyForActivation();// 启动任务
 }
