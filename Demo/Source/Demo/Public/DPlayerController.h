@@ -29,6 +29,9 @@ public:
 
 	virtual void OnRep_Pawn() override;
 
+	bool MoveTo(const FVector& GoalLocation) const;
+	void StopMove() const;
+
 private:
 
 	/** Component used for moving along a path. */

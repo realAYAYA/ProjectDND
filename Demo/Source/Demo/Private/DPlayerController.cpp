@@ -61,6 +61,83 @@ void ADPlayerController::OnRep_Pawn()
 	}
 }
 
+bool ADPlayerController::MoveTo(const FVector& GoalLocation) const
+{
+	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(this->GetWorld());
+	if (NavSys == nullptr || this->GetPawn() == nullptr)
+	{
+		return false;
+	}
+
+	UPathFollowingComponent* PFollowComp = this->PathFollowingComponent.Get();
+
+	if (PFollowComp == nullptr)
+	{
+		return false;
+	}
+
+	if (!PFollowComp->IsPathFollowingAllowed())
+	{
+		return false;
+	}
+
+	const bool bAlreadyAtGoal = PFollowComp->HasReached(GoalLocation, EPathFollowingReachMode::OverlapAgent);
+
+	// script source, keep only one move request at time
+	if (PFollowComp->GetStatus() != EPathFollowingStatus::Idle)
+	{
+		PFollowComp->AbortMove(*NavSys, FPathFollowingResultFlags::ForcedScript | FPathFollowingResultFlags::NewRequest
+			, FAIRequestID::AnyRequest, bAlreadyAtGoal ? EPathFollowingVelocityMode::Reset : EPathFollowingVelocityMode::Keep);
+
+		return false;
+	}
+
+	// script source, keep only one move request at time
+	if (PFollowComp->GetStatus() != EPathFollowingStatus::Idle)
+	{
+		PFollowComp->AbortMove(*NavSys, FPathFollowingResultFlags::ForcedScript | FPathFollowingResultFlags::NewRequest);
+
+		return false;
+	}
+
+	if (bAlreadyAtGoal)
+	{
+		PFollowComp->RequestMoveWithImmediateFinish(EPathFollowingResult::Success);
+		return false;
+	}
+	else
+	{
+		const FVector AgentNavLocation = GetNavAgentLocation();
+		if (const ANavigationData* NavData = NavSys->GetNavDataForProps(GetNavAgentPropertiesRef(), AgentNavLocation))
+		{
+			const FPathFindingQuery Query(this, *NavData, AgentNavLocation, GoalLocation);
+			const FPathFindingResult Result = NavSys->FindPathSync(Query);
+			if (Result.IsSuccessful())
+			{
+				PFollowComp->RequestMove(FAIMoveRequest(GoalLocation), Result.Path);
+			}
+			else if (PFollowComp->GetStatus() != EPathFollowingStatus::Idle)
+			{
+				PFollowComp->RequestMoveWithImmediateFinish(EPathFollowingResult::Invalid);
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+void ADPlayerController::StopMove() const
+{
+	const UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(this->GetWorld());
+	if (NavSys == nullptr || this->GetPawn() == nullptr)
+	{
+		return;
+	}
+	
+	PathFollowingComponent->AbortMove(*NavSys, FPathFollowingResultFlags::ForcedScript | FPathFollowingResultFlags::NewRequest);
+}
+
 void ADPlayerController::K2_TurnEnd()
 {
 	// 当前并不是自己的回合

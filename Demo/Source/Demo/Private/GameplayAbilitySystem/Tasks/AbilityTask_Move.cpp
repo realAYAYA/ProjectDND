@@ -2,55 +2,56 @@
 
 
 #include "AbilityTask_Move.h"
-
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameplayAbilitySystem/DAttributeSet.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
+#include "GameplayAbilitySystem/TargetData/GameplayAbilityTargetActor_Move.h"
 
-UAbilityTask_Move* UAbilityTask_Move::CreateMoveTask(
-	UGameplayAbility* OwningAbility,
-	ADCharacter* InCharacterOwner,
-	const FVector InDestination)
+UAbilityTask_Move::UAbilityTask_Move()
 {
-	UAbilityTask_Move* Task = NewAbilityTask<UAbilityTask_Move>(OwningAbility);
+	this->TargetClass = AGameplayAbilityTargetActor_Move::StaticClass();
+	this->TargetActor = nullptr;
+	this->ConfirmationType = EGameplayTargetingConfirmation::Instant;
+}
 
-	Task->bTickingTask = true;
-	Task->Caster = InCharacterOwner; 
-	Task->Destination = InDestination;
-
-	//SetAbilitySystemComponent(InCharacterOwner)
-	return Task;
+UAbilityTask_Move* UAbilityTask_Move::CreateMoveTask(UGameplayAbility* OwningAbility)
+{
+	UAbilityTask_Move* MyObj = NewAbilityTask<UAbilityTask_Move>(OwningAbility, FName("Move"));
+	
+	return MyObj;
 }
 
 void UAbilityTask_Move::Activate()
 {
 	Super::Activate();
 
-	CastTime = 0;
-	Caster->GetCharacterMovement()->MaxAcceleration = 1500000;
+	if (Ability)
+	{
+		if (ShouldSpawnTargetActor())
+		{
+			if (TargetClass != nullptr)
+			{
+				if (UWorld* World = GEngine->GetWorldFromContextObject(Ability.Get(), EGetWorldErrorMode::LogAndReturnNull))
+				{
+					TargetActor = World->SpawnActorDeferred<AGameplayAbilityTargetActor>(TargetClass, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+				}
+			}
+
+			if (TargetActor)
+			{
+				InitializeTargetActor(TargetActor);
+			}
+		}
+
+		RegisterTargetDataCallbacks();
+	}
 }
 
 void UAbilityTask_Move::OnDestroy(bool bInOwnerFinished)
 {
-	Caster->GetCharacterMovement()->MaxAcceleration = 1500;
 	Super::OnDestroy(bInOwnerFinished);
 }
 
 void UAbilityTask_Move::TickTask(float DeltaTime)
 {
 	Super::TickTask(DeltaTime);
-
-	if (!Caster)
-	{
-		Caster->GetCharacterMovement()->MaxAcceleration = 1500;
-		//OnAbilityCancel.Broadcast();
-		EndTask();
-		return;
-	}
-
-	// Todo 计算移动消耗 扣除移动力
-
-	CastTime += DeltaTime;
 	
 }

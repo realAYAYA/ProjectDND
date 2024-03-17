@@ -3,6 +3,9 @@
 #include "CoreMinimal.h"
 #include "DGameDefine.generated.h"
 
+class UGameplayAbility;
+class UGameplayEffect;
+
 UENUM(BlueprintType)
 enum class EMBuffType : uint8
 {
@@ -21,4 +24,28 @@ enum class EDDamageType : uint8
 	Divine		UMETA(Displayname = "Divine"),
 	Shadow		UMETA(Displayname = "Shadow"),
 	Chaos		UMETA(Displayname = "Chaos"),
+};
+
+USTRUCT(BlueprintType)
+struct FDCharacterGasData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = GAS)
+	TArray<TSubclassOf<UGameplayEffect>> Effects;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = GAS)
+	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
+	
+};
+
+UCLASS()
+class UDCharacterDataAsset : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	
+	UPROPERTY(EditDefaultsOnly)
+	FDCharacterGasData GasData;
 };

@@ -68,6 +68,49 @@ void ADCharacter::BeginDestroy()
 	Super::BeginDestroy();
 }
 
+void ADCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+	// PossessedBy()只在服务器执行
+	InitCharacterData();
+}
+
+void ADCharacter::InitCharacterData()
+{
+	if (!HasAuthority() || !AbilitySystemComponent || !IsValid(CharacterDataAsset))
+		return;
+
+	// Give abilities
+	//AbilitySystemComponent->ClearAbility()
+	for (const auto& AbilityClass : CharacterDataAsset->GasData.DefaultAbilities)
+	{
+		if (!AbilityClass)
+			continue;
+			
+		FGameplayAbilitySpec GameplayAbilitySpec = FGameplayAbilitySpec(AbilityClass);
+		AbilitySystemComponent->GiveAbility(GameplayAbilitySpec);
+	}
+
+	// Apply gameplay effects
+	FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(this);
+	for (const auto& Effect : CharacterDataAsset->GasData.Effects)
+	{
+		if (!Effect.Get())
+			continue;
+
+		const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(Effect, 1, EffectContextHandle);
+		if (SpecHandle.IsValid())
+		{
+			const FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}
+}
+
+
 // Called every frame
 void ADCharacter::Tick(float DeltaTime)
 {

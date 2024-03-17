@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
+#include "DGameDefine.h"
+
 #include "DCharacter.generated.h"
 
 class ATurnBasedBattleInstance;
@@ -21,6 +24,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UDAbilitySystemComponent* AbilitySystemComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	UDCharacterDataAsset* CharacterDataAsset;
+	
 protected:
 
 	// 在BeginPlay之前执行
@@ -33,6 +39,8 @@ protected:
 	virtual void PostNetInit() override;
 
 	virtual void BeginDestroy() override;
+
+	virtual void PossessedBy(AController* NewController) override;
 
 public:
 	
@@ -83,4 +91,7 @@ private:
 
 	UFUNCTION()
 	void OnCharacterIdChange();
+
+	// Only called by Server
+	virtual void InitCharacterData();
 };
