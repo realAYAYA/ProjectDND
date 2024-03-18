@@ -40,6 +40,10 @@ public:
 	FGameplayAttributeData MoveDistance;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MoveDistance)
 
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnRep_MaxMoveDistance)
+	FGameplayAttributeData MaxMoveDistance;
+	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxMoveDistance)
+
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	FGameplayAttributeData MoveCost;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MoveCost)
@@ -260,35 +264,38 @@ protected:
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 	UFUNCTION()
-	virtual void OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldMaxMoveSpeed);
+	virtual void OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_MoveDistance(const FGameplayAttributeData& OldMoveDistanced);
+	virtual void OnRep_MoveDistance(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_Health(const FGameplayAttributeData& OldHeath);
+	virtual void OnRep_MaxMoveDistance(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHeath);
+	virtual void OnRep_Health(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_Mana(const FGameplayAttributeData& OldMana);
+	virtual void OnRep_MaxHealth(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
+	virtual void OnRep_Mana(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_Energy(const FGameplayAttributeData& OldEnergy);
+	virtual void OnRep_MaxMana(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_MaxEnergy(const FGameplayAttributeData& OldMaxEnergy);
+	virtual void OnRep_Energy(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_Rage(const FGameplayAttributeData& OldRage);
+	virtual void OnRep_MaxEnergy(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_MaxRage(const FGameplayAttributeData& OldMaxRage);
+	virtual void OnRep_Rage(const FGameplayAttributeData& OldValue);
 
 	UFUNCTION()
-	virtual void OnRep_CastSpeed(const FGameplayAttributeData& OldCastSpeed);
+	virtual void OnRep_MaxRage(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	virtual void OnRep_CastSpeed(const FGameplayAttributeData& OldValue);
 };

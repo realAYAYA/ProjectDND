@@ -31,7 +31,11 @@ void UDAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackD
 	}
 	else if (Data.EvaluatedData.Attribute == GetMoveDistanceAttribute())
 	{
-		SetMoveDistance(FMath::Clamp(GetMoveDistance(), 0.0f, GetMoveDistance()));
+		SetMoveDistance(FMath::Clamp(GetMoveDistance(), 0.0f, GetMaxMoveDistance()));
+	}
+	else if (Data.EvaluatedData.Attribute == GetMaxMoveDistanceAttribute())
+	{
+		SetMoveDistance(FMath::Clamp(GetMaxMoveDistance(), 0.0f, 100000));
 	}
 }
 
@@ -52,65 +56,69 @@ void UDAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 }
 
 
-void UDAttributeSet::OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldMaxMoveSpeed)
+void UDAttributeSet::OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxMoveSpeed, OldMaxMoveSpeed);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxMoveSpeed, OldValue);
 }
 
-void UDAttributeSet::OnRep_MoveDistance(const FGameplayAttributeData& OldMoveDistanced)
+void UDAttributeSet::OnRep_MoveDistance(const FGameplayAttributeData& OldValue)
 {
 	
 }
 
-void UDAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldMana)
+void UDAttributeSet::OnRep_MaxMoveDistance(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Mana, OldMana);
+}
+
+void UDAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Mana, OldValue);
 	OnManaChanged.Broadcast(GetMana());
 }
 
-void UDAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana)
+void UDAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxMana, OldMaxMana);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxMana, OldValue);
 	OnMaxManaChanged.Broadcast(GetMaxMana());
 }
 
-void UDAttributeSet::OnRep_Energy(const FGameplayAttributeData& OldEnergy)
+void UDAttributeSet::OnRep_Energy(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Energy, OldEnergy);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Energy, OldValue);
 	OnEnergyChanged.Broadcast(GetEnergy());
 }
 
-void UDAttributeSet::OnRep_MaxEnergy(const FGameplayAttributeData& OldMaxEnergy)
+void UDAttributeSet::OnRep_MaxEnergy(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxEnergy, OldMaxEnergy);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxEnergy, OldValue);
 	OnMaxEnergyChanged.Broadcast(GetMaxEnergy());
 }
 
-void UDAttributeSet::OnRep_Rage(const FGameplayAttributeData& OldRage)
+void UDAttributeSet::OnRep_Rage(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Rage, OldRage);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Rage, OldValue);
 	OnRageChanged.Broadcast(GetRage());
 }
 
-void UDAttributeSet::OnRep_MaxRage(const FGameplayAttributeData& OldMaxRage)
+void UDAttributeSet::OnRep_MaxRage(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxRage, OldMaxRage);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxRage, OldValue);
 	OnMaxRageChanged.Broadcast(GetMaxRage());
 }
 
-void UDAttributeSet::OnRep_CastSpeed(const FGameplayAttributeData& OldCastSpeed)
+void UDAttributeSet::OnRep_CastSpeed(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, CastSpeed, OldCastSpeed);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, CastSpeed, OldValue);
 }
 
-void UDAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHeath)
+void UDAttributeSet::OnRep_Health(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Health, OldHeath);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Health, OldValue);
 	OnHealthChanged.Broadcast(GetHealth());
 }
 
-void UDAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHeath)
+void UDAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxHealth, OldMaxHeath);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxHealth, OldValue);
 	OnMaxHealthChanged.Broadcast(GetMaxHealth());
 }
