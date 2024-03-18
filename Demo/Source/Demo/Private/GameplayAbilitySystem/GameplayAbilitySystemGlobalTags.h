@@ -19,6 +19,8 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 
 	FGameplayTag BattleState;
 	
+	FGameplayTag Move;
+	
 	FGameplayTag Test;
 	
 	virtual void AddTags() override
@@ -34,7 +36,9 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 
 		BattleState	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.Battle"), TEXT("ProjectD"));
 
-		Test		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Test"), TEXT("ProjectD"));
+		Move		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Movement.Move"), TEXT("ProjectD"));
+
+		//Test		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Test"), TEXT("ProjectD"));
 	}
 
 	static bool IsDeBuff(const FGameplayTag& Tag) { return false; }

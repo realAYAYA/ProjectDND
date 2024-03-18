@@ -4,39 +4,45 @@
 #include "GameplayAbilityTargetActor_Move.h"
 #include "Abilities/GameplayAbility.h"
 
-void AGameplayAbilityTargetActor_Move::StartTargeting(UGameplayAbility* Ability)
+AGameplayAbilityTargetActor_Move::AGameplayAbilityTargetActor_Move(const FObjectInitializer& ObjectInitializer)
+: Super(ObjectInitializer)
 {
-	Super::StartTargeting(Ability);
-	
+	ShouldProduceTargetDataOnServer = false;
+	bDebug = false;
+	bDestroyOnConfirmation = true;
+
+	bReplicates = true;
+}
+
+void AGameplayAbilityTargetActor_Move::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (!HasAuthority())
+	{
+		PrimaryPC = GetWorld()->GetFirstPlayerController();
+		ConfirmTargeting();
+	}
 }
 
 void AGameplayAbilityTargetActor_Move::ConfirmTargetingAndContinue()
 {
-	Super::ConfirmTargetingAndContinue();
-
-	// Todo 寻找鼠标点击位置，并调用网络接口发送数据
-	if (!HasAuthority())
+	APlayerController* PC = PrimaryPC.Get();
+	const ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PC);
+	bool bHit = false;
+	FHitResult HitResult;
+	if (LocalPlayer && LocalPlayer->ViewportClient)
 	{
-		if (const UWorld* World = GEngine->GetWorldFromContextObject(this, EGetWorldErrorMode::LogAndReturnNull))
+		FVector2D MousePosition;
+		if (LocalPlayer->ViewportClient->GetMousePosition(MousePosition))
 		{
-			APlayerController* PC = PrimaryPC.Get();
-			const ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PC);
-			bool bHit = false;
-			FHitResult HitResult;
-			if (LocalPlayer && LocalPlayer->ViewportClient)
-			{
-				FVector2D MousePosition;
-				if (LocalPlayer->ViewportClient->GetMousePosition(MousePosition))
-				{
-					bHit = PC->GetHitResultAtScreenPosition(MousePosition, ECC_Visibility, false, HitResult);
-				}
-			}
-
-			if (bHit)
-			{
-				const FGameplayAbilityTargetDataHandle TargetData = StartLocation.MakeTargetDataHandleFromHitResult(OwningAbility.Get(), HitResult);
-				TargetDataReadyDelegate.Broadcast(TargetData);
-			}
+			bHit = PC->GetHitResultAtScreenPosition(MousePosition, ECC_Visibility, false, HitResult);
 		}
+	}
+
+	if (bHit)
+	{
+		const FGameplayAbilityTargetDataHandle TargetData = StartLocation.MakeTargetDataHandleFromHitResult(OwningAbility.Get(), HitResult);
+		TargetDataReadyDelegate.Broadcast(TargetData);
 	}
 }

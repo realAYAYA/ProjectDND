@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbilityTargetActor.h"
+#include "Abilities/GameplayAbilityTargetActor_Trace.h"
 #include "GameplayAbilityTargetActor_Move.generated.h"
 
 /**
@@ -16,7 +16,9 @@ class AGameplayAbilityTargetActor_Move : public AGameplayAbilityTargetActor
 
 public:
 
-	virtual void StartTargeting(UGameplayAbility* Ability) override;
+	AGameplayAbilityTargetActor_Move(const FObjectInitializer& ObjectInitializer);
+
+	virtual void BeginPlay() override;
 
 	virtual void ConfirmTargetingAndContinue() override;
 };

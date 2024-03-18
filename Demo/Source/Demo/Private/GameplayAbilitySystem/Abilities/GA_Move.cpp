@@ -7,12 +7,17 @@
 #include "AbilitySystemLog.h"
 #include "DPlayerController.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
+#include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/GameplayEffects/GE_Move.h"
 #include "GameplayAbilitySystem/Tasks/AbilityTask_Move.h"
 
 UGA_Move::UGA_Move()
 {
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
 	// Todo GameplayTage;
+	//AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("GAS.Ability.Movement.Move")));
 }
 
 bool UGA_Move::CanActivateAbility(
@@ -22,13 +27,19 @@ bool UGA_Move::CanActivateAbility(
 	const FGameplayTagContainer* TargetTags,
 	FGameplayTagContainer* OptionalRelevantTags) const
 {
+	if (!IsInstantiated())
+		return false;
+	
 	bool Result = Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 	if (!Result)
 		return Result;
 	
 	const ADCharacter* Caster = Cast<ADCharacter>(ActorInfo->AvatarActor);
-	const auto* PC = Cast<ADPlayerController>(CurrentActorInfo->PlayerController.Get());
-	if (!Caster || !PC)
+	if (!Caster)
+		Result = false;
+
+	const auto* PC = Cast<ADPlayerController>(Caster->GetPlayerState()->GetPlayerController());
+	if (!PC)
 		Result = false;
 	
 	return Result;
@@ -43,14 +54,14 @@ void UGA_Move::ActivateAbility(
 	Super::ActivateAbility(Handle, OwnerInfo, ActivationInfo, TriggerEventData);
 
 	// Task
-	UAbilityTask_Move* TargetData = UAbilityTask_Move::CreateMoveTask(this);
-	TargetData->Activate();
+	UAbilityTask_Move* TargetData = UAbilityTask_Move::CreateMoveTask(this, Cast<ADCharacter>(OwnerInfo->AvatarActor));
 	this->ActiveTasks.Add(TargetData);
 
 	TargetData->ValidData.AddDynamic(this, &UGA_Move::ConfirmMove);
 	TargetData->Cancelled.AddDynamic(this, &UGA_Move::CancelMove);
+	TargetData->OnAbilityTaskEnd.AddDynamic(this, &UGA_Move::K2_EndAbility);
 	
-	TargetData->ReadyForActivation();// 启动任务
+	TargetData->ReadyForActivation();// 启动任务, 等待客户端玩家选择目的地
 }
 
 void UGA_Move::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -62,8 +73,12 @@ void UGA_Move::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepl
 		ASC->RemoveActiveGameplayEffect(MoveGEHandle);
 	
 	// 停止移动
-	const auto* PC = Cast<ADPlayerController>(CurrentActorInfo->PlayerController.Get());
-	PC->StopMove();
+	const ADCharacter* Caster = Cast<ADCharacter>(CurrentActorInfo->AvatarActor);
+	if (Caster->GetPlayerState())
+	{
+		if (const auto* PC = Cast<ADPlayerController>(Caster->GetPlayerState()->GetPlayerController()))
+			PC->StopMove();
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -89,7 +104,8 @@ void UGA_Move::ConfirmMove(const FGameplayAbilityTargetDataHandle& Data)
 	}
 
 	// 开始移动
-	const auto* PC = Cast<ADPlayerController>(CurrentActorInfo->PlayerController.Get());
+	const ADCharacter* Caster = Cast<ADCharacter>(CurrentActorInfo->AvatarActor);
+	const auto* PC = Cast<ADPlayerController>(Caster->GetPlayerState()->GetPlayerController());
 	if (!PC->MoveTo(HitResult->Location))
 	{
 		CancelMove(Data);

@@ -3,17 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 
 #include "DGameDefine.h"
 
 #include "DCharacter.generated.h"
 
+class UDAttributeSet;
 class ATurnBasedBattleInstance;
 class UDAbilitySystemComponent;
 
 UCLASS()
-class ADCharacter : public ACharacter
+class ADCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -42,10 +44,12 @@ protected:
 
 	virtual void PossessedBy(AController* NewController) override;
 
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
 public:
 	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 
 
 public:
@@ -73,8 +77,13 @@ public:
 	UFUNCTION(Client, Reliable)
 	void OnBattleEnd();
 
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	UDAttributeSet* GetAttributeSet() const { return AttributeSet; }
+
 private:
 
+	UPROPERTY(Transient)
+	UDAttributeSet* AttributeSet;
 
 	/** 网络同步相关*/
 	

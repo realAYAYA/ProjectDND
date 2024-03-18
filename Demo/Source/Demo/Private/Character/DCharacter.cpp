@@ -3,11 +3,13 @@
 
 #include "DCharacter.h"
 
+#include "AbilitySystemLog.h"
 #include "DCharacterManager.h"
 #include "DGameInstance.h"
 #include "DPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
+#include "GameplayAbilitySystem/DAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values
@@ -20,6 +22,9 @@ ADCharacter::ADCharacter()
 	AbilitySystemComponent = CreateDefaultSubobject<UDAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	AttributeSet = CreateDefaultSubobject<UDAttributeSet>(TEXT("AttributeSet"));
+	//AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxMoveSpeedAttribute()).AddUObject(this, &AMCharacter::OnMaxMovementSpeedChanged);
 }
 
 void ADCharacter::BeginReplication()
@@ -78,6 +83,11 @@ void ADCharacter::PossessedBy(AController* NewController)
 	InitCharacterData();
 }
 
+UAbilitySystemComponent* ADCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
 void ADCharacter::InitCharacterData()
 {
 	if (!HasAuthority() || !AbilitySystemComponent || !IsValid(CharacterDataAsset))
@@ -91,7 +101,11 @@ void ADCharacter::InitCharacterData()
 			continue;
 			
 		FGameplayAbilitySpec GameplayAbilitySpec = FGameplayAbilitySpec(AbilityClass);
-		AbilitySystemComponent->GiveAbility(GameplayAbilitySpec);
+		const auto Handle = AbilitySystemComponent->GiveAbility(GameplayAbilitySpec);
+		if (!Handle.IsValid())
+		{
+			ABILITY_LOG(Log, TEXT("Ability %s faild to apply Effect to Target %s"), *GetName(), *GetNameSafe(AbilityClass));
+		}
 	}
 
 	// Apply gameplay effects
@@ -108,14 +122,6 @@ void ADCharacter::InitCharacterData()
 			const FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 		}
 	}
-}
-
-
-// Called every frame
-void ADCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	
 }
 
 void ADCharacter::SetBattleInstance(ATurnBasedBattleInstance* In)

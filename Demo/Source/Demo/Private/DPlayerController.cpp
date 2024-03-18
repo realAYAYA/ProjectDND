@@ -135,7 +135,7 @@ void ADPlayerController::StopMove() const
 		return;
 	}
 	
-	PathFollowingComponent->AbortMove(*NavSys, FPathFollowingResultFlags::ForcedScript | FPathFollowingResultFlags::NewRequest);
+	PathFollowingComponent->AbortMove(*NavSys, FPathFollowingResultFlags::ForcedScript | FPathFollowingResultFlags::MovementStop);
 }
 
 void ADPlayerController::K2_TurnEnd()

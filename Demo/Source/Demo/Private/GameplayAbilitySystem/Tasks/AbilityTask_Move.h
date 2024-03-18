@@ -9,6 +9,9 @@
 
 class UCharacterMovementComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAbilityEnd);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAbilityCancel);
+
 /**
  * 
  */
@@ -21,13 +24,20 @@ public:
 
 	UAbilityTask_Move();
 
+	UPROPERTY(BlueprintAssignable)
+	FOnAbilityEnd OnAbilityTaskEnd;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAbilityEnd OnAbilityCancel;
+
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility"))
-	static UAbilityTask_Move* CreateMoveTask(UGameplayAbility* OwningAbility);
+	static UAbilityTask_Move* CreateMoveTask(UGameplayAbility* OwningAbility, ADCharacter* Character);
 
 	virtual void Activate() override;
 
-	virtual void OnDestroy(bool bInOwnerFinished) override;
-
 	virtual void TickTask(float DeltaTime) override;
+	
+	UPROPERTY()
+	ADCharacter* Caster;
 	
 };
