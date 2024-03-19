@@ -6,7 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 
-#include "DGameDefine.h"
+#include "..\..\Public\DGameTypes.h"
 
 #include "DCharacter.generated.h"
 

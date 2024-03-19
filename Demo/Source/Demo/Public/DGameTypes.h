@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DGameDefine.generated.h"
+#include "DGameTypes.generated.h"
 
 class UGameplayAbility;
 class UGameplayEffect;

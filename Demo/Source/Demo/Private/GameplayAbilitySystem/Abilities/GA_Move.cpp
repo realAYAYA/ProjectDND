@@ -8,6 +8,7 @@
 #include "DPlayerController.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "GameFramework/PlayerState.h"
+#include "GameplayAbilitySystem/GameplayAbilitySystemGlobalTags.h"
 #include "GameplayAbilitySystem/GameplayEffects/GE_Move.h"
 #include "GameplayAbilitySystem/Tasks/AbilityTask_Move.h"
 
@@ -17,7 +18,7 @@ UGA_Move::UGA_Move()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
 	// Todo GameplayTage;
-	//AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("GAS.Ability.Movement.Move")));
+	AbilityTags.AddTag(FGameplayAbilityGlobalTags::Get().Move);
 }
 
 bool UGA_Move::CanActivateAbility(
@@ -96,8 +97,20 @@ void UGA_Move::ConfirmMove(const FGameplayAbilityTargetDataHandle& Data)
 			ABILITY_LOG(Log, TEXT("Ability %s faild to apply Effect to Target %s"), *GetName(), *GetNameSafe(UGE_Move::StaticClass()));
 	}
 
+	if (!Data.Get(0))
+	{
+		CancelMove(Data);
+		return;
+	}
+	
 	const auto* HitResult = Data.Get(0)->GetHitResult();
 	if (!HitResult)
+	{
+		CancelMove(Data);
+		return;
+	}
+
+	if (HitResult->Distance < 0)
 	{
 		CancelMove(Data);
 		return;

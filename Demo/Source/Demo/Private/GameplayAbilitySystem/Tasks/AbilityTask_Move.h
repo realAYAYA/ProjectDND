@@ -39,5 +39,6 @@ public:
 	
 	UPROPERTY()
 	ADCharacter* Caster;
-	
+
+	float WaitTime = 0.0f;
 };

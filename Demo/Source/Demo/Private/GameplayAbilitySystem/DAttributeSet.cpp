@@ -35,12 +35,14 @@ void UDAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackD
 	}
 	else if (Data.EvaluatedData.Attribute == GetMaxMoveDistanceAttribute())
 	{
-		SetMoveDistance(FMath::Clamp(GetMaxMoveDistance(), 0.0f, 100000));
+		SetMaxMoveDistance(FMath::Clamp(GetMaxMoveDistance(), 0.0f, 100000));
 	}
 }
 
 void UDAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MoveDistance, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxMoveDistance, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxMoveSpeed, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Health, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxHealth, COND_None, REPNOTIFY_OnChanged);

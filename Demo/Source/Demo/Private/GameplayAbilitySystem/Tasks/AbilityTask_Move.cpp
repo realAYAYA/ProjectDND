@@ -2,14 +2,12 @@
 
 
 #include "AbilityTask_Move.h"
-
-#include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/DAttributeSet.h"
-#include "GameplayAbilitySystem/TargetData/GameplayAbilityTargetActor_Move.h"
+#include "GameplayAbilitySystem/TargetData/DTargetActor.h"
 
 UAbilityTask_Move::UAbilityTask_Move()
 {
-	TargetClass = AGameplayAbilityTargetActor_Move::StaticClass();
+	TargetClass = ADTargetActor::StaticClass();
 	TargetActor = nullptr;
 	ConfirmationType = EGameplayTargetingConfirmation::UserConfirmed;
 	Caster = nullptr;
@@ -37,7 +35,7 @@ void UAbilityTask_Move::Activate()
 				if (UWorld* World = GEngine->GetWorldFromContextObject(Ability.Get(), EGetWorldErrorMode::LogAndReturnNull))
 				{
 					//TargetActor = World->SpawnActorDeferred<AGameplayAbilityTargetActor>(TargetClass, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-					TargetActor = World->SpawnActor<AGameplayAbilityTargetActor>(TargetClass);
+					//TargetActor = World->SpawnActor<AGameplayAbilityTargetActor>(TargetClass);
 				}
 			}
 
