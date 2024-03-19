@@ -2,6 +2,7 @@
 
 
 #include "AbilityTask_Move.h"
+#include "Character/DCharacter.h"
 #include "GameplayAbilitySystem/DAttributeSet.h"
 #include "GameplayAbilitySystem/TargetData/DTargetActor.h"
 
@@ -26,11 +27,14 @@ void UAbilityTask_Move::Activate()
 {
 	if (Ability)
 	{
+		RegisterTargetDataCallbacks();// 注册回调，允许服务器接收来自客户端的TargetData
+		return;
+		
 		if (ShouldSpawnTargetActor())
 		{
-			RegisterTargetDataCallbacks();
+			//RegisterTargetDataCallbacks();
 			
-			if (TargetClass != nullptr)
+			/*if (TargetClass != nullptr)
 			{
 				if (UWorld* World = GEngine->GetWorldFromContextObject(Ability.Get(), EGetWorldErrorMode::LogAndReturnNull))
 				{
@@ -44,10 +48,11 @@ void UAbilityTask_Move::Activate()
 				InitializeTargetActor(TargetActor.Get());
 				FinalizeTargetActor(TargetActor.Get());
 				return;
-			}
+			}*/
 		}
 	}
 
+	OnAbilityCancel.Broadcast();
 	EndTask();
 }
 

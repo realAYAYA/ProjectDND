@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "DGameplayAbilityWithTargetData.h"
 #include "GA_Move.generated.h"
 
 class UAbilityTask_Move;
@@ -11,7 +11,7 @@ class UAbilityTask_Move;
  * 
  */
 UCLASS()
-class UGA_Move : public UGameplayAbility
+class UGA_Move : public UDGameplayAbilityWithTargetData
 {
 	GENERATED_BODY()
 
@@ -24,14 +24,12 @@ public:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* OwnerInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+
 private:
+	
+	virtual void ConfirmTargetData(const FGameplayAbilityTargetDataHandle& Data) override;
 
-	UFUNCTION()
-	void ConfirmMove(const FGameplayAbilityTargetDataHandle& Data);
-
-	UFUNCTION()
-	void CancelMove(const FGameplayAbilityTargetDataHandle& Data);
-	//UAbilityTask_Move* MoveTask;
-
+	virtual void CancelTargetData(const FGameplayAbilityTargetDataHandle& Data) override;
+	
 	FActiveGameplayEffectHandle MoveGEHandle;
 };

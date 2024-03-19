@@ -2,7 +2,7 @@
 
 ADTargetActor::ADTargetActor(const FObjectInitializer& ObjectInitializer)
 {
-	ShouldProduceTargetDataOnServer = false;
+	ShouldProduceTargetDataOnServer = false;// 要求玩家发送目标数据
 	bDebug = false;
 	bDestroyOnConfirmation = true;
 
@@ -33,7 +33,7 @@ bool ADTargetActor::SetAbilityInfo(APlayerController* PC, const UAbilitySystemCo
 	{
 		return false;
 	}
-
+	
 	PrimaryPC = PC;
 	StartTargeting(AbilityInstance);
 	BindToConfirmCancelInputs();

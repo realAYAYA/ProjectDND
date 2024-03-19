@@ -43,6 +43,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "ProjectD")
 	FOnGERemovedDelegate OnGERemovedCallback;
 
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	AGameplayAbilityTargetActor* GetTargetActorWithTag(const FGameplayTag& Tag) const;
+
 	// Only called by server
 	void CheckTurnDurationExpired();
 

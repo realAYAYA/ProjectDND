@@ -3,32 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/DCharacter.h"
-#include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
+#include "DAbilityTask_WithTargetData.h"
 #include "AbilityTask_Move.generated.h"
-
-class UCharacterMovementComponent;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAbilityEnd);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAbilityCancel);
 
 /**
  * 
  */
 UCLASS()
-class UAbilityTask_Move : public UAbilityTask_WaitTargetData
+class UAbilityTask_Move : public UDAbilityTask_WithTargetData
 {
 	GENERATED_BODY()
 
 public:
 
 	UAbilityTask_Move();
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAbilityEnd OnAbilityTaskEnd;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAbilityEnd OnAbilityCancel;
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility"))
 	static UAbilityTask_Move* CreateMoveTask(UGameplayAbility* OwningAbility, ADCharacter* Character);
@@ -37,8 +25,4 @@ public:
 
 	virtual void TickTask(float DeltaTime) override;
 	
-	UPROPERTY()
-	ADCharacter* Caster;
-
-	float WaitTime = 0.0f;
 };

@@ -2,10 +2,11 @@
 
 
 #include "GameplayAbilitySystem/Abilities/GA_Move.h"
+#include "Character/DCharacter.h"
+#include "DPlayerController.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
-#include "DPlayerController.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/GameplayAbilitySystemGlobalTags.h"
@@ -52,17 +53,18 @@ void UGA_Move::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, OwnerInfo, ActivationInfo, TriggerEventData);
-
 	// Task
 	UAbilityTask_Move* TargetData = UAbilityTask_Move::CreateMoveTask(this, Cast<ADCharacter>(OwnerInfo->AvatarActor));
 	this->ActiveTasks.Add(TargetData);
+	TargetDataTask = TargetData;
 
-	TargetData->ValidData.AddDynamic(this, &UGA_Move::ConfirmMove);
-	TargetData->Cancelled.AddDynamic(this, &UGA_Move::CancelMove);
+	TargetData->ValidData.AddDynamic(this, &UGA_Move::CancelTargetData);
+	TargetData->Cancelled.AddDynamic(this, &UGA_Move::CancelTargetData);
 	TargetData->OnAbilityTaskEnd.AddDynamic(this, &UGA_Move::K2_EndAbility);
 	
 	TargetData->ReadyForActivation();// 启动任务, 等待客户端玩家选择目的地
+
+	Super::ActivateAbility(Handle, OwnerInfo, ActivationInfo, TriggerEventData);
 }
 
 void UGA_Move::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -84,7 +86,7 @@ void UGA_Move::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepl
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UGA_Move::ConfirmMove(const FGameplayAbilityTargetDataHandle& Data)
+void UGA_Move::ConfirmTargetData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	// 施加GE
 	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
@@ -99,20 +101,20 @@ void UGA_Move::ConfirmMove(const FGameplayAbilityTargetDataHandle& Data)
 
 	if (!Data.Get(0))
 	{
-		CancelMove(Data);
+		CancelTargetData(Data);
 		return;
 	}
 	
 	const auto* HitResult = Data.Get(0)->GetHitResult();
 	if (!HitResult)
 	{
-		CancelMove(Data);
+		CancelTargetData(Data);
 		return;
 	}
 
 	if (HitResult->Distance < 0)
 	{
-		CancelMove(Data);
+		CancelTargetData(Data);
 		return;
 	}
 
@@ -121,11 +123,11 @@ void UGA_Move::ConfirmMove(const FGameplayAbilityTargetDataHandle& Data)
 	const auto* PC = Cast<ADPlayerController>(Caster->GetPlayerState()->GetPlayerController());
 	if (!PC->MoveTo(HitResult->Location))
 	{
-		CancelMove(Data);
+		CancelTargetData(Data);
 	}
 }	
 
-void UGA_Move::CancelMove(const FGameplayAbilityTargetDataHandle& Data)
+void UGA_Move::CancelTargetData(const FGameplayAbilityTargetDataHandle& Data)
 {
 	CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
 }
