@@ -58,7 +58,7 @@ void UGA_Move::ActivateAbility(
 	this->ActiveTasks.Add(TargetData);
 	TargetDataTask = TargetData;
 
-	TargetData->ValidData.AddDynamic(this, &UGA_Move::CancelTargetData);
+	TargetData->ValidData.AddDynamic(this, &UGA_Move::ConfirmTargetData);
 	TargetData->Cancelled.AddDynamic(this, &UGA_Move::CancelTargetData);
 	TargetData->OnAbilityTaskEnd.AddDynamic(this, &UGA_Move::K2_EndAbility);
 	

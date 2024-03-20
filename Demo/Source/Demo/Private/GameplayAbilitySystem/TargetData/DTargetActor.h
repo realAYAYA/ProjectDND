@@ -20,12 +20,12 @@ public:
 	ADTargetActor(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	bool SetAbilityInfo(APlayerController* PC, const UAbilitySystemComponent* Asc, const FGameplayTag& Tag);
+	bool SetAbilityInfo(APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayTag& Tag);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", DisplayName = "ConfirmTargeting")
 	void K2_ConfirmTargeting(const FGameplayAbilityTargetDataHandle& InTargetDataHandle);
 
-	virtual void ConfirmTargetingAndContinue() override;
+	virtual void ConfirmTargetingAndContinue() override;// 必须被重写
 
 private:
 

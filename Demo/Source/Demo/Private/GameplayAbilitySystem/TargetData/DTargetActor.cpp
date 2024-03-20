@@ -9,7 +9,7 @@ ADTargetActor::ADTargetActor(const FObjectInitializer& ObjectInitializer)
 	//bReplicates = true;
 }
 
-bool ADTargetActor::SetAbilityInfo(APlayerController* PC, const UAbilitySystemComponent* Asc, const FGameplayTag& Tag)
+bool ADTargetActor::SetAbilityInfo(APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayTag& Tag)
 {
 	if (!Asc || !PC)
 		return false;
@@ -33,10 +33,24 @@ bool ADTargetActor::SetAbilityInfo(APlayerController* PC, const UAbilitySystemCo
 	{
 		return false;
 	}
+
+	if (!AbilityInstance->IsPredictingClient() && ShouldProduceTargetDataOnServer)
+		return false;
 	
 	PrimaryPC = PC;
 	StartTargeting(AbilityInstance);
 	BindToConfirmCancelInputs();
+	
+	TargetDataReadyDelegate.AddLambda([Asc, AbilityInstance](const FGameplayAbilityTargetDataHandle& Data)
+	{
+		const FGameplayTag ApplicationTag; // Fixme: where would this be useful?
+		Asc->CallServerSetReplicatedTargetData(AbilityInstance->GetCurrentAbilitySpecHandle(), AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey(), Data, ApplicationTag, Asc->ScopedPredictionKey);
+	});
+
+	CanceledDelegate.AddLambda([Asc, AbilityInstance](const FGameplayAbilityTargetDataHandle& Data)
+	{
+		Asc->ServerSetReplicatedTargetDataCancelled(AbilityInstance->GetCurrentAbilitySpecHandle(), AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey(), Asc->ScopedPredictionKey );
+	});
 	
 	return true;
 }
