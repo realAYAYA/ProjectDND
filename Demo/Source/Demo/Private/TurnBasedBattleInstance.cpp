@@ -2,11 +2,11 @@
 
 
 #include "TurnBasedBattleInstance.h"
-
 #include "DCharacterManager.h"
 #include "DGameInstance.h"
 #include "DPlayerController.h"
 #include "Character/DCharacter.h"
+
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 

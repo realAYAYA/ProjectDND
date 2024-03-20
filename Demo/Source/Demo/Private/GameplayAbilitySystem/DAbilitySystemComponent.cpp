@@ -6,7 +6,6 @@
 #include "Abilities/DGameplayAbilityWithTargetData.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "Net/UnrealNetwork.h"
-#include "Tasks/DAbilityTask_WithTargetData.h"
 
 void UDAbilitySystemComponent::InitializeComponent()
 {
@@ -17,33 +16,6 @@ void UDAbilitySystemComponent::InitializeComponent()
 
 	OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &UDAbilitySystemComponent::OnGEApplied);
 	ActiveGameplayEffects.OnActiveGameplayEffectRemovedDelegate.AddUObject(this, &UDAbilitySystemComponent::OnGERemoved);
-}
-
-AGameplayAbilityTargetActor* UDAbilitySystemComponent::GetTargetActorWithTag(const FGameplayTag& Tag) const
-{
-	TArray<FGameplayAbilitySpecHandle> OutAbilityHandles;
-	FGameplayTagContainer Container;
-	Container.AddTag(Tag);
-	FindAllAbilitiesWithTags(OutAbilityHandles, Container);
-	if (OutAbilityHandles.Num() == 0)
-		return nullptr;
-
-	const FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromHandle(OutAbilityHandles[0]);
-	if (!AbilitySpec)
-	{
-		return nullptr;
-	}
-
-	// try to get the ability instance
-	const UDGameplayAbilityWithTargetData* AbilityInstance = Cast<UDGameplayAbilityWithTargetData>(AbilitySpec->GetPrimaryInstance());
-	if (!AbilityInstance)
-		return nullptr;
-
-	const auto* TargetDataTask = Cast<UDAbilityTask_WithTargetData>(AbilityInstance->TargetDataTask);
-	if (!TargetDataTask)
-		return nullptr;
-
-	return TargetDataTask->GetTargetActor();
 }
 
 void UDAbilitySystemComponent::CheckTurnDurationExpired()

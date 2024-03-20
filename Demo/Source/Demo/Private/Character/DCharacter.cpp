@@ -7,6 +7,7 @@
 #include "DCharacterManager.h"
 #include "DGameInstance.h"
 #include "DPlayerController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "GameplayAbilitySystem/DAttributeSet.h"
@@ -24,7 +25,7 @@ ADCharacter::ADCharacter()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	AttributeSet = CreateDefaultSubobject<UDAttributeSet>(TEXT("AttributeSet"));
-	//AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxMoveSpeedAttribute()).AddUObject(this, &AMCharacter::OnMaxMovementSpeedChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxMoveSpeedAttribute()).AddUObject(this, &ADCharacter::OnMoveDistanceChange);
 }
 
 void ADCharacter::BeginReplication()
@@ -153,6 +154,18 @@ void ADCharacter::YourTurn()
 		{
 			PC->YourTurn(this);
 		}
+	}
+}
+
+void ADCharacter::OnMoveDistanceChange(const FOnAttributeChangeData& Data) const
+{
+	if (Data.NewValue == 0)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 0;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 600;
 	}
 }
 

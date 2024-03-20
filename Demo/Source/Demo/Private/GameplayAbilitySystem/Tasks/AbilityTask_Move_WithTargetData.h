@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
-#include "DAbilityTask_WithTargetData.generated.h"
+#include "AbilityTask_Move_WithTargetData.generated.h"
+
+class ADCharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAbilityEnd);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAbilityCancel);
@@ -13,20 +15,20 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAbilityCancel);
  * 
  */
 UCLASS()
-class UDAbilityTask_WithTargetData : public UAbilityTask_WaitTargetData
+class UDAbilityTask_Move_WithTargetData : public UAbilityTask_WaitTargetData
 {
 	GENERATED_BODY()
 
 public:
 
-	UPROPERTY(BlueprintAssignable)
-	FOnAbilityEnd OnAbilityTaskEnd;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAbilityEnd OnAbilityCancel;
+	UDAbilityTask_Move_WithTargetData();
 	
+	static UDAbilityTask_Move_WithTargetData* CreateTask(UGameplayAbility* OwningAbility);
+
+	virtual void Activate() override;
+
 	UPROPERTY()
-	class ADCharacter* Caster;
+	ADCharacter* Caster;
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	AGameplayAbilityTargetActor* GetTargetActor() const { return TargetActor.Get(); }

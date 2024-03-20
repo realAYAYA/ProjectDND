@@ -1,7 +1,7 @@
 ﻿#include "DGameplayEffect.h"
+#include "GameplayAbilitySystem/DAbilitySystemComponent.h"
+#include "GameplayAbilitySystem/GameplayAbilitySystemGlobalTags.h"
 
-#include "DAbilitySystemComponent.h"
-#include  "GameplayAbilitySystemGlobalTags.h"
 #include "Engine/PackageMapClient.h"
 
 FGameplayAbilityGlobalTags FGameplayAbilityGlobalTags::GasTags;

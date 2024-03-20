@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
 
-#include "DGameplayEffect.h"
 #include "GameplayAbilitySystemGlobalTags.h"
+#include "GameplayEffects/DGameplayEffect.h"
 #include "DAbilitySystemComponent.generated.h"
 
 class ADCharacter;
@@ -42,10 +42,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "ProjectD")
 	FOnGERemovedDelegate OnGERemovedCallback;
-
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	AGameplayAbilityTargetActor* GetTargetActorWithTag(const FGameplayTag& Tag) const;
-
+	
 	// Only called by server
 	void CheckTurnDurationExpired();
 

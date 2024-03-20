@@ -5,14 +5,15 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
-
-#include "..\..\Public\DGameTypes.h"
+#include "GameplayEffectTypes.h"
 
 #include "DCharacter.generated.h"
 
+class UDCharacterDataAsset;
 class UDAttributeSet;
 class ATurnBasedBattleInstance;
 class UDAbilitySystemComponent;
+
 
 UCLASS()
 class ADCharacter : public ACharacter, public IAbilitySystemInterface
@@ -81,6 +82,9 @@ public:
 	UDAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 private:
+
+	// 角色移动力变成0时将无法移动
+	void OnMoveDistanceChange(const FOnAttributeChangeData& Data) const;
 
 	UPROPERTY(Transient)
 	UDAttributeSet* AttributeSet;

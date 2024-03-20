@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
 
-#include "..\..\Public\DGameTypes.h"
+#include "DGameTypes.h"
 
 #include "DGameplayEffect.generated.h"
 

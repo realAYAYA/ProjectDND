@@ -3,26 +3,32 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DAbilityTask_WithTargetData.h"
+#include "Abilities/Tasks/AbilityTask.h"
 #include "AbilityTask_Move.generated.h"
+
+class ADCharacter;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNoMoreMoveDistance);
 
 /**
  * 
  */
 UCLASS()
-class UAbilityTask_Move : public UDAbilityTask_WithTargetData
+class UAbilityTask_Move : public UAbilityTask
 {
 	GENERATED_BODY()
 
 public:
 
 	UAbilityTask_Move();
-
-	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility"))
-	static UAbilityTask_Move* CreateMoveTask(UGameplayAbility* OwningAbility, ADCharacter* Character);
-
-	virtual void Activate() override;
+	
+	static UAbilityTask_Move* CreateTask(UGameplayAbility* OwningAbility);
 
 	virtual void TickTask(float DeltaTime) override;
+
+	UPROPERTY()
+	FOnNoMoreMoveDistance OnNoMoreMoveDistance;
 	
+	UPROPERTY()
+	ADCharacter* Caster;
 };

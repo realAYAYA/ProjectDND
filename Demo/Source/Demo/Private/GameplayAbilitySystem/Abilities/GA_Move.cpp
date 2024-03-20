@@ -7,11 +7,11 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
-#include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/GameplayAbilitySystemGlobalTags.h"
 #include "GameplayAbilitySystem/GameplayEffects/GE_Move.h"
 #include "GameplayAbilitySystem/Tasks/AbilityTask_Move.h"
+#include "GameplayAbilitySystem/Tasks/AbilityTask_Move_WithTargetData.h"
 
 UGA_Move::UGA_Move()
 {
@@ -54,15 +54,16 @@ void UGA_Move::ActivateAbility(
 	const FGameplayEventData* TriggerEventData)
 {
 	// Task
-	UAbilityTask_Move* TargetData = UAbilityTask_Move::CreateMoveTask(this, Cast<ADCharacter>(OwnerInfo->AvatarActor));
-	this->ActiveTasks.Add(TargetData);
-	TargetDataTask = TargetData;
+	TargetDataTask = UDAbilityTask_Move_WithTargetData::CreateTask(this);
+	TargetDataTask->ValidData.AddDynamic(this, &UGA_Move::ConfirmTargetData);
+	TargetDataTask->Cancelled.AddDynamic(this, &UGA_Move::CancelTargetData);
+	this->ActiveTasks.Add(TargetDataTask);
+	TargetDataTask->ReadyForActivation();// 启动任务, 等待客户端玩家选择目的地
 
-	TargetData->ValidData.AddDynamic(this, &UGA_Move::ConfirmTargetData);
-	TargetData->Cancelled.AddDynamic(this, &UGA_Move::CancelTargetData);
-	TargetData->OnAbilityTaskEnd.AddDynamic(this, &UGA_Move::K2_EndAbility);
-	
-	TargetData->ReadyForActivation();// 启动任务, 等待客户端玩家选择目的地
+	MoveTask = UAbilityTask_Move::CreateTask(this);
+	MoveTask->OnNoMoreMoveDistance.AddDynamic(this, &UGA_Move::K2_EndAbility);
+	this->ActiveTasks.Add(MoveTask);
+	MoveTask->ReadyForActivation();
 
 	Super::ActivateAbility(Handle, OwnerInfo, ActivationInfo, TriggerEventData);
 }

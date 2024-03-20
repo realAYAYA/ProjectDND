@@ -28,4 +28,7 @@ public:
 
 	UPROPERTY()
 	UAbilityTask_WaitTargetData* TargetDataTask;
+
+	UPROPERTY()
+	UAbilityTask_Move* MoveTask;
 };
