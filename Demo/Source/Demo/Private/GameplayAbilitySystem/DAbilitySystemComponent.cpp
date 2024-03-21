@@ -18,6 +18,55 @@ void UDAbilitySystemComponent::InitializeComponent()
 	ActiveGameplayEffects.OnActiveGameplayEffectRemovedDelegate.AddUObject(this, &UDAbilitySystemComponent::OnGERemoved);
 }
 
+FGameplayAbilitySpecHandle UDAbilitySystemComponent::FindAbilityWithTag(const FGameplayTag& Tag) const
+{
+	const FGameplayTagContainer Container(Tag);
+	TArray<FGameplayAbilitySpecHandle> AbilitySpecHandles;
+	FindAllAbilitiesWithTags(AbilitySpecHandles, Container);
+	if (AbilitySpecHandles.Num() == 0)
+		return FGameplayAbilitySpecHandle();
+	
+	const auto AbilitySpec = FindAbilitySpecFromHandle(AbilitySpecHandles[0]);
+	const auto AbilityInstance = AbilitySpec->GetPrimaryInstance();
+	if (!AbilityInstance)
+		return FGameplayAbilitySpecHandle();
+
+	// 技能唯一才合法，存在多个技能实例则不适用该方法
+	if (AbilityInstance->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::InstancedPerActor)
+		return FGameplayAbilitySpecHandle();
+
+	return AbilitySpecHandles[0];
+}
+
+bool UDAbilitySystemComponent::ConfirmTargetDataWithTag(const FGameplayTag& Tag, const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+{
+	const FGameplayAbilitySpecHandle AbilitySpecHandle = FindAbilityWithTag(Tag);
+	if (!AbilitySpecHandle.IsValid())
+		return false;
+	
+	const auto AbilitySpec = FindAbilitySpecFromHandle(AbilitySpecHandle);
+	const auto AbilityInstance = AbilitySpec->GetPrimaryInstance();
+	if (!AbilityInstance)
+		return false;
+
+	CallServerSetReplicatedTargetData(AbilityInstance->GetCurrentAbilitySpecHandle(), AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey(), TargetDataHandle, Tag, ScopedPredictionKey);
+	return true;
+}
+
+void UDAbilitySystemComponent::CancelTargetDataWithTag(const FGameplayTag& Tag)
+{
+	const FGameplayAbilitySpecHandle AbilitySpecHandle = FindAbilityWithTag(Tag);
+	if (!AbilitySpecHandle.IsValid())
+		return;
+	
+	const auto AbilitySpec = FindAbilitySpecFromHandle(AbilitySpecHandle);
+	const auto AbilityInstance = AbilitySpec->GetPrimaryInstance();
+	if (!AbilityInstance)
+		return;
+
+	ServerSetReplicatedTargetDataCancelled(AbilityInstance->GetCurrentAbilitySpecHandle(), AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey(), ScopedPredictionKey);
+}
+
 void UDAbilitySystemComponent::CheckTurnDurationExpired()
 {
 	TurnBasedActiveGameplayEffectsContainer.CheckTurnDuration();

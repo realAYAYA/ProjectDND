@@ -42,13 +42,23 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "ProjectD")
 	FOnGERemovedDelegate OnGERemovedCallback;
+
+	// 根据给定Tag查找技能，因为单个Tag所以技能必须是InstancedPerActor的，否则查找失败
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	FGameplayAbilitySpecHandle FindAbilityWithTag(const FGameplayTag& Tag) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	bool ConfirmTargetDataWithTag(const FGameplayTag& Tag, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	void CancelTargetDataWithTag(const FGameplayTag& Tag);
 	
 	// Only called by server
 	void CheckTurnDurationExpired();
 
 	void ExecuteTurnBasedPeriodicEffect(const FActiveGameplayEffectHandle& Handle);
 
-	UFUNCTION(Blueprintable, Category = "ProjectD")
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	int32 GetActiveEffectRemainingTurn(const FActiveGameplayEffectHandle& ActiveHandle) const;
 
 	/** 回合制专用GE施加 */
