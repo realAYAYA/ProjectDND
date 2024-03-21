@@ -18,8 +18,7 @@ UGA_Move::UGA_Move()
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
-	// Todo GameplayTage;
-	AbilityTags.AddTag(FGameplayAbilityGlobalTags::Get().Move);
+	AbilityTags.AddTag(FGameplayAbilityGlobalTags::GetPreConstruct().Move);
 }
 
 bool UGA_Move::CanActivateAbility(
@@ -53,17 +52,22 @@ void UGA_Move::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	// Task
-	TargetDataTask = UDAbilityTask_Move_WithTargetData::CreateTask(this);
-	TargetDataTask->ValidData.AddDynamic(this, &UGA_Move::ConfirmTargetData);
-	TargetDataTask->Cancelled.AddDynamic(this, &UGA_Move::CancelTargetData);
-	this->ActiveTasks.Add(TargetDataTask);
-	TargetDataTask->ReadyForActivation();// 启动任务, 等待客户端玩家选择目的地
-
 	MoveTask = UAbilityTask_Move::CreateTask(this);
 	MoveTask->OnNoMoreMoveDistance.AddDynamic(this, &UGA_Move::K2_EndAbility);
 	this->ActiveTasks.Add(MoveTask);
 	MoveTask->ReadyForActivation();
+
+	// 施加GE
+	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
+	const FGameplayEffectContextHandle TargetEffectContext = ASC->MakeEffectContext();
+	const FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(UGE_Move::StaticClass(), 0, TargetEffectContext);
+	if (SpecHandle.IsValid())
+	{
+		MoveGEHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		if (!MoveGEHandle.WasSuccessfullyApplied())
+			ABILITY_LOG(Log, TEXT("Ability %s faild to apply Effect to Target %s"), *GetName(), *GetNameSafe(UGE_Move::StaticClass()));
+	}
+
 
 	Super::ActivateAbility(Handle, OwnerInfo, ActivationInfo, TriggerEventData);
 }
@@ -85,50 +89,4 @@ void UGA_Move::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepl
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
-void UGA_Move::ConfirmTargetData(const FGameplayAbilityTargetDataHandle& Data)
-{
-	// 施加GE
-	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
-	const FGameplayEffectContextHandle TargetEffectContext = ASC->MakeEffectContext();
-	const FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(UGE_Move::StaticClass(), 0, TargetEffectContext);
-	if (SpecHandle.IsValid())
-	{
-		MoveGEHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		if (!MoveGEHandle.WasSuccessfullyApplied())
-			ABILITY_LOG(Log, TEXT("Ability %s faild to apply Effect to Target %s"), *GetName(), *GetNameSafe(UGE_Move::StaticClass()));
-	}
-
-	if (!Data.Get(0))
-	{
-		CancelTargetData(Data);
-		return;
-	}
-	
-	const auto* HitResult = Data.Get(0)->GetHitResult();
-	if (!HitResult)
-	{
-		CancelTargetData(Data);
-		return;
-	}
-
-	if (HitResult->Distance < 0)
-	{
-		CancelTargetData(Data);
-		return;
-	}
-
-	// 开始移动
-	const ADCharacter* Caster = Cast<ADCharacter>(CurrentActorInfo->AvatarActor);
-	const auto* PC = Cast<ADPlayerController>(Caster->GetPlayerState()->GetPlayerController());
-	if (!PC->MoveTo(HitResult->Location))
-	{
-		CancelTargetData(Data);
-	}
-}	
-
-void UGA_Move::CancelTargetData(const FGameplayAbilityTargetDataHandle& Data)
-{
-	CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
 }

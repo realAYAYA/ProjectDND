@@ -3,7 +3,7 @@
 
 #include "DAbilitySystemComponent.h"
 
-#include "Abilities/DGameplayAbilityWithTargetData.h"
+#include "Abilities/DGameplayAbility.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "Net/UnrealNetwork.h"
 

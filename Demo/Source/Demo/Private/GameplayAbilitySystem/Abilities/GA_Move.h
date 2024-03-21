@@ -3,15 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DGameplayAbilityWithTargetData.h"
+#include "DGameplayAbility.h"
 #include "GA_Move.generated.h"
 
 class UAbilityTask_Move;
+
 /**
  * 
  */
 UCLASS()
-class UGA_Move : public UDGameplayAbilityWithTargetData
+class UGA_Move : public UDGameplayAbility
 {
 	GENERATED_BODY()
 
@@ -27,9 +28,8 @@ public:
 
 private:
 	
-	virtual void ConfirmTargetData(const FGameplayAbilityTargetDataHandle& Data) override;
-
-	virtual void CancelTargetData(const FGameplayAbilityTargetDataHandle& Data) override;
-	
 	FActiveGameplayEffectHandle MoveGEHandle;
+
+	UPROPERTY()
+	UAbilityTask_Move* MoveTask = nullptr;
 };

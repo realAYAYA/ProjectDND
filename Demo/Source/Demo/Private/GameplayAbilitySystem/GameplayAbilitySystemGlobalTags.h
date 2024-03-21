@@ -8,6 +8,8 @@
 // 适合添加预设的Gas相关Tags
 struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdder
 {
+	FGameplayTag Test;
+	
 	FGameplayTag Paralysis;
 	FGameplayTag Stun;
 	FGameplayTag Sleep;
@@ -20,8 +22,6 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	FGameplayTag BattleState;
 	
 	FGameplayTag Move;
-	
-	FGameplayTag Test;
 	
 	virtual void AddTags() override
 	{
@@ -38,12 +38,24 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 
 		Move		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Movement.Move"), TEXT("ProjectD"));
 
-		//Test		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Test"), TEXT("ProjectD"));
+		Test		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Test"), TEXT("ProjectD"));
 	}
 
 	static bool IsDeBuff(const FGameplayTag& Tag) { return false; }
 
-	FORCEINLINE static const FGameplayAbilityGlobalTags& Get() { return GasTags; }
+	FORCEINLINE static const FGameplayAbilityGlobalTags& Get()
+	{
+		return GasTags;
+	}
+
+	// 一种在编译阶段Get方法
+	FORCEINLINE static FGameplayAbilityGlobalTags& GetPreConstruct()
+	{
+		if (!GasTags.Test.IsValid())
+			GasTags.AddTags();
+		
+		return GasTags;
+	}
 
 private:
 

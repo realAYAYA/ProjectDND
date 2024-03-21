@@ -29,7 +29,4 @@ public:
 
 	UPROPERTY()
 	ADCharacter* Caster;
-
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	AGameplayAbilityTargetActor* GetTargetActor() const { return TargetActor.Get(); }
 };

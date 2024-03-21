@@ -8,6 +8,7 @@
 
 UAbilityTask_Move::UAbilityTask_Move()
 {
+	bTickingTask = true;
 	Caster = nullptr;
 }
 
