@@ -1,5 +1,4 @@
 ﻿#include "AbilityTask_Move_WithTargetData.h"
-#include "Character/DCharacter.h"
 
 #include "AbilitySystemComponent.h"
 
@@ -8,7 +7,6 @@ UDAbilityTask_Move_WithTargetData::UDAbilityTask_Move_WithTargetData()
 	TargetClass = AGameplayAbilityTargetActor::StaticClass();
 	TargetActor = nullptr;
 	ConfirmationType = EGameplayTargetingConfirmation::UserConfirmed;
-	Caster = nullptr;
 }
 
 UDAbilityTask_Move_WithTargetData* UDAbilityTask_Move_WithTargetData::CreateTask(UGameplayAbility* OwningAbility)
@@ -18,7 +16,6 @@ UDAbilityTask_Move_WithTargetData* UDAbilityTask_Move_WithTargetData::CreateTask
 	MyObj->Ability = OwningAbility;
 	MyObj->AbilitySystemComponent = OwningAbility->GetAbilitySystemComponentFromActorInfo();
 	MyObj->TaskOwner = OwningAbility;
-	MyObj->Caster = Cast<ADCharacter>(MyObj->AbilitySystemComponent->GetOwnerActor());
 	
 	return MyObj;
 }

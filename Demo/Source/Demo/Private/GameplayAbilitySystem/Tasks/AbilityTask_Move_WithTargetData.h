@@ -26,7 +26,5 @@ public:
 	static UDAbilityTask_Move_WithTargetData* CreateTask(UGameplayAbility* OwningAbility);
 
 	virtual void Activate() override;
-
-	UPROPERTY()
-	ADCharacter* Caster;
+	
 };
