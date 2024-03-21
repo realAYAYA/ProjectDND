@@ -24,6 +24,8 @@ public:
 	
 	static UAbilityTask_Move* CreateTask(UGameplayAbility* OwningAbility);
 
+	virtual void Activate() override;
+	
 	virtual void TickTask(float DeltaTime) override;
 
 	UPROPERTY()
@@ -31,4 +33,6 @@ public:
 	
 	UPROPERTY()
 	ADCharacter* Caster;
+
+	FVector LastLocation;
 };

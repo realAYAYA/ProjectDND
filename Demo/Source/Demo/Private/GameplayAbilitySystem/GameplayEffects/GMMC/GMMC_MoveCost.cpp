@@ -5,7 +5,7 @@
 UGMMC_MoveCost::UGMMC_MoveCost()
 {
 	//ManaDef defined in header FGameplayEffectAttributeCaptureDefinition ManaDef;
-	MoveCost.AttributeToCapture = UDAttributeSet::GetManaAttribute();
+	MoveCost.AttributeToCapture = UDAttributeSet::GetMoveDistanceAttribute();
 	MoveCost.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
 	MoveCost.bSnapshot = false;
 
@@ -18,10 +18,10 @@ float UGMMC_MoveCost::CalculateBaseMagnitude_Implementation(const FGameplayEffec
 	FAggregatorEvaluateParameters EvaluationParameters;
 	EvaluationParameters.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	EvaluationParameters.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
-
+	
 	float MoveCostValue = 0.f;
 	GetCapturedAttributeMagnitude(MoveCost, Spec, EvaluationParameters, MoveCostValue);
 	MoveCostValue = FMath::Max<float>(MoveCostValue, 0.0f);
 	
-	return MoveCostValue;
+	return -1;
 }

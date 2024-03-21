@@ -24,13 +24,28 @@ UAbilityTask_Move* UAbilityTask_Move::CreateTask(UGameplayAbility* OwningAbility
 	return MyObj;
 }
 
+void UAbilityTask_Move::Activate()
+{
+	LastLocation = Caster->GetActorLocation();
+	
+	Super::Activate();
+}
+
 void UAbilityTask_Move::TickTask(float DeltaTime)
 {
 	Super::TickTask(DeltaTime);
 
 	if (Caster && Caster->GetAttributeSet())
 	{
-		const auto* Att = Caster->GetAttributeSet();
+		auto* Att = Caster->GetAttributeSet();
+
+		const FVector CurrentLocation = Caster->GetActorLocation();
+		const float Distance = (CurrentLocation - LastLocation).Length();
+		const float MoveCost = Att->GetMoveCost() * Distance;
+		const float NewValue = Att->GetMoveDistance() - MoveCost;
+		Att->SetMoveDistance(FMath::Clamp(NewValue, 0.0f, Att->GetMoveDistance()));
+		LastLocation = CurrentLocation;
+		
 		if (Att->GetMoveDistance() > 0)
 			return;
 	}

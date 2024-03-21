@@ -39,12 +39,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnRep_MoveDistance)
 	FGameplayAttributeData MoveDistance;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MoveDistance)
-
+	
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnRep_MaxMoveDistance)
 	FGameplayAttributeData MaxMoveDistance;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxMoveDistance)
 
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", Replicated)
 	FGameplayAttributeData MoveCost;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MoveCost)
 

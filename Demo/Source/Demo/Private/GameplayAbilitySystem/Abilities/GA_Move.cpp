@@ -9,7 +9,6 @@
 #include "AbilitySystemLog.h"
 #include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/GameplayAbilitySystemGlobalTags.h"
-#include "GameplayAbilitySystem/GameplayEffects/GE_Move.h"
 #include "GameplayAbilitySystem/Tasks/AbilityTask_Move.h"
 #include "GameplayAbilitySystem/Tasks/AbilityTask_Move_WithTargetData.h"
 
@@ -56,18 +55,7 @@ void UGA_Move::ActivateAbility(
 	MoveTask->OnNoMoreMoveDistance.AddDynamic(this, &UGA_Move::K2_EndAbility);
 	this->ActiveTasks.Add(MoveTask);
 	MoveTask->ReadyForActivation();
-
-	// 施加GE
-	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
-	const FGameplayEffectContextHandle TargetEffectContext = ASC->MakeEffectContext();
-	const FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(UGE_Move::StaticClass(), 0, TargetEffectContext);
-	if (SpecHandle.IsValid())
-	{
-		MoveGEHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		if (!MoveGEHandle.WasSuccessfullyApplied())
-			ABILITY_LOG(Log, TEXT("Ability %s faild to apply Effect to Target %s"), *GetName(), *GetNameSafe(UGE_Move::StaticClass()));
-	}
-
+	
 
 	Super::ActivateAbility(Handle, OwnerInfo, ActivationInfo, TriggerEventData);
 }
@@ -75,11 +63,6 @@ void UGA_Move::ActivateAbility(
 void UGA_Move::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	// 移除GE
-	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
-	if (MoveGEHandle.IsValid())
-		ASC->RemoveActiveGameplayEffect(MoveGEHandle);
-	
 	// 停止移动
 	const ADCharacter* Caster = Cast<ADCharacter>(CurrentActorInfo->AvatarActor);
 	if (Caster->GetPlayerState())

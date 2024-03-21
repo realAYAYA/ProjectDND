@@ -25,7 +25,7 @@ ADCharacter::ADCharacter()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	AttributeSet = CreateDefaultSubobject<UDAttributeSet>(TEXT("AttributeSet"));
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxMoveSpeedAttribute()).AddUObject(this, &ADCharacter::OnMoveDistanceChange);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMoveDistanceAttribute()).AddUObject(this, &ADCharacter::OnMoveDistanceChange);
 }
 
 void ADCharacter::BeginReplication()
