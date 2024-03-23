@@ -8,9 +8,10 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
 #include "GameFramework/PlayerState.h"
+#include "GameplayAbilitySystem/DAttributeSet.h"
 #include "GameplayAbilitySystem/GameplayAbilitySystemGlobalTags.h"
 #include "GameplayAbilitySystem/Tasks/AbilityTask_Move.h"
-#include "GameplayAbilitySystem/Tasks/AbilityTask_Move_WithTargetData.h"
+#include "..\Tasks\DAbilityTask_WithTargetData.h"
 
 UGA_Move::UGA_Move()
 {
@@ -36,11 +37,9 @@ bool UGA_Move::CanActivateAbility(
 	
 	const ADCharacter* Caster = Cast<ADCharacter>(ActorInfo->AvatarActor);
 	if (!Caster)
-		Result = false;
+		return false;
 
-	const auto* PC = Cast<ADPlayerController>(Caster->GetPlayerState()->GetPlayerController());
-	if (!PC)
-		Result = false;
+	Result = Caster->GetAttributeSet()->GetMoveDistance() > 0 ? true : false;
 	
 	return Result;
 }
@@ -70,6 +69,9 @@ void UGA_Move::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepl
 		if (const auto* PC = Cast<ADPlayerController>(Caster->GetPlayerState()->GetPlayerController()))
 			PC->StopMove();
 	}
+
+	if (MoveTask)
+		MoveTask->EndTask();
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

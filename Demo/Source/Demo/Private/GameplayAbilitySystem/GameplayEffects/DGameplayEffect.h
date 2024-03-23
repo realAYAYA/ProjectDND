@@ -140,8 +140,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectD")
 	int32 Level = 1;
 	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectD")
-	EDDamageType DamageType = EDDamageType::Physical;
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectD")
+	//EDDamageType DamageType = EDDamageType::Physical;
 
 	/** 持续回合数 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectD", meta=(EditCondition="DurationPolicy != EGameplayEffectDurationType::Instant", EditConditionHides))

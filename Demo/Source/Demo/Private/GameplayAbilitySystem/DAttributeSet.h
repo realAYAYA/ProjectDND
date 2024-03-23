@@ -7,14 +7,8 @@
 #include "AttributeSet.h"
 #include "DAttributeSet.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float, V);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChanged, float, V);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChanged, float, V);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChanged, float, V);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRageChanged, float, V);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxRageChanged, float, V);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnergyChanged, float, V);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxEnergyChanged, float, V);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeValueChange, float, V);
+
 
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
@@ -48,7 +42,7 @@ public:
 	FGameplayAttributeData MoveCost;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MoveCost)
 
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_MaxMoveSpeed)
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnRep_MaxMoveSpeed)
 	FGameplayAttributeData MaxMoveSpeed;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxMoveSpeed)
 	
@@ -90,37 +84,10 @@ public:
 	FGameplayAttributeData HealRatio;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, HealRatio)
 
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_Mana)
-	FGameplayAttributeData Mana;
-	ATTRIBUTE_ACCESSORS(UDAttributeSet, Mana)
-
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_MaxMana)
-	FGameplayAttributeData MaxMana;
-	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxMana)
-
 	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes")
 	FGameplayAttributeData ManaRecovery;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, ManaRecovery)
 
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_Energy)
-	FGameplayAttributeData Energy;
-	ATTRIBUTE_ACCESSORS(UDAttributeSet, Energy)
-
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_MaxEnergy)
-	FGameplayAttributeData MaxEnergy;
-	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxEnergy)
-
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes")
-	FGameplayAttributeData EnergyRecovery;
-	ATTRIBUTE_ACCESSORS(UDAttributeSet, EnergyRecovery)
-
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_Rage)
-	FGameplayAttributeData Rage;
-	ATTRIBUTE_ACCESSORS(UDAttributeSet, Rage)
-
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_MaxRage)
-	FGameplayAttributeData MaxRage;
-	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxRage)
 
 	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes")
 	FGameplayAttributeData MeleeAttackIntensity;
@@ -141,10 +108,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes")
 	FGameplayAttributeData HealIntensity;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, HealIntensity)
-
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_CastSpeed)
-	FGameplayAttributeData CastSpeed;
-	ATTRIBUTE_ACCESSORS(UDAttributeSet, CastSpeed)
 	
 	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes")
 	FGameplayAttributeData PhyCriticalRate;
@@ -226,37 +189,17 @@ public:
 	FGameplayAttributeData DivineResist;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, DivineResist)
 
-	UPROPERTY(BlueprintAssignable, Category = "ProjectM")
-	FOnHealthChanged OnHealthChanged;
+	UPROPERTY(BlueprintAssignable, Category = "ProjectD")
+	FOnAttributeValueChange OnMoveDistanceChange;
 
-	UPROPERTY(BlueprintAssignable, Category = "ProjectM")
-	FOnMaxHealthChanged OnMaxHealthChanged;
+	UPROPERTY(BlueprintAssignable, Category = "ProjectD")
+	FOnAttributeValueChange OnMaxMoveDistanceChange;
 
-	UPROPERTY(BlueprintAssignable, Category = "ProjectM")
-	FOnManaChanged OnManaChanged;
+	UPROPERTY(BlueprintAssignable, Category = "ProjectD")
+	FOnAttributeValueChange OnHealthChanged;
 
-	UPROPERTY(BlueprintAssignable, Category = "ProjectM")
-	FOnMaxManaChanged OnMaxManaChanged;
-
-	UPROPERTY(BlueprintAssignable, Category = "ProjectM")
-	FOnRageChanged OnRageChanged;
-
-	UPROPERTY(BlueprintAssignable, Category = "ProjectM")
-	FOnMaxRageChanged OnMaxRageChanged;
-
-	UPROPERTY(BlueprintAssignable, Category = "ProjectM")
-	FOnEnergyChanged OnEnergyChanged;
-
-	UPROPERTY(BlueprintAssignable, Category = "ProjectM")
-	FOnMaxEnergyChanged OnMaxEnergyChanged;
-
-	// -------------------------------------------------------------------------------
-	//		Life Properties
-	// -------------------------------------------------------------------------------
-
-	// -------------------------------------------------------------------------------
-	//		Character Model
-	// -------------------------------------------------------------------------------
+	UPROPERTY(BlueprintAssignable, Category = "ProjectD")
+	FOnAttributeValueChange OnMaxHealthChanged;
 	
 	
 protected:
@@ -277,25 +220,4 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_MaxHealth(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_Mana(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_MaxMana(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_Energy(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_MaxEnergy(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_Rage(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_MaxRage(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_CastSpeed(const FGameplayAttributeData& OldValue);
 };

@@ -43,7 +43,7 @@ void UAbilityTask_Move::TickTask(float DeltaTime)
 		const float Distance = (CurrentLocation - LastLocation).Length();
 		const float MoveCost = Att->GetMoveCost() * Distance;
 		const float NewValue = Att->GetMoveDistance() - MoveCost;
-		Att->SetMoveDistance(FMath::Clamp(NewValue, 0.0f, Att->GetMoveDistance()));
+		Att->SetMoveDistance(FMath::Clamp(NewValue, 0.0f, Att->GetMaxMoveDistance()));
 		LastLocation = CurrentLocation;
 		
 		if (Att->GetMoveDistance() > 0)

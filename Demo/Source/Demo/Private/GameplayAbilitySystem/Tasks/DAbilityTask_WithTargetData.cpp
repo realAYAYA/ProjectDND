@@ -1,17 +1,17 @@
-﻿#include "AbilityTask_Move_WithTargetData.h"
+﻿#include "DAbilityTask_WithTargetData.h"
 
 #include "AbilitySystemComponent.h"
 
-UDAbilityTask_Move_WithTargetData::UDAbilityTask_Move_WithTargetData()
+UDAbilityTask_WithTargetData::UDAbilityTask_WithTargetData()
 {
 	TargetClass = AGameplayAbilityTargetActor::StaticClass();
 	TargetActor = nullptr;
 	ConfirmationType = EGameplayTargetingConfirmation::UserConfirmed;
 }
 
-UDAbilityTask_Move_WithTargetData* UDAbilityTask_Move_WithTargetData::CreateTask(UGameplayAbility* OwningAbility)
+UDAbilityTask_WithTargetData* UDAbilityTask_WithTargetData::CreateTask(UGameplayAbility* OwningAbility)
 {
-	UDAbilityTask_Move_WithTargetData* MyObj = NewAbilityTask<UDAbilityTask_Move_WithTargetData>(OwningAbility, FName("Move"));
+	UDAbilityTask_WithTargetData* MyObj = NewAbilityTask<UDAbilityTask_WithTargetData>(OwningAbility, FName("Move"));
 
 	MyObj->Ability = OwningAbility;
 	MyObj->AbilitySystemComponent = OwningAbility->GetAbilitySystemComponentFromActorInfo();
@@ -20,7 +20,7 @@ UDAbilityTask_Move_WithTargetData* UDAbilityTask_Move_WithTargetData::CreateTask
 	return MyObj;
 }
 
-void UDAbilityTask_Move_WithTargetData::Activate()
+void UDAbilityTask_WithTargetData::Activate()
 {
 	if (Ability)
 	{

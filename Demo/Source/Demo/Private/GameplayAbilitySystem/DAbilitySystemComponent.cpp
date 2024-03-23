@@ -143,6 +143,11 @@ void UDAbilitySystemComponent::EndTurn()
 {
 }
 
+void UDAbilitySystemComponent::NotifyAbilityFireOrHit() const
+{
+	OnAbilityReadyToFire.Broadcast();
+}
+
 void UDAbilitySystemComponent::OnGEApplied(
 	UAbilitySystemComponent* Asc,
 	const FGameplayEffectSpec& Spec,

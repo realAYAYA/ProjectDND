@@ -12,7 +12,8 @@
 class ADCharacter;
 class UDGameplayEffect;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGEAppliedDelegate, const FGameplayTag&, Tag, const float, TimeRemaining);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAscDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGEAppliedDelegate, const FGameplayTag&, Tag, const int32, TurnRemaining);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGERemovedDelegate, const FGameplayTag&, Tag);
 
 /**
@@ -97,6 +98,10 @@ public:
 
 	/** 回合结束，施加回合制效果等*/
 	void EndTurn();
+
+	void NotifyAbilityFireOrHit() const;
+
+	FOnAscDelegate OnAbilityReadyToFire;// 来自Montage的AnimNotify，通知技能可以进行发射
 
 protected:
 

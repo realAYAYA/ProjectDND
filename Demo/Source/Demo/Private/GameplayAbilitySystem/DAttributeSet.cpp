@@ -17,10 +17,6 @@ void UDAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackD
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 	}
-	else if (Data.EvaluatedData.Attribute == GetManaAttribute())
-	{
-		SetMana(FMath::Clamp(GetMana(), 0.0f, GetMaxMana()));
-	}
 	else if (Data.EvaluatedData.Attribute == GetMaxMoveSpeedAttribute())
 	{
 		const ACharacter* OwningCharacter = Cast<ACharacter>(GetOwningActor());
@@ -51,13 +47,6 @@ void UDAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxMoveSpeed, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Health, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxHealth, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Mana, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxMana, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Energy, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxEnergy, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, Rage, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, MaxRage, COND_None, REPNOTIFY_OnChanged);
-	DOREPLIFETIME_CONDITION_NOTIFY(UDAttributeSet, CastSpeed, COND_None, REPNOTIFY_OnChanged);
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
@@ -70,53 +59,18 @@ void UDAttributeSet::OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldValue)
 
 void UDAttributeSet::OnRep_MoveDistance(const FGameplayAttributeData& OldValue)
 {
-	
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MoveDistance, OldValue);
+	OnMoveDistanceChange.Broadcast(GetMoveDistance());
 }
 
 void UDAttributeSet::OnRep_MaxMoveDistance(const FGameplayAttributeData& OldValue)
 {
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxMoveDistance, OldValue);
+	
+	OnMaxMoveDistanceChange.Broadcast(GetMaxMoveDistance());
+
 }
 
-void UDAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Mana, OldValue);
-	OnManaChanged.Broadcast(GetMana());
-}
-
-void UDAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxMana, OldValue);
-	OnMaxManaChanged.Broadcast(GetMaxMana());
-}
-
-void UDAttributeSet::OnRep_Energy(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Energy, OldValue);
-	OnEnergyChanged.Broadcast(GetEnergy());
-}
-
-void UDAttributeSet::OnRep_MaxEnergy(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxEnergy, OldValue);
-	OnMaxEnergyChanged.Broadcast(GetMaxEnergy());
-}
-
-void UDAttributeSet::OnRep_Rage(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Rage, OldValue);
-	OnRageChanged.Broadcast(GetRage());
-}
-
-void UDAttributeSet::OnRep_MaxRage(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxRage, OldValue);
-	OnMaxRageChanged.Broadcast(GetMaxRage());
-}
-
-void UDAttributeSet::OnRep_CastSpeed(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, CastSpeed, OldValue);
-}
 
 void UDAttributeSet::OnRep_Health(const FGameplayAttributeData& OldValue)
 {

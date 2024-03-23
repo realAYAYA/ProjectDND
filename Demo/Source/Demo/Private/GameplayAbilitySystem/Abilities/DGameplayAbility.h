@@ -9,6 +9,14 @@
 class ADCharacter;
 class UAbilityTask_WaitTargetData;
 class UAbilityTask_Move;
+
+UENUM(BlueprintType)
+enum class EAbilityState : uint8
+{
+	Standby		UMETA(Displayname = "Standby"),				// 技能随时可以发射
+	HasBeenInterrupted	UMETA(Displayname = "Interrupt"),	// 技能已经被打断，法术反制
+};
+
 /**
  * 
  */
@@ -24,4 +32,7 @@ public:
 	
 	UPROPERTY()
 	UAbilityTask_WaitTargetData* TargetDataTask;
+
+	UPROPERTY()
+	EAbilityState AbilityState = EAbilityState::Standby;
 };
