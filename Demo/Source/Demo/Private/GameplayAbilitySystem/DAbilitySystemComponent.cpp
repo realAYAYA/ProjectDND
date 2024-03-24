@@ -143,9 +143,9 @@ void UDAbilitySystemComponent::EndTurn()
 {
 }
 
-void UDAbilitySystemComponent::NotifyAbilityFireOrHit() const
+void UDAbilitySystemComponent::NotifyAbilityFireOrHit(const UClass* AbilityClass) const
 {
-	OnAbilityReadyToFire.Broadcast();
+	OnAbilityReadyToFire.Broadcast(AbilityClass);
 }
 
 void UDAbilitySystemComponent::OnGEApplied(

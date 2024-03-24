@@ -6,12 +6,10 @@
 #include "DPlayerController.h"
 
 #include "AbilitySystemComponent.h"
-#include "AbilitySystemLog.h"
 #include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/DAttributeSet.h"
 #include "GameplayAbilitySystem/GameplayAbilitySystemGlobalTags.h"
 #include "GameplayAbilitySystem/Tasks/AbilityTask_Move.h"
-#include "..\Tasks\DAbilityTask_WithTargetData.h"
 
 UGA_Move::UGA_Move()
 {

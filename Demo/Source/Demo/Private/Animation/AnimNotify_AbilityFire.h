@@ -18,5 +18,9 @@ class UAnimNotify_AbilityFire : public UAnimNotify
 public:
 
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	TSubclassOf<UDGameplayAbility> AbilityClassToNotify;
 	
 };

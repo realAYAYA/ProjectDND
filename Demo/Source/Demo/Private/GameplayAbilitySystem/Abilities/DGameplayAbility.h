@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "DGameplayAbility.generated.h"
 
+class UDAbilitySystemComponent;
 class ADCharacter;
 class UAbilityTask_WaitTargetData;
 class UAbilityTask_Move;
@@ -27,6 +28,15 @@ class UDGameplayAbility : public UGameplayAbility
 
 public:
 
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	UAnimMontage* MontageOnAbilityStart;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	UAnimMontage* MontageStandby;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	UAnimMontage* MontageOnFire;
+
 	UPROPERTY()
 	ADCharacter* Target;
 	
@@ -35,4 +45,6 @@ public:
 
 	UPROPERTY()
 	EAbilityState AbilityState = EAbilityState::Standby;
+
+	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo);
 };

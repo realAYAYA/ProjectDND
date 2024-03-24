@@ -5,6 +5,7 @@
 
 #include "Character/DCharacter.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
+#include "GameplayAbilitySystem/Abilities/DGameplayAbility.h"
 
 void UAnimNotify_AbilityFire::Notify(
 	USkeletalMeshComponent* MeshComp,
@@ -13,7 +14,7 @@ void UAnimNotify_AbilityFire::Notify(
 {
 	if (const auto* Character = Cast<ADCharacter>(MeshComp->GetOwner()); Character && Character->AbilitySystemComponent)
 	{
-		Character->AbilitySystemComponent->NotifyAbilityFireOrHit();
+		Character->AbilitySystemComponent->NotifyAbilityFireOrHit(AbilityClassToNotify.Get());
 	}
 	
 	Super::Notify(MeshComp, Animation, EventReference);
