@@ -19,7 +19,10 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	
 	FGameplayTag Silence;
 
-	FGameplayTag BattleState;
+	FGameplayTag InBattle;
+
+	FGameplayTag Buff;
+	FGameplayTag DeBuff;
 	
 	FGameplayTag Move;
 	
@@ -37,7 +40,10 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 
 		Silence		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Silence"), TEXT("ProjectD"));
 
-		BattleState	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.Battle"), TEXT("ProjectD"));
+		InBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Battle"), TEXT("ProjectD"));
+
+		Buff		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.Buff"), TEXT("ProjectD"));
+		DeBuff		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.DeBuff"), TEXT("ProjectD"));
 
 		Move		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Movement.Move"), TEXT("ProjectD"));
 

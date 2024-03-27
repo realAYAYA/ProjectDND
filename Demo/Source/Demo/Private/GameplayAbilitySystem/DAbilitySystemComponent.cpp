@@ -106,7 +106,7 @@ bool UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToSelf(
 			// 将GE收纳至回合制容器中进行管理
 			if (GameplayEffectDef->DurationPolicy != EGameplayEffectDurationType::Instant)
 			{
-				TurnBasedActiveGameplayEffectsContainer.ApplyActiveGameplayEffect(ActiveGEHandle, GameplayEffectDef, CustomDuration);
+				TurnBasedActiveGameplayEffectsContainer.ApplyActiveGameplayEffect(*SpecHandle.Data.Get(), ActiveGEHandle, GameplayEffectDef, CustomDuration);
 			}
 		}
 	}
@@ -118,7 +118,7 @@ bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
 	const FActiveGameplayEffectHandle Handle,
 	const int32 StacksToRemove)
 {
-	const bool bRemoveDone = Super::RemoveActiveGameplayEffect(Handle, StacksToRemove);
+	const bool bRemoveDone = RemoveActiveGameplayEffect(Handle, StacksToRemove);
 	if (bRemoveDone)
 	{
 		TurnBasedActiveGameplayEffectsContainer.RemoveActiveGameplayEffect(Handle);

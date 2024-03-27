@@ -23,5 +23,5 @@ void UGA_Fireball::OnFire(const UClass* AbilityClass)
 		return;
 
 	UAnimInstance* AnimInstance = CurrentActorInfo->GetAnimInstance();
-	AnimInstance->NotifyQueue
+	//AnimInstance->NotifyQueue
 }

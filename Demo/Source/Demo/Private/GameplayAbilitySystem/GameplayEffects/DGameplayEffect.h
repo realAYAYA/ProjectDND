@@ -52,6 +52,10 @@ struct DEMO_API FTurnBasedActiveGameplayEffect : public FFastArraySerializerItem
 		ClientCachedTurn = DurationTurn;
 	}
 
+	FTurnBasedActiveGameplayEffect& operator=(FTurnBasedActiveGameplayEffect&& other);
+
+	FTurnBasedActiveGameplayEffect& operator=(const FTurnBasedActiveGameplayEffect& other);
+
 	void PreReplicatedRemove(const FTurnBasedActiveGameplayEffectsContainer &InArray);
 	void PostReplicatedAdd(const FTurnBasedActiveGameplayEffectsContainer &InArray);
 	void PostReplicatedChange(const FTurnBasedActiveGameplayEffectsContainer &InArray);
@@ -70,6 +74,9 @@ struct DEMO_API FTurnBasedActiveGameplayEffect : public FFastArraySerializerItem
 
 	UPROPERTY()
 	FActiveGameplayEffectHandle ActiveGameplayEffectHandle;
+
+	UPROPERTY()
+	FGameplayEffectSpec Spec;
 };
 
 USTRUCT()
@@ -80,7 +87,7 @@ struct DEMO_API FTurnBasedActiveGameplayEffectsContainer : public FFastArraySeri
 	FTurnBasedActiveGameplayEffect* GetActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
 	const FTurnBasedActiveGameplayEffect* GetActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle) const;
 
-	FTurnBasedActiveGameplayEffect* ApplyActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle, const UDGameplayEffect* GameplayEffect, int32 CustomDuration = -1);
+	FTurnBasedActiveGameplayEffect* ApplyActiveGameplayEffect(const FGameplayEffectSpec &Spec, const FActiveGameplayEffectHandle& Handle, const UDGameplayEffect* GameplayEffect, int32 CustomDuration = -1);
 
 	bool RemoveActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
 	

@@ -1,4 +1,6 @@
 ﻿#include "DGameplayEffect.h"
+
+#include "AbilitySystemLog.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "GameplayAbilitySystem/GameplayAbilitySystemGlobalTags.h"
 
@@ -6,17 +8,49 @@
 
 FGameplayAbilityGlobalTags FGameplayAbilityGlobalTags::GasTags;
 
+FTurnBasedActiveGameplayEffect& FTurnBasedActiveGameplayEffect::operator=(FTurnBasedActiveGameplayEffect&& other)
+{
+	return *this;
+}
+
+FTurnBasedActiveGameplayEffect& FTurnBasedActiveGameplayEffect::operator=(const FTurnBasedActiveGameplayEffect& other)
+{
+	return *this;
+}
+
 void FTurnBasedActiveGameplayEffect::PreReplicatedRemove(const FTurnBasedActiveGameplayEffectsContainer& InArray)
 {
+	
 }
 
 void FTurnBasedActiveGameplayEffect::PostReplicatedAdd(const FTurnBasedActiveGameplayEffectsContainer& InArray)
 {
+	
 }
 
 void FTurnBasedActiveGameplayEffect::PostReplicatedChange(const FTurnBasedActiveGameplayEffectsContainer& InArray)
 {
-	
+	if (Spec.Def == nullptr)
+	{
+		ABILITY_LOG(Error, TEXT("FActiveGameplayEffect::PostReplicatedChange Received ReplicatedGameplayEffect with no UGameplayEffect def. (%s)"), *Spec.GetEffectContext().ToString());
+		return;
+	}
+
+	if (Spec.Modifiers.Num() != Spec.Def->Modifiers.Num())
+	{
+		// This can happen with older replays, where the replicated Spec.Modifiers size changed in the newer Spec.Def
+		Spec.Modifiers.Empty();
+		return;
+	}
+
+	// Handle potential duration refresh
+	if (DurationTurn != ClientCachedTurn)
+	{
+		//RecomputeStartWorldTime(InArray);
+		//CachedStartServerWorldTime = StartServerWorldTime;
+
+		//const_cast<FActiveGameplayEffectsContainer&>(InArray).OnDurationChange(*this);
+	}
 }
 
 FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::GetActiveGameplayEffect(
@@ -48,6 +82,7 @@ const FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::
 }
 
 FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::ApplyActiveGameplayEffect(
+const FGameplayEffectSpec &Spec,
 	const FActiveGameplayEffectHandle& Handle,
 	const UDGameplayEffect* GameplayEffect,
 	int32 CustomDuration)
@@ -59,6 +94,7 @@ FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::ApplyA
 	if (!TurnBasedActiveGameplayEffect)
 	{
 		const int32 Idx = GameplayEffects_Internal.Add(FTurnBasedActiveGameplayEffect(Handle, CustomDuration));
+		GameplayEffects_Internal[Idx].Spec = Spec;
 		return &GameplayEffects_Internal[Idx];
 	}
 	else
