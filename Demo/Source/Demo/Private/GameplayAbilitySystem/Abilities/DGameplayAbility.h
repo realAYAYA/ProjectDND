@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "DGameplayAbility.generated.h"
 
+class ADProjectile;
 class UDAbilitySystemComponent;
 class ADCharacter;
 class UAbilityTask_WaitTargetData;
@@ -36,6 +37,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	UAnimMontage* MontageOnFire;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	TSubclassOf<ADProjectile> ProjectileClass;
 
 	UPROPERTY()
 	ADCharacter* Target;

@@ -1,0 +1,10 @@
+{
+  "MajorVersion": 5,
+  "MinorVersion": 3,
+  "PatchVersion": 2,
+  "Changelist": 39,
+  "CompatibleChangelist": 39,
+  "IsLicenseeVersion": 1,
+  "IsPromotedBuild": 0,
+  "BranchName": "++Demo+main"
+}
