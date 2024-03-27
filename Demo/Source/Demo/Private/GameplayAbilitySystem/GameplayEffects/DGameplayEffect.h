@@ -52,9 +52,9 @@ struct DEMO_API FTurnBasedActiveGameplayEffect : public FFastArraySerializerItem
 		ClientCachedTurn = DurationTurn;
 	}
 
-	FTurnBasedActiveGameplayEffect& operator=(FTurnBasedActiveGameplayEffect&& other);
+	//FTurnBasedActiveGameplayEffect& operator=(FTurnBasedActiveGameplayEffect&& Other) noexcept;
 
-	FTurnBasedActiveGameplayEffect& operator=(const FTurnBasedActiveGameplayEffect& other);
+	//FTurnBasedActiveGameplayEffect& operator=(const FTurnBasedActiveGameplayEffect& Other);
 
 	void PreReplicatedRemove(const FTurnBasedActiveGameplayEffectsContainer &InArray);
 	void PostReplicatedAdd(const FTurnBasedActiveGameplayEffectsContainer &InArray);
@@ -74,9 +74,6 @@ struct DEMO_API FTurnBasedActiveGameplayEffect : public FFastArraySerializerItem
 
 	UPROPERTY()
 	FActiveGameplayEffectHandle ActiveGameplayEffectHandle;
-
-	UPROPERTY()
-	FGameplayEffectSpec Spec;
 };
 
 USTRUCT()
