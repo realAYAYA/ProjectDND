@@ -55,15 +55,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ReqTurnEnd();
 
-	void GetInBattle(ATurnBasedBattleInstance* BattleInstance);
-	
-	UFUNCTION(Client, Reliable)
-	void OnBattle(const ADCharacter* InCharacter);
-
 	UFUNCTION(Client, Reliable)
 	void YourTurn(const ADCharacter* InCharacter);// Called by Server
-
-	UFUNCTION(Client, Reliable)
-	void BattleEnd();
 	
 };

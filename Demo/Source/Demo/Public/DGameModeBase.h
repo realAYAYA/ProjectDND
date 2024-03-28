@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "DGameModeBase.generated.h"
 
+class ATurnBasedBattleInstance;
+
 /**
  * 
  */
@@ -20,6 +22,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	void BuildBattleWithAllCharacters();
 
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	TSubclassOf<ATurnBasedBattleInstance> BattleInstanceClass;
+	
 	UPROPERTY()
-	TArray<class ATurnBasedBattleInstance*> BattleInstances;
+	TArray<ATurnBasedBattleInstance*> BattleInstances;
 };

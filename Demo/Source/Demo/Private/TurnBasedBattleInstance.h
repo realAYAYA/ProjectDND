@@ -22,10 +22,7 @@ public:
 	
 	// Sets default values for this actor's properties
 	ATurnBasedBattleInstance();
-
-	UFUNCTION(BlueprintCallable, Category = "ProjectD", Server, Reliable)
-	void K2_BuildBattleQueue(const TArray<int64>& CharacterIds);
-
+	
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	int32 GetCurrentTurnNum() const { return CurrentTurnNum; }
 
@@ -41,6 +38,7 @@ public:
 	UPROPERTY(ReplicatedUsing = OnTurnNumChanged)
 	int32 CurrentTurnNum = 0;
 
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	void BeginBattle();// 战斗开始
 	
 	void TurnEnd(const ADCharacter* InCharacter);
@@ -63,6 +61,8 @@ protected:
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	//virtual void PostNetInit() override;
 	
 public:
 	

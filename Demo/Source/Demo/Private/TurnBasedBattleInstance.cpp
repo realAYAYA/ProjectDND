@@ -20,30 +20,6 @@ ATurnBasedBattleInstance::ATurnBasedBattleInstance()
 	CurrentCharacter = nullptr;
 }
 
-void ATurnBasedBattleInstance::K2_BuildBattleQueue_Implementation(const TArray<int64>& CharacterIds)
-{
-	if (GetNetMode() == NM_Client)
-		return;
-
-	const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance());
-	if (!GameInstance)
-		return;
-	
-	for (const auto Id : CharacterIds)
-	{
-		if (const auto* Character = GameInstance->CharacterManager->Find(Id))
-		{
-			if (auto* PC = Cast<ADPlayerController>(Character->GetPlayerState()->GetPlayerController()))
-			{
-				PC->GetInBattle(this);
-				CharacterIdList.Add(Id);
-			}
-		}
-	}
-
-	
-}
-
 // Called when the game starts or when spawned
 void ATurnBasedBattleInstance::BeginPlay()
 {
@@ -60,9 +36,25 @@ void ATurnBasedBattleInstance::Tick(float DeltaTime)
 
 void ATurnBasedBattleInstance::BeginBattle()
 {
+	if (!HasAuthority())
+		return;
+	
 	const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance());
 	if (!GameInstance)
 		return;
+
+	GameInstance->CharacterManager->Foreach([this](ADCharacter* Character) -> bool
+	{
+		// 角色死亡或其它某种状态不得参加战斗
+		if (auto* PC = Cast<ADPlayerController>(Character->GetPlayerState()->GetPlayerController()))
+		{
+			this->CharacterIdList.Add(Character->GetRoleId());
+			this->CharacterList.Add(Character);
+			Character->SetBattleInstance(this);
+		}
+		
+		return true;
+	});
 	
 	// Todo
 	// 计算先攻顺序
