@@ -259,6 +259,14 @@ bool FTurnBasedActiveGameplayEffectsContainer::NetDeltaSerialize(FNetDeltaSerial
 	return RetVal;
 }
 
+void FTurnBasedActiveGameplayEffectsContainer::OnTurnCountChange(
+	FActiveGameplayEffect& ActiveEffect,
+	const int32 OldStackCount,
+	const int32 NewStackCount)
+{
+	Owner;
+}
+
 UDGameplayEffect::UDGameplayEffect()
 {
 	

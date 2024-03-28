@@ -178,6 +178,6 @@ void ADPlayerController::ReqTurnEnd_Implementation()
 {
 	if (const auto* DCharacter = Cast<ADCharacter>(this->GetPawn()))
 	{
-		DCharacter->BattleInstance->ReqTurnEnd(DCharacter);
+		DCharacter->BattleInstance->TurnEnd(DCharacter);
 	}
 }

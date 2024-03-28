@@ -112,6 +112,8 @@ struct DEMO_API FTurnBasedActiveGameplayEffectsContainer : public FFastArraySeri
 	bool OwnerIsNetAuthority;
 
 	uint8 bIsUsingReplicationCondition : 1;
+
+	void OnTurnCountChange(FActiveGameplayEffect& ActiveEffect, const int32 OldStackCount, const int32 NewStackCount);
 };
 
 template<>

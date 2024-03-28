@@ -40,8 +40,10 @@ public:
 
 	UPROPERTY(ReplicatedUsing = OnTurnNumChanged)
 	int32 CurrentTurnNum = 0;
+
+	void BeginBattle();// 战斗开始
 	
-	void ReqTurnEnd(const ADCharacter* InCharacter);
+	void TurnEnd(const ADCharacter* InCharacter);
 
 	void YourTurn(ADCharacter* InCharacter);// 下一个单位的回合
 

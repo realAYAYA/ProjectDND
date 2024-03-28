@@ -41,17 +41,7 @@ void ATurnBasedBattleInstance::K2_BuildBattleQueue_Implementation(const TArray<i
 		}
 	}
 
-	// Todo
-	// 计算先攻顺序
-	// 通知第一个角色调用YourTurn
-	if (CharacterIdList.IsValidIndex(0))
-	{
-		auto* Character = GameInstance->CharacterManager->Find(CharacterIdList[0]);
-		if (Character && Character->BattleInstance == this)
-		{
-			YourTurn(Character);
-		}
-	}
+	
 }
 
 // Called when the game starts or when spawned
@@ -68,7 +58,26 @@ void ATurnBasedBattleInstance::Tick(float DeltaTime)
 
 }
 
-void ATurnBasedBattleInstance::ReqTurnEnd(const ADCharacter* InCharacter)
+void ATurnBasedBattleInstance::BeginBattle()
+{
+	const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance());
+	if (!GameInstance)
+		return;
+	
+	// Todo
+	// 计算先攻顺序
+	// 通知第一个角色调用YourTurn
+	if (CharacterIdList.IsValidIndex(0))
+	{
+		auto* Character = GameInstance->CharacterManager->Find(CharacterIdList[0]);
+		if (Character && Character->BattleInstance == this)
+		{
+			YourTurn(Character);
+		}
+	}
+}
+
+void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
 {
 	// 当前回合角色不符合
 	if (CurrentCharacter != InCharacter)

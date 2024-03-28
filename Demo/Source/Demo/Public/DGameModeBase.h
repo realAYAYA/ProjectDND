@@ -13,5 +13,13 @@ UCLASS()
 class DEMO_API ADGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
+
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	void BuildBattleWithAllCharacters();
+
+	UPROPERTY()
+	TArray<class ATurnBasedBattleInstance*> BattleInstances;
 };
