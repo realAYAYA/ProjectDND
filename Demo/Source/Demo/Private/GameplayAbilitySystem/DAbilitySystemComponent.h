@@ -66,6 +66,8 @@ public:
 	/** 回合制专用GE施加 */
 	bool ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, const int32 Level = 1, const int32 CustomDuration = -1);
 
+
+	bool ApplyTurnBasedGameplayEffectSpecToTarget(const FGameplayEffectSpec& GameplayEffect, UAbilitySystemComponent* Target, FPredictionKey PredictionKey) override;
 	/** Removes GameplayEffect by Handle. StacksToRemove=-1 will remove all stacks. */
 	bool RemoveTurnBasedActiveGameplayEffect(const FActiveGameplayEffectHandle Handle, const int32 StacksToRemove = -1);
 	

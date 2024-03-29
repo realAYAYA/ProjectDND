@@ -95,6 +95,8 @@ void ATurnBasedBattleInstance::YourTurn(ADCharacter* InCharacter)
 {
 	CurrentCharacter = InCharacter;
 	InCharacter->YourTurn();
+	// Todo 恢复动作 移动力 附赠动作
+	InCharacter;
 }
 
 void ATurnBasedBattleInstance::OnCurrentCharacterChange()

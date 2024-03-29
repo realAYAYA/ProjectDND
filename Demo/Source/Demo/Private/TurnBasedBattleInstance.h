@@ -7,7 +7,9 @@
 #include "GameFramework/Actor.h"
 #include "TurnBasedBattleInstance.generated.h"
 
+class UGameplayEffect;
 class ADCharacter;
+
 /**
 * 回合制战斗实例
 * 生成一场战斗，管理参与各个战斗单位
@@ -22,6 +24,9 @@ public:
 	
 	// Sets default values for this actor's properties
 	ATurnBasedBattleInstance();
+
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	TSubclassOf<UGameplayEffect> MyTurnGameplayEffectClass;
 	
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	int32 GetCurrentTurnNum() const { return CurrentTurnNum; }
