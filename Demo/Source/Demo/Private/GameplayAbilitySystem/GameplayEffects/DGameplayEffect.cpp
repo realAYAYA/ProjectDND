@@ -83,7 +83,6 @@ const FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::
 }
 
 FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::ApplyActiveGameplayEffect(
-const FGameplayEffectSpec &Spec,
 	const FActiveGameplayEffectHandle& Handle,
 	const UDGameplayEffect* GameplayEffect,
 	int32 CustomDuration)
@@ -118,17 +117,6 @@ const FGameplayEffectSpec &Spec,
 
 bool FTurnBasedActiveGameplayEffectsContainer::RemoveActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle)
 {
-	// Lyra style
-	/*for (auto EntryIt = GameplayEffects_Internal.CreateIterator(); EntryIt; ++EntryIt)
-	{
-		FTurnBasedActiveGameplayEffect& Entry = *EntryIt;
-		if (Entry.ActiveGameplayEffectHandle == Handle)
-		{
-			EntryIt.RemoveCurrent();
-			MarkArrayDirty();
-		}
-	}*/
-	
 	int32 Idx = INDEX_NONE;
 	for (int32 i = 0; i < GameplayEffects_Internal.Num(); i++)
 	{
@@ -174,10 +162,11 @@ void FTurnBasedActiveGameplayEffectsContainer::CheckTurnDuration()
 		}
 	}
 
-	for (const int32 Idx : RemoveList)
+	for (int32 i = 0; i < RemoveList.Num() - 1; i++)
 	{
-		GameplayEffects_Internal.RemoveAtSwap(Idx, 1, false);
+		GameplayEffects_Internal.RemoveAtSwap(RemoveList[i], 1, false);
 	}
+	GameplayEffects_Internal.RemoveAtSwap(RemoveList[RemoveList.Num() - 1], 1, true);// 最后删除一次对数组进行内存清理
 
 	if (RemoveList.Num() > 0)
 		MarkArrayDirty();

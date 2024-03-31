@@ -76,7 +76,7 @@ public:
 	void YourTurn();// Called by Server
 
 	UFUNCTION(Client, Reliable)
-	void OnBattleEnd();
+	void NotifyBattleEnd();
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	UDAttributeSet* GetAttributeSet() const { return AttributeSet; }

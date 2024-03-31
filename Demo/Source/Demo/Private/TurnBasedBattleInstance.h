@@ -26,7 +26,10 @@ public:
 	ATurnBasedBattleInstance();
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	TSubclassOf<UGameplayEffect> MyTurnGameplayEffectClass;
+	TSubclassOf<UGameplayEffect> MyTurnGEClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	TSubclassOf<UGameplayEffect> BattleBeginGEClass;
 	
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	int32 GetCurrentTurnNum() const { return CurrentTurnNum; }

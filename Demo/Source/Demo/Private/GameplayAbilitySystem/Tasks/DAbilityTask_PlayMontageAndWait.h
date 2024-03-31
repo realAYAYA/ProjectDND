@@ -6,6 +6,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "DAbilityTask_PlayMontageAndWait.generated.h"
 
+class UDGameplayAbility;
 class ADCharacter;
 
 /**
@@ -19,9 +20,22 @@ class UDAbilityTask_PlayMontageAndWait : public UAbilityTask_PlayMontageAndWait
 public:
 
 	UDAbilityTask_PlayMontageAndWait();
-	
-	static UDAbilityTask_PlayMontageAndWait* CreateTask(UGameplayAbility* OwningAbility);
 
+	// On Ability Fire or Hit
+	UPROPERTY(BlueprintAssignable)
+	FMontageWaitSimpleDelegate	OnAbilityFire;
+	
+	static UDAbilityTask_PlayMontageAndWait* CreateTask(
+		UDGameplayAbility* OwningAbility,
+		FName TaskInstanceName,
+		UAnimMontage* MontageToPlay,
+		float Rate = 1.f,
+		FName StartSection = NAME_None,
+		bool bStopWhenAbilityEnds = true,
+		float AnimRootMotionTranslationScale = 1.f,
+		float StartTimeSeconds = 0.f,
+		bool bAllowInterruptAfterBlendOut = false);
+	
 	virtual void Activate() override;
 	
 };

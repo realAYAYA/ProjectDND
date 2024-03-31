@@ -50,5 +50,7 @@ public:
 	UPROPERTY()
 	EAbilityState AbilityState = EAbilityState::Standby;
 
+	// Todo 技能被打断
+
 	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo);
 };

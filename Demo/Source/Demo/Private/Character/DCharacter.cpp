@@ -155,6 +155,8 @@ void ADCharacter::YourTurn()
 			PC->YourTurn(this);
 		}
 	}
+
+	K2_YourTurn();
 }
 
 void ADCharacter::OnMoveDistanceChange(const FOnAttributeChangeData& Data) const
@@ -169,8 +171,9 @@ void ADCharacter::OnMoveDistanceChange(const FOnAttributeChangeData& Data) const
 	}
 }
 
-void ADCharacter::OnBattleEnd_Implementation()
+void ADCharacter::NotifyBattleEnd_Implementation()
 {
+	K2_BattleEnd();
 }
 
 void ADCharacter::OnCharacterIdChange()

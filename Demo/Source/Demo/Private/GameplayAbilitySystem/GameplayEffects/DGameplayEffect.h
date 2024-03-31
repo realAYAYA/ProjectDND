@@ -84,7 +84,7 @@ struct DEMO_API FTurnBasedActiveGameplayEffectsContainer : public FFastArraySeri
 	FTurnBasedActiveGameplayEffect* GetActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
 	const FTurnBasedActiveGameplayEffect* GetActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle) const;
 
-	FTurnBasedActiveGameplayEffect* ApplyActiveGameplayEffect(const FGameplayEffectSpec &Spec, const FActiveGameplayEffectHandle& Handle, const UDGameplayEffect* GameplayEffect, int32 CustomDuration = -1);
+	FTurnBasedActiveGameplayEffect* ApplyActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle, const UDGameplayEffect* GameplayEffect, int32 CustomDuration = -1);
 
 	bool RemoveActiveGameplayEffect(const FActiveGameplayEffectHandle& Handle);
 	

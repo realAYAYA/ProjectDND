@@ -3,6 +3,8 @@
 
 #include "DAbilitySystemComponent.h"
 
+#include "AbilitySystemGlobals.h"
+#include "AbilitySystemLog.h"
 #include "Abilities/DGameplayAbility.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "Net/UnrealNetwork.h"
@@ -14,8 +16,8 @@ void UDAbilitySystemComponent::InitializeComponent()
 	TurnBasedActiveGameplayEffectsContainer.RegisterWithOwner(this);
 	TurnBasedActiveGameplayEffectsContainer.SetIsUsingReplicationCondition(true);
 
-	OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &UDAbilitySystemComponent::OnGEApplied);
-	ActiveGameplayEffects.OnActiveGameplayEffectRemovedDelegate.AddUObject(this, &UDAbilitySystemComponent::OnGERemoved);
+	OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &UDAbilitySystemComponent::NotifyGameplayEffectAppliedToBP);
+	ActiveGameplayEffects.OnActiveGameplayEffectRemovedDelegate.AddUObject(this, &UDAbilitySystemComponent::NotifyGameplayEffectRemovedToBP);
 }
 
 FGameplayAbilitySpecHandle UDAbilitySystemComponent::FindAbilityWithTag(const FGameplayTag& Tag) const
@@ -82,37 +84,162 @@ int32 UDAbilitySystemComponent::GetActiveEffectRemainingTurn(const FActiveGamepl
 	return TurnBasedActiveGameplayEffectsContainer.GetActiveEffectRemainingTurn(ActiveHandle);
 }
 
-bool UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToSelf(
-	const TSubclassOf<UDGameplayEffect>& GameplayEffectClass,
-	const int32 Level,
-	const int32 CustomDuration)
+FActiveGameplayEffectHandle UDAbilitySystemComponent::K2_ApplyTurnBasedGameplayEffectToSelf(
+	const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, const int32 Level, const int32 CustomDuration, FGameplayEffectContextHandle EffectContext)
 {
-	if (!GameplayEffectClass.Get())
-		return false;
-
-	// 回合制GAS不支持HasDuration
-	const UDGameplayEffect* GameplayEffectDef = GameplayEffectClass->GetDefaultObject<UDGameplayEffect>();
-	if (!GameplayEffectDef || GameplayEffectDef->DurationPolicy == EGameplayEffectDurationType::HasDuration)
-		return false;
-	
-	FGameplayEffectContextHandle EffectContextHandle = MakeEffectContext();
-	EffectContextHandle.AddSourceObject(this->GetOwner());
-	const FGameplayEffectSpecHandle SpecHandle = this->MakeOutgoingSpec(GameplayEffectClass, Level, EffectContextHandle);
-	if (SpecHandle.IsValid())
+	if ( GameplayEffectClass )
 	{
-		const FActiveGameplayEffectHandle ActiveGEHandle = ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		if(ActiveGEHandle.WasSuccessfullyApplied())
+		if (!EffectContext.IsValid())
 		{
-			// 将GE收纳至回合制容器中进行管理
-			if (GameplayEffectDef->DurationPolicy != EGameplayEffectDurationType::Instant)
+			EffectContext = MakeEffectContext();
+			EffectContext.AddInstigator(this->GetOwner(), this->GetOwner());
+			EffectContext.AddActors({this->GetOwner()});
+			EffectContext.AddSourceObject(this);
+		}
+		
+		const UDGameplayEffect* GameplayEffect = GameplayEffectClass->GetDefaultObject<UDGameplayEffect>();
+		return ApplyTurnBasedGameplayEffectToSelf(GameplayEffect, Level, CustomDuration, EffectContext);
+	}
+
+	return FActiveGameplayEffectHandle();
+}
+
+FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToSelf(
+	const UGameplayEffect* GameplayEffect,
+	const int32 Level,
+	const int32 CustomDuration,
+	const FGameplayEffectContextHandle& EffectContext,
+	const FPredictionKey& PredictionKey)
+{
+	if (GameplayEffect == nullptr)
+	{
+		ABILITY_LOG(Error, TEXT("UAbilitySystemComponent::ApplyGameplayEffectToSelf called by Instigator %s with a null GameplayEffect."), *EffectContext.ToString());
+		return FActiveGameplayEffectHandle();
+	}
+
+	if (GameplayEffect->DurationPolicy == EGameplayEffectDurationType::HasDuration)
+		return FActiveGameplayEffectHandle();
+
+	if (HasNetworkAuthorityToApplyGameplayEffect(PredictionKey))
+	{
+		const FGameplayEffectSpec Spec(GameplayEffect, EffectContext, Level);
+		return ApplyTurnBasedGameplayEffectSpecToSelf(Spec, CustomDuration, PredictionKey);
+	}
+
+	return FActiveGameplayEffectHandle();
+}
+
+FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectSpecToSelf(
+	const FGameplayEffectSpec& Spec, const int32 CustomDuration, const FPredictionKey& PredictionKey)
+{
+	const FActiveGameplayEffectHandle ActiveGEHandle = ApplyGameplayEffectSpecToSelf(Spec, PredictionKey);
+	if(ActiveGEHandle.WasSuccessfullyApplied())
+	{
+		// 将GE收纳至回合制容器中进行管理
+		if (Spec.Def->DurationPolicy != EGameplayEffectDurationType::Instant)
+		{
+			TurnBasedActiveGameplayEffectsContainer.ApplyActiveGameplayEffect(ActiveGEHandle, Cast<UDGameplayEffect>(Spec.Def), CustomDuration);
+			if (auto* Delegate = this->OnGameplayEffectRemoved_InfoDelegate(ActiveGEHandle))
 			{
-				TurnBasedActiveGameplayEffectsContainer.ApplyActiveGameplayEffect(*SpecHandle.Data.Get(), ActiveGEHandle, GameplayEffectDef, CustomDuration);
+				Delegate->AddUObject(this, &UDAbilitySystemComponent::OnTurnBasedGameEffectRemoved);
 			}
 		}
 	}
 
-	//ApplyGameplayEffectToTarget()
-	return false;
+	return ActiveGEHandle;
+}
+
+FActiveGameplayEffectHandle UDAbilitySystemComponent::K2_ApplyTurnBasedGameplayEffectToTarget(
+	const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, UDAbilitySystemComponent* Target, const int32 Level, const int32 CustomDuration, FGameplayEffectContextHandle EffectContext)
+{
+	if (Target == nullptr)
+	{
+		ABILITY_LOG(Log, TEXT("UAbilitySystemComponent::BP_ApplyGameplayEffectToTarget called with null Target. %s"), *GetFullName());
+		return FActiveGameplayEffectHandle();
+	}
+
+	if (GameplayEffectClass == nullptr)
+	{
+		ABILITY_LOG(Error, TEXT("UAbilitySystemComponent::BP_ApplyGameplayEffectToTarget called with null GameplayEffectClass. %s"), *GetFullName());
+		return FActiveGameplayEffectHandle();
+	}
+
+	if (!EffectContext.IsValid())
+	{
+		EffectContext = MakeEffectContext();
+		EffectContext.AddInstigator(this->GetOwner(), this->GetOwner());
+		EffectContext.AddActors({Target->GetOwner()});
+		EffectContext.AddSourceObject(this);
+	}
+
+	const UDGameplayEffect* GameplayEffect = GameplayEffectClass->GetDefaultObject<UDGameplayEffect>();
+	
+	return ApplyTurnBasedGameplayEffectToTarget(GameplayEffect, Target, Level, CustomDuration, EffectContext);
+}
+
+FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToTarget(
+	const UGameplayEffect *GameplayEffect,
+	UDAbilitySystemComponent* Target,
+	const int32 Level,
+	const int32 CustomDuration,
+	const FGameplayEffectContextHandle& Context,
+	const FPredictionKey& PredictionKey) const
+{
+	check(GameplayEffect);
+	if (HasNetworkAuthorityToApplyGameplayEffect(PredictionKey))
+	{
+		const FGameplayEffectSpec Spec(GameplayEffect, Context, Level);
+		return ApplyTurnBasedGameplayEffectSpecToTarget(Spec, Target, CustomDuration, PredictionKey);
+	}
+
+	return FActiveGameplayEffectHandle();
+}
+
+FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectSpecToTarget(
+	const FGameplayEffectSpec& Spec,
+	UDAbilitySystemComponent* Target,
+	const int32 CustomDuration,
+	FPredictionKey PredictionKey)
+{
+	const UAbilitySystemGlobals& AbilitySystemGlobals = UAbilitySystemGlobals::Get();
+	if (!AbilitySystemGlobals.ShouldPredictTargetGameplayEffects())
+	{
+		// If we don't want to predict target effects, clear prediction key
+		PredictionKey = FPredictionKey();
+	}
+
+	FActiveGameplayEffectHandle ReturnHandle;
+
+	if (Target)
+	{
+		ReturnHandle = Target->ApplyTurnBasedGameplayEffectSpecToSelf(Spec, CustomDuration, PredictionKey);
+	}
+
+	return ReturnHandle;
+}
+
+FActiveGameplayEffectHandle UDAbilitySystemComponent::BP_ApplyTurnBasedGameplayEffectSpecToSelf(
+	const FGameplayEffectSpecHandle& SpecHandle, const int32 CustomDuration)
+{
+	FActiveGameplayEffectHandle ReturnHandle;
+	if (SpecHandle.IsValid())
+	{
+		ReturnHandle = ApplyTurnBasedGameplayEffectSpecToSelf(*SpecHandle.Data.Get(), CustomDuration);
+	}
+
+	return ReturnHandle;
+}
+
+FActiveGameplayEffectHandle UDAbilitySystemComponent::BP_ApplyTurnBasedGameplayEffectSpecToTarget(
+	const FGameplayEffectSpecHandle& SpecHandle, UDAbilitySystemComponent* Target, const int32 CustomDuration)
+{
+	FActiveGameplayEffectHandle ReturnHandle;
+	if (SpecHandle.IsValid() && Target)
+	{
+		ReturnHandle = ApplyTurnBasedGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), Target, CustomDuration);
+	}
+
+	return ReturnHandle;
 }
 
 bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
@@ -126,6 +253,21 @@ bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
 	}
 
 	return bRemoveDone;
+}
+
+void UDAbilitySystemComponent::NetMulticast_FireAbilityProjectile_Implementation(
+	TSubclassOf<ADProjectile> ProjectileClass,
+	AActor* Target,
+	FVector TargetLocation,
+	AActor* Caster,
+	FVector GoalLocation)
+{
+	
+}
+
+void UDAbilitySystemComponent::OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo)
+{
+	RemoveTurnBasedActiveGameplayEffect(InGameplayEffectRemovalInfo.ActiveEffect->Handle);
 }
 
 void UDAbilitySystemComponent::BattleBegin()
@@ -149,7 +291,7 @@ void UDAbilitySystemComponent::NotifyAbilityFireOrHit(const UClass* AbilityClass
 	OnAbilityReadyToFire.Broadcast(AbilityClass);
 }
 
-void UDAbilitySystemComponent::OnGEApplied(
+void UDAbilitySystemComponent::NotifyGameplayEffectAppliedToBP(
 	UAbilitySystemComponent* Asc,
 	const FGameplayEffectSpec& Spec,
 	FActiveGameplayEffectHandle Handle) const
@@ -158,7 +300,7 @@ void UDAbilitySystemComponent::OnGEApplied(
 	//Spec.StackCount;
 }
 
-void UDAbilitySystemComponent::OnGERemoved(const FActiveGameplayEffect& Effect) const
+void UDAbilitySystemComponent::NotifyGameplayEffectRemovedToBP(const FActiveGameplayEffect& Effect) const
 {
 	OnGERemovedCallback.Broadcast(Effect.Spec.Def->GetAssetTags().First());
 }

@@ -28,8 +28,10 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	
 	virtual void AddTags() override
 	{
-		if (GasTags.Test.IsValid())
+		if (GasTags.InBattle.IsValid())
 			return;
+
+		InBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Battle"), TEXT("ProjectD"));
 		
 		Paralysis	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Paralysis"), TEXT("ProjectD"));
 		Stun		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Paralysis.Stun"), TEXT("ProjectD"));
@@ -40,14 +42,10 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 
 		Silence		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Silence"), TEXT("ProjectD"));
 
-		InBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Battle"), TEXT("ProjectD"));
-
 		Buff		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.Buff"), TEXT("ProjectD"));
 		DeBuff		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.DeBuff"), TEXT("ProjectD"));
 
 		Move		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Movement.Move"), TEXT("ProjectD"));
-
-		Test		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Test"), TEXT("ProjectD"));
 	}
 
 	static bool IsDeBuff(const FGameplayTag& Tag) { return false; }
