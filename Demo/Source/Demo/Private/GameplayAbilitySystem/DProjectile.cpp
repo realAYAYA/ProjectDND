@@ -15,8 +15,8 @@ ADProjectile::ADProjectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	bReplicates = true;
-	SetReplicatingMovement(true);
+	//bReplicates = true;
+	//SetReplicatingMovement(true);
 	
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
@@ -34,7 +34,7 @@ ADProjectile::ADProjectile()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	//ProjectileMovement->InitialSpeed = 3000.f;
+	ProjectileMovement->InitialSpeed = 500.f;// Todo 初速由设计人员定制
 	ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
@@ -85,24 +85,6 @@ void ADProjectile::BeginPlay()
 void ADProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
-	if (!HasAuthority())
-		return;
 	
-	// 追踪逻辑
-	if (Target)
-	{
-		TargetLocation = Target->GetActorLocation();
-	}
-	else
-	{
-		if (GetActorLocation().Equals(TargetLocation, 1.0f))
-			Destroy();
-	}
-	
-	const FVector Dir = (TargetLocation - GetActorLocation()).GetSafeNormal();
-	SetActorRotation(Dir.Rotation());
-	ProjectileMovement->Velocity = Dir * 800.0f;
 }
 

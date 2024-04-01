@@ -20,4 +20,6 @@ void ADGameModeBase::BuildBattleWithAllCharacters()
 	BattleInstance->SetReplicates(true);
 
 	BattleInstances.Add(BattleInstance);
+
+	GameState;
 }

@@ -5,6 +5,7 @@
 
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
+#include "DProjectile.h"
 #include "Abilities/DGameplayAbility.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "Net/UnrealNetwork.h"
@@ -256,13 +257,30 @@ bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
 }
 
 void UDAbilitySystemComponent::NetMulticast_FireAbilityProjectile_Implementation(
-	TSubclassOf<ADProjectile> ProjectileClass,
+	const TSubclassOf<ADProjectile> ProjectileClass,
+	const TSubclassOf<UDGameplayAbility> AbilityClass,
 	AActor* Target,
 	FVector TargetLocation,
 	AActor* Caster,
-	FVector GoalLocation)
+	FVector StartLocation)
 {
+	if (Caster)
+	{
+		StartLocation = Caster->GetActorLocation();// Todo 获取骨骼上的Socket位置
+	}
+	if (Target)
+	{
+		TargetLocation = Target->GetActorLocation();// Todo 为了表现可以随机获取一个身体部位位置
+	}
+
+	const FVector Dir = (TargetLocation - StartLocation).GetSafeNormal();
 	
+	const FTransform SpawnTransform(Dir.Rotation(), StartLocation);
+	ADProjectile* Projectile = GetWorld()->SpawnActor<ADProjectile>(ProjectileClass, SpawnTransform);
+	Projectile->AbilityInstance = AbilityClass->GetDefaultObject<UDGameplayAbility>();
+	Projectile->Caster = Caster;
+	Projectile->Target = Target;
+	Projectile->TargetLocation = TargetLocation;
 }
 
 void UDAbilitySystemComponent::OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo)

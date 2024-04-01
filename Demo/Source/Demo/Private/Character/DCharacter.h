@@ -55,7 +55,7 @@ public:
 
 public:
 	
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnBattleInstance)
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnRep_BattleInstance)
 	ATurnBasedBattleInstance* BattleInstance;
 	void SetBattleInstance(ATurnBasedBattleInstance* In);// Called by server
 
@@ -69,7 +69,7 @@ public:
 	void K2_BattleEnd();
 
 	UFUNCTION()
-	void OnBattleInstance();
+	void OnRep_BattleInstance();
 	
 	UFUNCTION(Client, Reliable)
 	void NotifyYourTurn();
@@ -88,8 +88,6 @@ private:
 
 	UPROPERTY(Transient)
 	UDAttributeSet* AttributeSet;
-
-	/** 网络同步相关*/
 	
 public:
 
@@ -98,12 +96,12 @@ public:
 
 private:
 
-	UPROPERTY(ReplicatedUsing = OnCharacterIdChange)
+	UPROPERTY(ReplicatedUsing = OnRep_CharacterId)
 	int64 ReplicatedRoleId = 0;
 	int64 OldRoleId = 0;
 
 	UFUNCTION()
-	void OnCharacterIdChange();
+	void OnRep_CharacterId();
 
 	// Only called by Server
 	virtual void InitCharacterData();

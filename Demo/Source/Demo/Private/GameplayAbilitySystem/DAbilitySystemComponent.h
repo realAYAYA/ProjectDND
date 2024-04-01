@@ -87,8 +87,8 @@ public:
 	void OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo);
 	bool RemoveTurnBasedActiveGameplayEffect(const FActiveGameplayEffectHandle Handle, const int32 StacksToRemove = -1);
 
-	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable, Category = "ProjectD")
-	void NetMulticast_FireAbilityProjectile(TSubclassOf<ADProjectile> ProjectileClass, AActor* Target, FVector TargetLocation, AActor* Caster, FVector GoalLocation);
+	UFUNCTION(NetMulticast, Unreliable)
+	void NetMulticast_FireAbilityProjectile(TSubclassOf<ADProjectile> ProjectileClass, TSubclassOf<UDGameplayAbility> AbilityClass, AActor* Target, FVector TargetLocation, AActor* Caster, FVector StartLocation);
 	
 	// 受到近战攻击时触发的能力
 	

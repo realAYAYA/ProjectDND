@@ -19,8 +19,6 @@ class UDAbilityTask_PlayMontageAndWait : public UAbilityTask_PlayMontageAndWait
 
 public:
 
-	UDAbilityTask_PlayMontageAndWait();
-
 	// On Ability Fire or Hit
 	UPROPERTY(BlueprintAssignable)
 	FMontageWaitSimpleDelegate	OnAbilityFire;
@@ -35,7 +33,15 @@ public:
 		float AnimRootMotionTranslationScale = 1.f,
 		float StartTimeSeconds = 0.f,
 		bool bAllowInterruptAfterBlendOut = false);
-	
+
+	void Init(
+		UAnimMontage* InMontageToPlay,
+		float InRate = 1.f,
+		FName InStartSection = NAME_None,
+		bool InbStopWhenAbilityEnds = true,
+		float InAnimRootMotionTranslationScale = 1.f,
+		float InStartTimeSeconds = 0.f,
+		bool InbAllowInterruptAfterBlendOut = false);
+
 	virtual void Activate() override;
-	
 };

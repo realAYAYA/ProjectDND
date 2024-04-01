@@ -89,6 +89,71 @@ UAbilitySystemComponent* ADCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+void ADCharacter::SetBattleInstance(ATurnBasedBattleInstance* In)
+{
+	BattleInstance = In;
+	
+#if !UE_SERVER // 如果不是以DS编译，而是以Listening Server启动方式时，OnRep不会在主机上调用，需要手动触发
+	if (HasAuthority())
+	{
+		//OnBattleInstance();
+	}
+#endif
+}
+
+void ADCharacter::OnRep_BattleInstance()
+{
+	K2_OnBattleInstance();
+}
+
+void ADCharacter::NotifyYourTurn_Implementation()
+{
+}
+
+void ADCharacter::YourTurn()
+{
+	if (const auto* PS = GetPlayerState())
+	{
+		// Todo 确认控制权所属，控制器不一定正在控制角色
+		if (auto* PC = Cast<ADPlayerController>(PS->GetPlayerController()))
+		{
+			PC->YourTurn(this);
+		}
+	}
+
+	K2_YourTurn();
+}
+
+void ADCharacter::OnMoveDistanceChange(const FOnAttributeChangeData& Data) const
+{
+	if (Data.NewValue == 0)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 0;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 600;
+	}
+}
+
+void ADCharacter::NotifyBattleEnd_Implementation()
+{
+	K2_BattleEnd();
+}
+
+void ADCharacter::OnRep_CharacterId()
+{
+	if (!HasAuthority())
+	{
+		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
+		{
+			GameInstance->CharacterManager->UnRegisterCharacter(OldRoleId);// 移除旧信息
+			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);// 重新注册角色信息
+			OldRoleId = ReplicatedRoleId;
+		}
+	}
+}
+
 void ADCharacter::InitCharacterData()
 {
 	if (!HasAuthority() || !AbilitySystemComponent || !IsValid(CharacterDataAsset))
@@ -121,70 +186,6 @@ void ADCharacter::InitCharacterData()
 		if (SpecHandle.IsValid())
 		{
 			const FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		}
-	}
-}
-
-void ADCharacter::SetBattleInstance(ATurnBasedBattleInstance* In)
-{
-	BattleInstance = In;
-	
-#if !UE_SERVER // 如果不是以DS编译，而是以Listening Server启动方式时，OnRep不会在主机上调用，需要手动触发
-	if (HasAuthority())
-	{
-		//OnBattleInstance();
-	}
-#endif
-}
-
-void ADCharacter::OnBattleInstance()
-{
-	K2_OnBattleInstance();
-}
-
-void ADCharacter::NotifyYourTurn_Implementation()
-{
-}
-
-void ADCharacter::YourTurn()
-{
-	if (const auto* PS = GetPlayerState())
-	{
-		if (auto* PC = Cast<ADPlayerController>(PS->GetPlayerController()))
-		{
-			PC->YourTurn(this);
-		}
-	}
-
-	K2_YourTurn();
-}
-
-void ADCharacter::OnMoveDistanceChange(const FOnAttributeChangeData& Data) const
-{
-	if (Data.NewValue == 0)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = 0;
-	}
-	else
-	{
-		GetCharacterMovement()->MaxWalkSpeed = 600;
-	}
-}
-
-void ADCharacter::NotifyBattleEnd_Implementation()
-{
-	K2_BattleEnd();
-}
-
-void ADCharacter::OnCharacterIdChange()
-{
-	if (!HasAuthority())
-	{
-		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
-		{
-			GameInstance->CharacterManager->UnRegisterCharacter(OldRoleId);// 移除旧信息
-			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);// 重新注册角色信息
-			OldRoleId = ReplicatedRoleId;
 		}
 	}
 }

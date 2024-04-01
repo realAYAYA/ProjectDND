@@ -8,7 +8,13 @@
 // 适合添加预设的Gas相关Tags
 struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdder
 {
-	FGameplayTag Test;
+	FGameplayTag InBattle;
+	
+	FGameplayTag AbilityHit;
+	FGameplayTag HitByPhyMelee;
+	FGameplayTag HitByPhyRange;
+	FGameplayTag HitByMagMelee;
+	FGameplayTag HitByMagRange;
 	
 	FGameplayTag Paralysis;
 	FGameplayTag Stun;
@@ -18,9 +24,7 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	FGameplayTag Root;
 	
 	FGameplayTag Silence;
-
-	FGameplayTag InBattle;
-
+	
 	FGameplayTag Buff;
 	FGameplayTag DeBuff;
 	
@@ -32,6 +36,12 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 			return;
 
 		InBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Battle"), TEXT("ProjectD"));
+
+		AbilityHit	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit"), TEXT("ProjectD"));
+		HitByPhyMelee	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Melee.Phy"), TEXT("ProjectD"));
+		HitByPhyRange	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Range.Phy"), TEXT("ProjectD"));
+		HitByMagMelee	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Melee.Mag"), TEXT("ProjectD"));
+		HitByMagRange	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Range.Mag"), TEXT("ProjectD"));
 		
 		Paralysis	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Paralysis"), TEXT("ProjectD"));
 		Stun		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Paralysis.Stun"), TEXT("ProjectD"));
@@ -49,6 +59,8 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	}
 
 	static bool IsDeBuff(const FGameplayTag& Tag) { return false; }
+	static bool HitByMelee(const FGameplayTag& Tag) { return false; }
+	static bool HitBySpell(const FGameplayTag& Tag) { return false; }
 
 	FORCEINLINE static const FGameplayAbilityGlobalTags& Get()
 	{
@@ -58,7 +70,7 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	// 一种在编译阶段Get方法
 	FORCEINLINE static FGameplayAbilityGlobalTags& GetPreConstruct()
 	{
-		if (!GasTags.Test.IsValid())
+		if (!GasTags.InBattle.IsValid())
 			GasTags.AddTags();
 		
 		return GasTags;

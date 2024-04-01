@@ -44,10 +44,10 @@ public:
 	TArray<TSubclassOf<class UGameplayEffect>> Effects;
 
 	UPROPERTY()
-	ADCharacter* Caster;
+	AActor* Caster;
 
 	UPROPERTY()
-	ADCharacter* Target;
+	AActor* Target;
 
 	UPROPERTY()
 	FVector TargetLocation;// 如果目标丢失，则销毁在最后出现的位置

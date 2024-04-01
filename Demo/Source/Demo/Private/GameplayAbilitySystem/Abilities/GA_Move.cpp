@@ -49,7 +49,7 @@ void UGA_Move::ActivateAbility(
 	const FGameplayEventData* TriggerEventData)
 {
 	MoveTask = UAbilityTask_Move::CreateTask(this);
-	MoveTask->OnNoMoreMoveDistance.AddDynamic(this, &UGA_Move::K2_EndAbility);
+	MoveTask->OnNoMoreMoveDistance.AddDynamic(this, &UGA_Move::K2_CancelAbility);
 	this->ActiveTasks.Add(MoveTask);
 	MoveTask->ReadyForActivation();
 	
@@ -57,8 +57,12 @@ void UGA_Move::ActivateAbility(
 	Super::ActivateAbility(Handle, OwnerInfo, ActivationInfo, TriggerEventData);
 }
 
-void UGA_Move::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UGA_Move::EndAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility,
+	bool bWasCancelled)
 {
 	// 停止移动
 	const ADCharacter* Caster = Cast<ADCharacter>(CurrentActorInfo->AvatarActor);

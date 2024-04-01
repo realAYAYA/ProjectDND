@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "DGameplayAbility.generated.h"
 
+class UDAbilityTask_PlayMontageAndWait;
 class ADProjectile;
 class UDAbilitySystemComponent;
 class ADCharacter;
@@ -30,13 +31,13 @@ class UDGameplayAbility : public UGameplayAbility
 public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	UAnimMontage* MontageOnAbilityStart;
+	UAnimMontage* MontageStart;
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	UAnimMontage* MontageStandby;
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	UAnimMontage* MontageOnFire;
+	UAnimMontage* MontageFire;
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	TSubclassOf<ADProjectile> ProjectileClass;
@@ -52,5 +53,27 @@ public:
 
 	// Todo 技能被打断
 
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+
+	UFUNCTION()
+	virtual void MontageToStandby();
+
+	UFUNCTION()
+	virtual void OnFire(const UClass* AbilityClass);
+	
 	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo);
+
+
+private:
+
+	UPROPERTY()
+	UDAbilityTask_PlayMontageAndWait* MontageStartTask;
+
+	UPROPERTY()
+	UDAbilityTask_PlayMontageAndWait* MontageLoopTask;
+
+	UPROPERTY()
+	UDAbilityTask_PlayMontageAndWait* MontageFireTask;
 };

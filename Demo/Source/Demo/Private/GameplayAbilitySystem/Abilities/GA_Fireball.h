@@ -21,11 +21,8 @@ class UGA_Fireball : public UDGameplayAbility
 
 public:
 
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-
 private:
 	
-	UFUNCTION()
-	void OnFire(const UClass* AbilityClass);
+
 	
 };
