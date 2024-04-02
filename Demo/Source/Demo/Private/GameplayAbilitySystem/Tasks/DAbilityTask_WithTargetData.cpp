@@ -26,27 +26,6 @@ void UDAbilityTask_WithTargetData::Activate()
 	{
 		RegisterTargetDataCallbacks();// 注册回调，允许服务器接收来自客户端的TargetData
 		return;
-		
-		if (ShouldSpawnTargetActor())
-		{
-			//RegisterTargetDataCallbacks();
-			
-			/*if (TargetClass != nullptr)
-			{
-				if (UWorld* World = GEngine->GetWorldFromContextObject(Ability.Get(), EGetWorldErrorMode::LogAndReturnNull))
-				{
-					//TargetActor = World->SpawnActorDeferred<AGameplayAbilityTargetActor>(TargetClass, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-					//TargetActor = World->SpawnActor<AGameplayAbilityTargetActor>(TargetClass);
-				}
-			}
-
-			if (TargetActor)
-			{
-				InitializeTargetActor(TargetActor.Get());
-				FinalizeTargetActor(TargetActor.Get());
-				return;
-			}*/
-		}
 	}
 	
 	EndTask();

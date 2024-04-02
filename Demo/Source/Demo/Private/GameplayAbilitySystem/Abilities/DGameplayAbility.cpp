@@ -61,6 +61,10 @@ void UDGameplayAbility::EndAbility(
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
+	if (auto* Asc = GetDAbilitySystemComponent(ActorInfo))
+	{
+		Asc->OnAbilityReadyToFire.RemoveDynamic(this, &UDGameplayAbility::OnFire);
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -75,20 +79,21 @@ void UDGameplayAbility::MontageToStandby()
 	K2_EndAbility();
 }
 
+void UDGameplayAbility::ParseTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+{
+	CacheTargetData = TargetDataHandle;
+	// 收到来自客户端的数据，进行最终施法(攻击)流程
+	if (MontageFireTask)
+		MontageFireTask->Activate();
+}
+
+void UDGameplayAbility::CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+{
+	K2_CancelAbility();
+}
+
 void UDGameplayAbility::OnFire(const UClass* AbilityClass)
 {
-	if (AbilityClass && AbilityClass != this->StaticClass())
-		return;
-
-	if (ProjectileClass.Get())
-	{
-		auto* Asc = GetDAbilitySystemComponent(CurrentActorInfo);
-		Asc->NetMulticast_FireAbilityProjectile(ProjectileClass, this->StaticClass(), Target, FVector(), Asc->GetOwner(), FVector());
-	}
-	else
-	{
-		// Todo 近战攻击的命中GE
-	}
 }
 
 UDAbilitySystemComponent* UDGameplayAbility::GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo)
@@ -101,3 +106,5 @@ UDAbilitySystemComponent* UDGameplayAbility::GetDAbilitySystemComponent(const FG
 
 	return nullptr;
 }
+
+
