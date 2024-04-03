@@ -3,6 +3,12 @@
 #include "GameplayAbilitySystem/DProjectile.h"
 #include "GameplayAbilitySystem/Tasks/DAbilityTask_WithTargetData.h"
 
+UGA_Fireball::UGA_Fireball()
+{
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+}
+
 void UGA_Fireball::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,

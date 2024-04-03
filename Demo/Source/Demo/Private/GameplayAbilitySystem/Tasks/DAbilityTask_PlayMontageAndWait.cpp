@@ -38,10 +38,3 @@ void UDAbilityTask_PlayMontageAndWait::Init(
 	this->bAllowInterruptAfterBlendOut = InbAllowInterruptAfterBlendOut;
 	this->StartTimeSeconds = InStartTimeSeconds;
 }
-
-void UDAbilityTask_PlayMontageAndWait::Activate()
-{
-	// Todo
-	
-	Super::Activate();
-}

@@ -2,7 +2,6 @@
 
 #include "Character/DCharacter.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
-#include "GameplayAbilitySystem/DProjectile.h"
 #include "GameplayAbilitySystem/Tasks/DAbilityTask_PlayMontageAndWait.h"
 
 void UDGameplayAbility::ActivateAbility(
@@ -17,39 +16,17 @@ void UDGameplayAbility::ActivateAbility(
 	if (!Asc)
 		K2_CancelAbility();
 
-	if (MontageStart)
+	if (Montage)
 	{
-		auto* Task = UDAbilityTask_PlayMontageAndWait::CreateTask(this, TEXT("Ready"), MontageStart);
-		Task->OnCompleted.AddDynamic(this, &UDGameplayAbility::MontageToStandby);
+		auto* Task = UDAbilityTask_PlayMontageAndWait::CreateTask(this, TEXT("Ready"), Montage);
+		//Task->OnCompleted.AddDynamic(this, &UDGameplayAbility::MontageToStandby);
 		Task->OnCancelled.AddDynamic(this, &UDGameplayAbility::K2_CancelAbility);
 		Task->OnInterrupted.AddDynamic(this, &UDGameplayAbility::K2_CancelAbility);
-		Task->OnBlendOut.AddDynamic(this, &UDGameplayAbility::K2_CancelAbility);
+		//Task->OnBlendOut.AddDynamic(this, &UDGameplayAbility::MontageToStandby);
 		ActiveTasks.Add(Task);
-		MontageStartTask = Task;
-		MontageStartTask->Activate();
-	}
+		MontageTask = Task;
+		MontageTask->Activate();
 
-	if (MontageStandby)
-	{
-		auto* Task = UDAbilityTask_PlayMontageAndWait::CreateTask(this, TEXT("Standby"), MontageStandby);
-		Task->OnCompleted.AddDynamic(this, &UDGameplayAbility::K2_CancelAbility);// maybe unuseful
-		Task->OnCancelled.AddDynamic(this, &UDGameplayAbility::K2_CancelAbility);
-		Task->OnInterrupted.AddDynamic(this, &UDGameplayAbility::K2_CancelAbility);
-		Task->OnBlendOut.AddDynamic(this, &UDGameplayAbility::K2_CancelAbility);
-		ActiveTasks.Add(Task);
-		MontageLoopTask = Task;
-	}
-
-	if (MontageFire)
-	{
-		auto* Task = UDAbilityTask_PlayMontageAndWait::CreateTask(this, TEXT("Fire"), MontageFire);
-		Task->OnCompleted.AddDynamic(this, &UDGameplayAbility::K2_EndAbility);
-		Task->OnCancelled.AddDynamic(this, &UDGameplayAbility::K2_EndAbility);
-		Task->OnInterrupted.AddDynamic(this, &UDGameplayAbility::K2_EndAbility);
-		Task->OnBlendOut.AddDynamic(this, &UDGameplayAbility::K2_EndAbility);
-		ActiveTasks.Add(Task);
-		MontageFireTask = Task;
-		
 		Asc->OnAbilityReadyToFire.AddDynamic(this, &UDGameplayAbility::OnFire);
 	}
 }
@@ -69,22 +46,19 @@ void UDGameplayAbility::EndAbility(
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UDGameplayAbility::MontageToStandby()
-{
-	if (MontageLoopTask)
-	{
-		MontageLoopTask->Activate();
-	}
-
-	K2_EndAbility();
-}
 
 void UDGameplayAbility::ParseTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
 	CacheTargetData = TargetDataHandle;
+	
 	// 收到来自客户端的数据，进行最终施法(攻击)流程
-	if (MontageFireTask)
-		MontageFireTask->Activate();
+	const auto* Character = GetDCharacter(CurrentActorInfo);
+	if (Character && Montage)
+	{
+		Character->GetMesh()->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("OnFire"), Montage);
+
+		// Todo 计算消耗 施加CD 抑或是因为法术反制施法失败，仍计算消耗，但不会施加效果
+	}
 }
 
 void UDGameplayAbility::CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
@@ -94,17 +68,19 @@ void UDGameplayAbility::CancelTargetData(const FGameplayAbilityTargetDataHandle&
 
 void UDGameplayAbility::OnFire(const UClass* AbilityClass)
 {
+	// Todo 法术施法成功进行结算，也可能被法术反制导致失败
+}
+
+ADCharacter* UDGameplayAbility::GetDCharacter(const FGameplayAbilityActorInfo* ActorInfo)
+{
+	if (ActorInfo)
+		return Cast<ADCharacter>(ActorInfo->AvatarActor.Get());
+	return nullptr;
 }
 
 UDAbilitySystemComponent* UDGameplayAbility::GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo)
 {
-	if (ActorInfo)
-	{
-		if (const auto* Character = Cast<ADCharacter>(ActorInfo->AvatarActor.Get()))
-			return Character->AbilitySystemComponent;
-	}
-
+	if (const auto* Character = GetDCharacter(ActorInfo))
+		return Character->AbilitySystemComponent;
 	return nullptr;
 }
-
-

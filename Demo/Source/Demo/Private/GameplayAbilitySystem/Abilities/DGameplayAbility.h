@@ -25,15 +25,8 @@ class UDGameplayAbility : public UGameplayAbility
 public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	UAnimMontage* MontageStart;
-
-	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	UAnimMontage* MontageStandby;
-
-	// Or hit
-	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	UAnimMontage* MontageFire;
-
+	UAnimMontage* Montage;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	TSubclassOf<ADProjectile> ProjectileClass;
 
@@ -45,10 +38,7 @@ public:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
-
-	UFUNCTION()
-	virtual void MontageToStandby();
-
+	
 	UFUNCTION()
 	virtual void ParseTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
@@ -57,19 +47,14 @@ public:
 	
 	UFUNCTION()
 	virtual void OnFire(const UClass* AbilityClass);// or OnHit
-	
+
+	static ADCharacter* GetDCharacter(const FGameplayAbilityActorInfo* ActorInfo);
 	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo);
 
 protected:
 
 	UPROPERTY()
-	UDAbilityTask_PlayMontageAndWait* MontageStartTask;
-
-	UPROPERTY()
-	UDAbilityTask_PlayMontageAndWait* MontageLoopTask;
-
-	UPROPERTY()
-	UDAbilityTask_PlayMontageAndWait* MontageFireTask;
+	UDAbilityTask_PlayMontageAndWait* MontageTask;
 
 	UPROPERTY()
 	UDAbilityTask_WithTargetData* TargetDataTask;

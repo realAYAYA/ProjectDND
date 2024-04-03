@@ -42,6 +42,5 @@ public:
 		float InAnimRootMotionTranslationScale = 1.f,
 		float InStartTimeSeconds = 0.f,
 		bool InbAllowInterruptAfterBlendOut = false);
-
-	virtual void Activate() override;
+	
 };
