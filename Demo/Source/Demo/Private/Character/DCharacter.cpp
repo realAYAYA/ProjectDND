@@ -94,9 +94,9 @@ void ADCharacter::SetBattleInstance(ATurnBasedBattleInstance* In)
 	BattleInstance = In;
 	
 #if !UE_SERVER // 如果不是以DS编译，而是以Listening Server启动方式时，OnRep不会在主机上调用，需要手动触发
-	if (HasAuthority())
+	if (HasAuthority() && IsLocallyControlled())
 	{
-		//OnBattleInstance();
+		K2_OnBattleInstance();
 	}
 #endif
 }

@@ -158,7 +158,8 @@ void ADPlayerController::YourTurn_Implementation(const ADCharacter* InCharacter)
 
 void ADPlayerController::ReqTurnEnd_Implementation()
 {
-	if (const auto* DCharacter = Cast<ADCharacter>(this->GetPawn()))
+	const auto* DCharacter = Cast<ADCharacter>(this->GetPawn());
+	if (DCharacter && DCharacter->BattleInstance)
 	{
 		DCharacter->BattleInstance->TurnEnd(DCharacter);
 	}

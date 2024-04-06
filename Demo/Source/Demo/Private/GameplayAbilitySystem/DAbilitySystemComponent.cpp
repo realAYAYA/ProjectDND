@@ -5,8 +5,8 @@
 
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
-#include "DProjectile.h"
 #include "Abilities/DGameplayAbility.h"
+#include "Abilities/GA_WithProjectile.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "Net/UnrealNetwork.h"
 
@@ -90,14 +90,6 @@ FActiveGameplayEffectHandle UDAbilitySystemComponent::K2_ApplyTurnBasedGameplayE
 {
 	if ( GameplayEffectClass )
 	{
-		if (!EffectContext.IsValid())
-		{
-			EffectContext = MakeEffectContext();
-			EffectContext.AddInstigator(this->GetOwner(), this->GetOwner());
-			EffectContext.AddActors({this->GetOwner()});
-			EffectContext.AddSourceObject(this);
-		}
-		
 		const UDGameplayEffect* GameplayEffect = GameplayEffectClass->GetDefaultObject<UDGameplayEffect>();
 		return ApplyTurnBasedGameplayEffectToSelf(GameplayEffect, Level, CustomDuration, EffectContext);
 	}
@@ -106,10 +98,10 @@ FActiveGameplayEffectHandle UDAbilitySystemComponent::K2_ApplyTurnBasedGameplayE
 }
 
 FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToSelf(
-	const UGameplayEffect* GameplayEffect,
+	const UDGameplayEffect* GameplayEffect,
 	const int32 Level,
 	const int32 CustomDuration,
-	const FGameplayEffectContextHandle& EffectContext,
+	FGameplayEffectContextHandle EffectContext,
 	const FPredictionKey& PredictionKey)
 {
 	if (GameplayEffect == nullptr)
@@ -118,8 +110,13 @@ FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyTurnBasedGameplayEffe
 		return FActiveGameplayEffectHandle();
 	}
 
-	if (GameplayEffect->DurationPolicy == EGameplayEffectDurationType::HasDuration)
-		return FActiveGameplayEffectHandle();
+	if (!EffectContext.IsValid())
+	{
+		EffectContext = MakeEffectContext();
+		EffectContext.AddInstigator(this->GetOwner(), this->GetOwner());
+		EffectContext.AddActors({this->GetOwner()});
+		EffectContext.AddSourceObject(this);
+	}
 
 	if (HasNetworkAuthorityToApplyGameplayEffect(PredictionKey))
 	{
@@ -133,10 +130,14 @@ FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyTurnBasedGameplayEffe
 FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectSpecToSelf(
 	const FGameplayEffectSpec& Spec, const int32 CustomDuration, const FPredictionKey& PredictionKey)
 {
+	// 回合制GE不允许有HasDuration类型
+	if (Spec.Def->DurationPolicy == EGameplayEffectDurationType::HasDuration)
+		return FActiveGameplayEffectHandle();
+	
 	const FActiveGameplayEffectHandle ActiveGEHandle = ApplyGameplayEffectSpecToSelf(Spec, PredictionKey);
 	if(ActiveGEHandle.WasSuccessfullyApplied())
 	{
-		// 将GE收纳至回合制容器中进行管理
+		// 不是Instant的GE可以认为是有回合数生命周期的，收纳至容器中进行管理
 		if (Spec.Def->DurationPolicy != EGameplayEffectDurationType::Instant)
 		{
 			TurnBasedActiveGameplayEffectsContainer.ApplyActiveGameplayEffect(ActiveGEHandle, Cast<UDGameplayEffect>(Spec.Def), CustomDuration);
@@ -179,7 +180,7 @@ FActiveGameplayEffectHandle UDAbilitySystemComponent::K2_ApplyTurnBasedGameplayE
 }
 
 FActiveGameplayEffectHandle UDAbilitySystemComponent::ApplyTurnBasedGameplayEffectToTarget(
-	const UGameplayEffect *GameplayEffect,
+	const UDGameplayEffect *GameplayEffect,
 	UDAbilitySystemComponent* Target,
 	const int32 Level,
 	const int32 CustomDuration,
@@ -257,30 +258,12 @@ bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
 }
 
 void UDAbilitySystemComponent::NetMulticast_FireAbilityProjectile_Implementation(
-	const TSubclassOf<ADProjectile> ProjectileClass,
-	const TSubclassOf<UDGameplayAbility> AbilityClass,
-	AActor* Target,
-	FVector TargetLocation,
+	const UClass* AbilityClass,
 	AActor* Caster,
-	FVector StartLocation)
+	const FGameplayAbilityTargetDataHandle& TargetData)
 {
-	if (Caster)
-	{
-		StartLocation = Caster->GetActorLocation();// Todo 获取骨骼上的Socket位置
-	}
-	if (Target)
-	{
-		TargetLocation = Target->GetActorLocation();// Todo 为了表现可以随机获取一个身体部位位置
-	}
-
-	const FVector Dir = (TargetLocation - StartLocation).GetSafeNormal();
-	
-	const FTransform SpawnTransform(Dir.Rotation(), StartLocation);
-	ADProjectile* Projectile = GetWorld()->SpawnActor<ADProjectile>(ProjectileClass, SpawnTransform);
-	Projectile->AbilityInstance = AbilityClass->GetDefaultObject<UDGameplayAbility>();
-	Projectile->Caster = Caster;
-	Projectile->Target = Target;
-	Projectile->TargetLocation = TargetLocation;
+	if (auto* GameplayAbility = AbilityClass->GetDefaultObject<UGA_WithProjectile>())
+		GameplayAbility->ProcessProjectile(TargetData, Caster);
 }
 
 void UDAbilitySystemComponent::OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo)

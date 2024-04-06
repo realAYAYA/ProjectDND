@@ -1,5 +1,7 @@
 #include "DTargetActor.h"
 
+#include "GameplayAbilitySystem/Abilities/DGameplayAbility.h"
+
 ADTargetActor::ADTargetActor(const FObjectInitializer& ObjectInitializer)
 {
 	ShouldProduceTargetDataOnServer = false;// 要求玩家发送目标数据
@@ -53,6 +55,12 @@ bool ADTargetActor::SetAbilityInfo(APlayerController* PC, UAbilitySystemComponen
 	});
 	
 	return true;
+}
+
+bool ADTargetActor::SetAbilityInfoByClass(APlayerController* PC, UAbilitySystemComponent* Asc, const TSubclassOf<UDGameplayAbility>& AbilityClass)
+{
+	const auto* GameplayAbility = AbilityClass->GetDefaultObject<UDGameplayAbility>();
+	return SetAbilityInfo(PC, Asc, GameplayAbility->AbilityTags.First());
 }
 
 void ADTargetActor::K2_ConfirmTargeting(const FGameplayAbilityTargetDataHandle& InTargetDataHandle)

@@ -8,6 +8,7 @@
 #include "Character/DCharacter.h"
 
 #include "GameFramework/PlayerState.h"
+#include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values
@@ -27,6 +28,14 @@ void ATurnBasedBattleInstance::BeginPlay()
 	
 }
 
+void ATurnBasedBattleInstance::PostNetInit()
+{
+	Super::PostNetInit();
+
+	if (CurrentCharacter)
+		CurrentCharacter->YourTurn();
+}
+
 // Called every frame
 void ATurnBasedBattleInstance::Tick(float DeltaTime)
 {
@@ -38,33 +47,22 @@ void ATurnBasedBattleInstance::BeginBattle()
 {
 	if (!HasAuthority())
 		return;
-	
-	const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance());
-	if (!GameInstance)
-		return;
 
-	GameInstance->CharacterManager->Foreach([this](ADCharacter* Character) -> bool
-	{
-		// 角色死亡或其它某种状态不得参加战斗
-		if (auto* PC = Cast<ADPlayerController>(Character->GetPlayerState()->GetPlayerController()))
-		{
-			this->CharacterIdList.Add(Character->GetRoleId());
-			this->CharacterList.Add(Character);
-			Character->SetBattleInstance(this);
-		}
-		
-		return true;
-	});
+	const UDGameplayEffect* GameplayEffect = BattleBeginGEClass->GetDefaultObject<UDGameplayEffect>();
+	for (const auto* Character : CharacterList)
+		Character->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectToSelf(GameplayEffect, 0, 0, FGameplayEffectContextHandle());
+
+	for (auto* Character : CharacterList)
+		Character->SetBattleInstance(this);
 	
 	// Todo
-	// 计算先攻顺序
-	// 通知第一个角色调用YourTurn
+	// 计算先攻顺序, 通知第一个角色调用YourTurn
 	if (CharacterIdList.IsValidIndex(0))
 	{
-		auto* Character = GameInstance->CharacterManager->Find(CharacterIdList[0]);
-		if (Character && Character->BattleInstance == this)
+		auto* NextCharacter = FindCharacter(CharacterIdList[0]);
+		if (NextCharacter && NextCharacter->BattleInstance == this)
 		{
-			YourTurn(Character);
+			YourTurn(NextCharacter);
 		}
 	}
 }
@@ -72,7 +70,7 @@ void ATurnBasedBattleInstance::BeginBattle()
 void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
 {
 	// 当前回合角色不符合
-	if (CurrentCharacter != InCharacter)
+	if (!CurrentCharacter || CurrentCharacter != InCharacter)
 		return;
 	
 	// 切换下一个角色
@@ -83,10 +81,10 @@ void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
 
 	if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
 	{
-		auto* Character = GameInstance->CharacterManager->Find(CharacterIdList[Index]);
-		if (Character && Character->BattleInstance == this)
+		auto* NextCharacter = GameInstance->CharacterManager->Find(CharacterIdList[Index]);
+		if (NextCharacter && NextCharacter->BattleInstance == this)
 		{
-			YourTurn(Character);
+			YourTurn(NextCharacter);
 		}
 	}
 }
@@ -94,16 +92,19 @@ void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
 void ATurnBasedBattleInstance::YourTurn(ADCharacter* InCharacter)
 {
 	CurrentCharacter = InCharacter;
-	InCharacter->YourTurn();
 	// Todo 恢复动作 移动力 附赠动作
-	InCharacter;
+
+	const UDGameplayEffect* GameplayEffect = MyTurnGEClass->GetDefaultObject<UDGameplayEffect>();
+	InCharacter->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectToSelf(GameplayEffect, 0, 0, FGameplayEffectContextHandle());
 }
 
-void ATurnBasedBattleInstance::OnCurrentCharacterChange()
+void ATurnBasedBattleInstance::OnRep_CurrentCharacter()
 {
+	if (CurrentCharacter)
+		CurrentCharacter->YourTurn();
 }
 
-void ATurnBasedBattleInstance::OnCharacterListChange()
+void ATurnBasedBattleInstance::OnRep_CharacterList()
 {
 }
 
@@ -114,6 +115,15 @@ void ATurnBasedBattleInstance::OnTurnNumChanged()
 
 void ATurnBasedBattleInstance::MergeBattle(ATurnBasedBattleInstance* In)
 {
+}
+
+ADCharacter* ATurnBasedBattleInstance::FindCharacter(const int32 Id) const
+{
+	for (auto* Character : CharacterList)
+		if (Character->GetRoleId() == Id)
+			return Character;
+
+	return nullptr;
 }
 
 void ATurnBasedBattleInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

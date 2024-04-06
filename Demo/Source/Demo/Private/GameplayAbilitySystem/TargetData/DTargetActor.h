@@ -7,6 +7,7 @@
 #include "Abilities/GameplayAbilityTargetActor.h"
 #include "DTargetActor.generated.h"
 
+class UDGameplayAbility;
 /**
  * 
  */
@@ -21,6 +22,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	bool SetAbilityInfo(APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayTag& Tag);
+
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	bool SetAbilityInfoByClass(APlayerController* PC, UAbilitySystemComponent* Asc, const TSubclassOf<UDGameplayAbility>& AbilityClass);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", DisplayName = "ConfirmTargeting")
 	void K2_ConfirmTargeting(const FGameplayAbilityTargetDataHandle& InTargetDataHandle);

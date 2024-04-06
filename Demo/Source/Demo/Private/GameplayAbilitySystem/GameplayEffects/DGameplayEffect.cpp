@@ -87,7 +87,7 @@ FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::ApplyA
 	const UDGameplayEffect* GameplayEffect,
 	int32 CustomDuration)
 {
-	if (CustomDuration <= 0)
+	if (CustomDuration == 0)
 		CustomDuration = GameplayEffect->TurnDuration;
 	
 	FTurnBasedActiveGameplayEffect* TurnBasedActiveGameplayEffect = GetActiveGameplayEffect(Handle);

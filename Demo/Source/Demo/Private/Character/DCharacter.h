@@ -23,12 +23,13 @@ class ADCharacter : public ACharacter, public IAbilitySystemInterface
 public:
 	// Sets default values for this character's properties
 	ADCharacter();
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UDAbilitySystemComponent* AbilitySystemComponent;
+	
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	UDCharacterDataAsset* CharacterDataAsset;
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	UDAbilitySystemComponent* GetDAbilitySystemComponent() const { return AbilitySystemComponent; }
 	
 protected:
 
@@ -45,8 +46,11 @@ protected:
 
 	virtual void PossessedBy(AController* NewController) override;
 
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UDAbilitySystemComponent* AbilitySystemComponent;
+	
 public:
 	
 	// Called every frame

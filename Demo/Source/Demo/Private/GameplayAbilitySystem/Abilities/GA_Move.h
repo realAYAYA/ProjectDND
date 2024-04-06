@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DGameplayAbility.h"
+#include "GA_WithProjectile.h"
 #include "GA_Move.generated.h"
 
 class UAbilityTask_Move;
@@ -12,7 +12,7 @@ class UAbilityTask_Move;
  * 
  */
 UCLASS()
-class UGA_Move : public UDGameplayAbility
+class UGA_Move : public UGameplayAbility
 {
 	GENERATED_BODY()
 

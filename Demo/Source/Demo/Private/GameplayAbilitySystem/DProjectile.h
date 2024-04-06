@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "DProjectile.generated.h"
 
-class UDGameplayAbility;
+class UGA_WithProjectile;
 class ADCharacter;
 
 UCLASS()
@@ -25,7 +25,7 @@ public:
 	class UProjectileMovementComponent* ProjectileMovement;
 
 	UPROPERTY()
-	UDGameplayAbility* AbilityInstance;
+	UGA_WithProjectile* AbilityInstance;
 	
 	// Sets default values for this actor's properties
 	ADProjectile();

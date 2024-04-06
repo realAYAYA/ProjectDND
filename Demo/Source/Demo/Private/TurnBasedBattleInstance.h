@@ -34,13 +34,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	int32 GetCurrentTurnNum() const { return CurrentTurnNum; }
 
-	UPROPERTY(ReplicatedUsing = OnCurrentCharacterChange)
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentCharacter)
 	ADCharacter* CurrentCharacter;
 
 	UPROPERTY()
 	TArray<ADCharacter*> CharacterList;
 
-	UPROPERTY(ReplicatedUsing = OnCharacterListChange)
+	UPROPERTY(ReplicatedUsing = OnRep_CharacterList)
 	TArray<int32> CharacterIdList;
 
 	UPROPERTY(ReplicatedUsing = OnTurnNumChanged)
@@ -54,10 +54,10 @@ public:
 	void YourTurn(ADCharacter* InCharacter);// 下一个单位的回合
 
 	UFUNCTION()
-	void OnCurrentCharacterChange();
+	void OnRep_CurrentCharacter();
 
 	UFUNCTION()
-	void OnCharacterListChange();
+	void OnRep_CharacterList();
 
 	UFUNCTION()
 	void OnTurnNumChanged();
@@ -70,7 +70,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//virtual void PostNetInit() override;
+	virtual void PostNetInit() override;
 	
 public:
 	
@@ -78,6 +78,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+
+	ADCharacter* FindCharacter(const int32 Id) const;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

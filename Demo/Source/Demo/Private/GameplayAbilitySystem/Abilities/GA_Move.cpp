@@ -37,7 +37,7 @@ bool UGA_Move::CanActivateAbility(
 	if (!Caster)
 		return false;
 
-	Result = Caster->GetAttributeSet()->GetMoveDistance() > 0 ? true : false;
+	Result = Caster->GetAttributeSet()->GetMoveDistance() > 0;
 	
 	return Result;
 }

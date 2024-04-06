@@ -5,16 +5,16 @@
 
 #include "Character/DCharacter.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
-#include "GameplayAbilitySystem/Abilities/DGameplayAbility.h"
+#include "GameplayAbilitySystem/Abilities/GA_WithProjectile.h"
 
 void UAnimNotify_AbilityFire::Notify(
 	USkeletalMeshComponent* MeshComp,
 	UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference)
 {
-	if (const auto* Character = Cast<ADCharacter>(MeshComp->GetOwner()); Character && Character->AbilitySystemComponent)
+	if (const auto* Character = Cast<ADCharacter>(MeshComp->GetOwner()); Character && Character->GetDAbilitySystemComponent())
 	{
-		Character->AbilitySystemComponent->NotifyAbilityFireOrHit(AbilityClassToNotify.Get());
+		Character->GetDAbilitySystemComponent()->NotifyAbilityFireOrHit(AbilityClassToNotify.Get());
 	}
 	
 	Super::Notify(MeshComp, Animation, EventReference);

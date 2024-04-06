@@ -9,8 +9,8 @@
 #include "GameplayEffects/DGameplayEffect.h"
 #include "DAbilitySystemComponent.generated.h"
 
-class ADProjectile;
 class UDGameplayAbility;
+class UGA_WithProjectile;
 class ADCharacter;
 class UDGameplayEffect;
 
@@ -67,13 +67,13 @@ public:
 	/** 回合制专用 GE施加, 确保在服务端逻辑调用 */
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta=(DisplayName = "ApplyTurnBasedGameplayEffectToSelf"))
 	FActiveGameplayEffectHandle K2_ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, const int32 Level, const int32 CustomDuration, FGameplayEffectContextHandle EffectContext);
-	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectToSelf(const UGameplayEffect *GameplayEffect, const int32 Level, const int32 CustomDuration, const FGameplayEffectContextHandle& EffectContext, const FPredictionKey& PredictionKey = FPredictionKey());
+	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectToSelf(const UDGameplayEffect *GameplayEffect, const int32 Level, const int32 CustomDuration, FGameplayEffectContextHandle EffectContext, const FPredictionKey& PredictionKey = FPredictionKey());
 	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectSpecToSelf(const FGameplayEffectSpec& Spec, const int32 CustomDuration, const FPredictionKey& PredictionKey = FPredictionKey());
 
 	/** 回合制专用 GE施加, 确保在服务端逻辑调用 */
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta=(DisplayName = "ApplyTurnBasedGameplayEffectToTarget"))
 	FActiveGameplayEffectHandle K2_ApplyTurnBasedGameplayEffectToTarget(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, UDAbilitySystemComponent* Target, const int32 Level, const int32 CustomDuration, FGameplayEffectContextHandle EffectContext);
-	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectToTarget(const UGameplayEffect *GameplayEffect, UDAbilitySystemComponent* Target, const int32 Level, const int32 CustomDuration, const FGameplayEffectContextHandle& Context = FGameplayEffectContextHandle(), const FPredictionKey& PredictionKey = FPredictionKey()) const;
+	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectToTarget(const UDGameplayEffect *GameplayEffect, UDAbilitySystemComponent* Target, const int32 Level, const int32 CustomDuration, const FGameplayEffectContextHandle& Context = FGameplayEffectContextHandle(), const FPredictionKey& PredictionKey = FPredictionKey()) const;
 	static FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectSpecToTarget(const FGameplayEffectSpec& Spec, UDAbilitySystemComponent *Target, const int32 CustomDuration, FPredictionKey PredictionKey = FPredictionKey());
 	
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta = (DisplayName = "ApplyTurnBasedGameplayEffectSpecToSelf", ScriptName = "ApplyGameplayEffectSpecToSelf"))
@@ -88,7 +88,7 @@ public:
 	bool RemoveTurnBasedActiveGameplayEffect(const FActiveGameplayEffectHandle Handle, const int32 StacksToRemove = -1);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void NetMulticast_FireAbilityProjectile(TSubclassOf<ADProjectile> ProjectileClass, TSubclassOf<UDGameplayAbility> AbilityClass, AActor* Target, FVector TargetLocation, AActor* Caster, FVector StartLocation);
+	void NetMulticast_FireAbilityProjectile(const UClass* AbilityClass, AActor* Caster, const FGameplayAbilityTargetDataHandle& TargetData);
 	
 	// 受到近战攻击时触发的能力
 	

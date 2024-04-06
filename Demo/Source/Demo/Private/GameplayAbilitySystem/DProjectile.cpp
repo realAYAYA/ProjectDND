@@ -64,7 +64,7 @@ void ADProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 			// 施加效果
 			for (const TSubclassOf<UGameplayEffect>& Effect : Effects)
 			{
-				FGameplayEffectContextHandle EffectContextHandle = Character->AbilitySystemComponent->MakeEffectContext();
+				FGameplayEffectContextHandle EffectContextHandle = Character->GetDAbilitySystemComponent()->MakeEffectContext();
 				EffectContextHandle.AddSourceObject(Character);
 				//Character->ApplyGameplayEffectToSelf(Effect, EffectContextHandle);
 			}

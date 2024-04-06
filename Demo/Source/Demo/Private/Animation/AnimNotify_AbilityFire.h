@@ -6,7 +6,7 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "AnimNotify_AbilityFire.generated.h"
 
-class UDGameplayAbility;
+class UGA_WithProjectile;
 /**
  * 
  */
@@ -21,6 +21,6 @@ public:
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	TSubclassOf<UDGameplayAbility> AbilityClassToNotify;
+	TSubclassOf<UGA_WithProjectile> AbilityClassToNotify;
 	
 };
