@@ -88,7 +88,7 @@ public:
 	bool RemoveTurnBasedActiveGameplayEffect(const FActiveGameplayEffectHandle Handle, const int32 StacksToRemove = -1);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void NetMulticast_FireAbilityProjectile(const UClass* AbilityClass, AActor* Caster, const FGameplayAbilityTargetDataHandle& TargetData);
+	void NetMulticast_FireAbilityProjectile(const FGameplayAbilitySpecHandle& AbilitySpecHandle, AActor* Caster, const FGameplayAbilityTargetDataHandle& TargetData);
 	
 	// 受到近战攻击时触发的能力
 	

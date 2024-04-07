@@ -258,12 +258,15 @@ bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
 }
 
 void UDAbilitySystemComponent::NetMulticast_FireAbilityProjectile_Implementation(
-	const UClass* AbilityClass,
+	const FGameplayAbilitySpecHandle& AbilitySpecHandle,
 	AActor* Caster,
 	const FGameplayAbilityTargetDataHandle& TargetData)
 {
-	if (auto* GameplayAbility = AbilityClass->GetDefaultObject<UGA_WithProjectile>())
-		GameplayAbility->ProcessProjectile(TargetData, Caster);
+	if (const auto* AbilitySpec = FindAbilitySpecFromHandle(AbilitySpecHandle))
+	{
+		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(AbilitySpec->Ability.Get()))
+			AbilityInstance->ProcessProjectile(TargetData, Caster);
+	}
 }
 
 void UDAbilitySystemComponent::OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo)

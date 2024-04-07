@@ -94,7 +94,7 @@ void UGA_WithProjectile::OnFire(const UClass* AbilityClass)
 	
 	{
 		UDAbilitySystemComponent* Asc = GetDAbilitySystemComponent(CurrentActorInfo);
-		Asc->NetMulticast_FireAbilityProjectile(this->StaticClass(), Asc->GetOwner(), CacheTargetData);
+		Asc->NetMulticast_FireAbilityProjectile(this->GetCurrentAbilitySpecHandle(), Asc->GetOwner(), CacheTargetData);
 	}
 }
 

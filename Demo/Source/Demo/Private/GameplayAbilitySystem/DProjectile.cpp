@@ -4,8 +4,6 @@
 #include "DProjectile.h"
 #include "Character/DCharacter.h"
 
-#include "AbilitySystemComponent.h"
-#include "DAbilitySystemComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -23,6 +21,7 @@ ADProjectile::ADProjectile()
 	CollisionComp->InitSphereRadius(5.0f);
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 	CollisionComp->OnComponentHit.AddDynamic(this, &ADProjectile::OnHit);// set up a notification for when this component hits something blocking
+	//CollisionComp->OnComponentBeginOverlap.AddDynamic()
 
 	// Players can't walk on it
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
@@ -34,19 +33,22 @@ ADProjectile::ADProjectile()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 500.f;// Todo 初速由设计人员定制
-	ProjectileMovement->MaxSpeed = 3000.f;
+
+	// Todo 初速由设计人员定制
+	//ProjectileMovement->InitialSpeed = 500.f;
+	//ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
-	ProjectileMovement->bShouldBounce = true;
+	//ProjectileMovement->bShouldBounce = true;
 }
 
-void ADProjectile::Initialize(ADCharacter* InCaster, ADCharacter* InTarget)
+void ADProjectile::Initialize(ADCharacter* InCaster, ADCharacter* InTarget, UGA_WithProjectile* InAbility)
 {
 	if (!HasAuthority())
 		return;
 	
 	Caster = InCaster;
 	Target = InTarget;
+	AbilityInstance = InAbility;
 
 	if (Caster)
 		CollisionComp->IgnoreActorWhenMoving(Caster, true);
@@ -61,14 +63,6 @@ void ADProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 		ADCharacter* Character = Cast<ADCharacter>(OtherActor);
 		if (HasAuthority() && Character)
 		{
-			// 施加效果
-			for (const TSubclassOf<UGameplayEffect>& Effect : Effects)
-			{
-				FGameplayEffectContextHandle EffectContextHandle = Character->GetDAbilitySystemComponent()->MakeEffectContext();
-				EffectContextHandle.AddSourceObject(Character);
-				//Character->ApplyGameplayEffectToSelf(Effect, EffectContextHandle);
-			}
-
 			Destroy();
 		}
 	}

@@ -10,7 +10,8 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 {
 	FGameplayTag InBattle;
 	FGameplayTag MyBattle;
-	
+
+	FGameplayTag CriticalHit;
 	FGameplayTag AbilityHit;
 	FGameplayTag HitByPhyMelee;
 	FGameplayTag HitByPhyRange;
@@ -39,6 +40,7 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		InBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Rules.InBattle"), TEXT("ProjectD"));
 		MyBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Rules.MyTurn"), TEXT("ProjectD"));
 
+		CriticalHit	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Event.Cirtical.Phy"), TEXT("ProjectD"));
 		AbilityHit	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit"), TEXT("ProjectD"));
 		HitByPhyMelee	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Melee.Phy"), TEXT("ProjectD"));
 		HitByPhyRange	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Range.Phy"), TEXT("ProjectD"));

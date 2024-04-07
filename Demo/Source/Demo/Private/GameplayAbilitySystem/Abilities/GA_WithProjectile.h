@@ -29,7 +29,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	UAnimMontage* Montage;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectD")
 	TSubclassOf<ADProjectile> ProjectileClass;
 
 	UPROPERTY()

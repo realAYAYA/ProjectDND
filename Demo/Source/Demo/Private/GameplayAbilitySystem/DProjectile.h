@@ -23,26 +23,17 @@ public:
 	/** Projectile movement component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ProjectM, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
-
-	UPROPERTY()
-	UGA_WithProjectile* AbilityInstance;
 	
 	// Sets default values for this actor's properties
 	ADProjectile();
 
-	UFUNCTION(BlueprintCallable)
-	void Initialize(ADCharacter* InCaster, ADCharacter* InTarget);
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	void Initialize(ADCharacter* InCaster, ADCharacter* InTarget, UGA_WithProjectile* InAbility);
 
 	/** called when projectile hits something */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	/**
-	 * GAS
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = ProjectM)
-	TArray<TSubclassOf<class UGameplayEffect>> Effects;
-
+	
 	UPROPERTY()
 	AActor* Caster;
 
@@ -51,6 +42,11 @@ public:
 
 	UPROPERTY()
 	FVector TargetLocation;// 如果目标丢失，则销毁在最后出现的位置
+
+	UPROPERTY()
+	UGA_WithProjectile* AbilityInstance;
+
+	//void ApplyGameplayEffectToTarget(AActor* Target);
 
 protected:
 	

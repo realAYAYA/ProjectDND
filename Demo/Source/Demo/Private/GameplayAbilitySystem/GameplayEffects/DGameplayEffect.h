@@ -138,7 +138,7 @@ public:
 
 #if WITH_EDITORONLY_DATA
 	/** Allow us to show the Status of the class (valid configurations or invalid configurations) while configuring in the Editor */
-	UPROPERTY(VisibleAnywhere, Transient, Category = "PorjectT")
+	UPROPERTY(VisibleAnywhere, Transient, Category = "PorjectD")
 	mutable FText Warning = LOCTEXT("Warning", "警告: 不允许使用HasDuration特性以及自带的Period属性; 一旦使用，后果无法估测");
 #endif
 
