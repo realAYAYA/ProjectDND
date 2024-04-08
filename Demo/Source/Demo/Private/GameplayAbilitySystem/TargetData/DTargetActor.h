@@ -36,6 +36,8 @@ public:
 
 private:
 
+	bool InternalInitTargetActor(APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayAbilitySpec& Spec);
+
 	UPROPERTY()
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 };

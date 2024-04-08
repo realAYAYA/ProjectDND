@@ -89,10 +89,6 @@ void UGA_WithProjectile::ReceiveTargetDataAndReadyToFire(const FGameplayAbilityT
 	const auto* Character = Cast<ADCharacter>(Caster);;
 	if (Character && Montage)
 	{
-		if (!ProjectileClass.Get())
-			return;
-
-		//Character->GetDAbilitySystemComponent()->OnAbilityReadyToFire.AddDynamic(this, &UGA_WithProjectile::OnFire);
 		Character->GetMesh()->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("OnFire"), Montage);
 	}
 }
