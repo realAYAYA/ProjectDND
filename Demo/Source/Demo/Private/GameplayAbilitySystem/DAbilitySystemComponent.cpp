@@ -265,7 +265,7 @@ void UDAbilitySystemComponent::NetMulticast_FireAbilityProjectile_Implementation
 	if (const auto* AbilitySpec = FindAbilitySpecFromHandle(AbilitySpecHandle))
 	{
 		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(AbilitySpec->Ability.Get()))
-			AbilityInstance->ProcessProjectile(TargetData, Caster);
+			AbilityInstance->ReceiveTargetDataAndReadyToFire(TargetData, Caster);
 	}
 }
 
@@ -290,9 +290,15 @@ void UDAbilitySystemComponent::EndTurn()
 {
 }
 
-void UDAbilitySystemComponent::NotifyAbilityFireOrHit(const UClass* AbilityClass) const
+void UDAbilitySystemComponent::NotifyAbilityFire(const TSubclassOf<UGameplayAbility> InAbilityClass)
 {
-	OnAbilityReadyToFire.Broadcast(AbilityClass);
+	if (const auto* Spec = FindAbilitySpecFromClass(InAbilityClass))
+	{
+		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec->Ability.Get()))
+		{
+			AbilityInstance->OnFire(this);
+		}
+	}
 }
 
 void UDAbilitySystemComponent::NotifyGameplayEffectAppliedToBP(
@@ -301,7 +307,6 @@ void UDAbilitySystemComponent::NotifyGameplayEffectAppliedToBP(
 	FActiveGameplayEffectHandle Handle) const
 {
 	OnGEAppliedCallback.Broadcast(Spec.Def->GetAssetTags().First(), Spec.Duration);
-	//Spec.StackCount;
 }
 
 void UDAbilitySystemComponent::NotifyGameplayEffectRemovedToBP(const FActiveGameplayEffect& Effect) const

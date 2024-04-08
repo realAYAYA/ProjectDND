@@ -31,9 +31,6 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectD")
 	TSubclassOf<ADProjectile> ProjectileClass;
-
-	UPROPERTY()
-	ADCharacter* Target;
 	
 	// Todo 技能被打断
 
@@ -46,17 +43,18 @@ public:
 
 	UFUNCTION()
 	virtual void CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
-	
-	UFUNCTION()
-	virtual void OnFire(const UClass* AbilityClass);
 
 	UFUNCTION()
-	virtual void ProcessProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
+	virtual void ReceiveTargetDataAndReadyToFire(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
+
+	UFUNCTION()
+	virtual void OnFire(UDAbilitySystemComponent* Asc);
 
 	// 根据TargetData, 执行发射逻辑
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "ProcessProjectile", meta=(ScriptName = "ProcessProjectile"))
-	void K2_ProcessProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
+	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "FireProjectile", meta=(ScriptName = "FireProjectile"))
+	void K2_FireProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
 
+	// 留意客户端下的AbilityActorInfo等变量是没有被进行初始化的（或同步）
 	static ADCharacter* GetDCharacter(const FGameplayAbilityActorInfo* ActorInfo);
 	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo);
 

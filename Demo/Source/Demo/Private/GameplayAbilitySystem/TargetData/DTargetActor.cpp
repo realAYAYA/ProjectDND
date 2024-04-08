@@ -43,16 +43,21 @@ bool ADTargetActor::SetAbilityInfo(APlayerController* PC, UAbilitySystemComponen
 	StartTargeting(AbilityInstance);
 	BindToConfirmCancelInputs();
 	
-	TargetDataReadyDelegate.AddLambda([Asc, AbilityInstance](const FGameplayAbilityTargetDataHandle& Data)
+	if (HasAuthority())
 	{
-		const FGameplayTag ApplicationTag; // Fixme: where would this be useful?
-		Asc->CallServerSetReplicatedTargetData(AbilityInstance->GetCurrentAbilitySpecHandle(), AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey(), Data, ApplicationTag, Asc->ScopedPredictionKey);
-	});
+		//Asc->TargetConfirm();
+	}
+	else
+	{
+		TargetDataReadyDelegate.AddLambda([Asc, AbilityInstance](const FGameplayAbilityTargetDataHandle& Data){
+			const FGameplayTag ApplicationTag; // Fixme: where would this be useful?
+			Asc->CallServerSetReplicatedTargetData(AbilityInstance->GetCurrentAbilitySpecHandle(), AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey(), Data, ApplicationTag, Asc->ScopedPredictionKey);
+		});
 
-	CanceledDelegate.AddLambda([Asc, AbilityInstance](const FGameplayAbilityTargetDataHandle& Data)
-	{
-		Asc->ServerSetReplicatedTargetDataCancelled(AbilityInstance->GetCurrentAbilitySpecHandle(), AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey(), Asc->ScopedPredictionKey );
-	});
+		CanceledDelegate.AddLambda([Asc, AbilityInstance](const FGameplayAbilityTargetDataHandle& Data){
+			Asc->ServerSetReplicatedTargetDataCancelled(AbilityInstance->GetCurrentAbilitySpecHandle(), AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey(), Asc->ScopedPredictionKey );
+		});
+	}
 	
 	return true;
 }
@@ -68,6 +73,12 @@ void ADTargetActor::K2_ConfirmTargeting(const FGameplayAbilityTargetDataHandle& 
 	TargetDataHandle = InTargetDataHandle;
 
 	ConfirmTargeting();
+}
+
+void ADTargetActor::K2_CancelTargeting()
+{
+	OwningAbility->K2_CancelAbility();
+	this->CancelTargeting();
 }
 
 void ADTargetActor::ConfirmTargetingAndContinue()

@@ -1,5 +1,4 @@
 ﻿#include "GA_WithProjectile.h"
-
 #include "Character/DCharacter.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "GameplayAbilitySystem/Tasks/DAbilityTask_PlayMontageAndWait.h"
@@ -27,15 +26,13 @@ void UGA_WithProjectile::ActivateAbility(
 	if (Montage)
 	{
 		auto* Task = UDAbilityTask_PlayMontageAndWait::CreateTask(this, TEXT("Ready"), Montage);
-		//Task->OnCompleted.AddDynamic(this, &UDGameplayAbility::MontageToStandby);
+		Task->OnCompleted.AddDynamic(this, &UGA_WithProjectile::K2_EndAbility);
 		Task->OnCancelled.AddDynamic(this, &UGA_WithProjectile::K2_CancelAbility);
 		Task->OnInterrupted.AddDynamic(this, &UGA_WithProjectile::K2_CancelAbility);
-		//Task->OnBlendOut.AddDynamic(this, &UDGameplayAbility::MontageToStandby);
+		Task->OnBlendOut.AddDynamic(this, &UGA_WithProjectile::K2_EndAbility);
 		ActiveTasks.Add(Task);
 		MontageTask = Task;
 		MontageTask->ReadyForActivation();
-
-		Asc->OnAbilityReadyToFire.AddDynamic(this, &UGA_WithProjectile::OnFire);
 	}
 
 	auto* Task = UDAbilityTask_WithTargetData::CreateTask(this);
@@ -53,10 +50,6 @@ void UGA_WithProjectile::EndAbility(
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
-	if (auto* Asc = GetDAbilitySystemComponent(ActorInfo))
-	{
-		Asc->OnAbilityReadyToFire.RemoveDynamic(this, &UGA_WithProjectile::OnFire);
-	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -65,15 +58,13 @@ void UGA_WithProjectile::EndAbility(
 void UGA_WithProjectile::ReceiveTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
 	CacheTargetData = TargetDataHandle;
+
+	// Todo 检测数据合法性，取消技能
+	// Todo 计算消耗 施加CD 抑或是因为法术反制施法失败，仍计算消耗，但不会施加效果
 	
 	// 收到来自客户端的数据，进行最终施法(攻击)流程
-	const auto* Character = GetDCharacter(CurrentActorInfo);
-	if (Character && Montage)
-	{
-		Character->GetMesh()->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("OnFire"), Montage);
-
-		// Todo 计算消耗 施加CD 抑或是因为法术反制施法失败，仍计算消耗，但不会施加效果
-	}
+	if (UDAbilitySystemComponent* Asc = GetDAbilitySystemComponent(CurrentActorInfo))
+		Asc->NetMulticast_FireAbilityProjectile(this->GetCurrentAbilitySpecHandle(), Asc->GetOwner(), CacheTargetData);
 }
 
 void UGA_WithProjectile::CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
@@ -81,26 +72,29 @@ void UGA_WithProjectile::CancelTargetData(const FGameplayAbilityTargetDataHandle
 	K2_CancelAbility();
 }
 
-void UGA_WithProjectile::OnFire(const UClass* AbilityClass)
+void UGA_WithProjectile::OnFire(UDAbilitySystemComponent* Asc)
 {
+	// 程序运行到该函数时不能保证Ability存有正确的Asc或Actor信息
 	// Todo 法术施法成功进行结算，也可能被法术反制导致失败
-	if (AbilityClass && AbilityClass != this->StaticClass())
-		return;
-
-	const FVector TargetLoc = CacheTargetData.Get(0)->GetHitResult()->Location;
 	
-	if (!ProjectileClass.Get())
-		return;
-	
+	if (Asc)
 	{
-		UDAbilitySystemComponent* Asc = GetDAbilitySystemComponent(CurrentActorInfo);
-		Asc->NetMulticast_FireAbilityProjectile(this->GetCurrentAbilitySpecHandle(), Asc->GetOwner(), CacheTargetData);
+		K2_FireProjectile(CacheTargetData, Asc->GetOwner());
 	}
 }
 
-void UGA_WithProjectile::ProcessProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster)
+void UGA_WithProjectile::ReceiveTargetDataAndReadyToFire(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster)
 {
-	K2_ProcessProjectile(TargetData, Caster);
+	CacheTargetData = TargetData;
+	const auto* Character = Cast<ADCharacter>(Caster);;
+	if (Character && Montage)
+	{
+		if (!ProjectileClass.Get())
+			return;
+
+		//Character->GetDAbilitySystemComponent()->OnAbilityReadyToFire.AddDynamic(this, &UGA_WithProjectile::OnFire);
+		Character->GetMesh()->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("OnFire"), Montage);
+	}
 }
 
 ADCharacter* UGA_WithProjectile::GetDCharacter(const FGameplayAbilityActorInfo* ActorInfo)

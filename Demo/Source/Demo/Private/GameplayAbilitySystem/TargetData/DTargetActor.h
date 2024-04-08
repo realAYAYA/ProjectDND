@@ -29,6 +29,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", DisplayName = "ConfirmTargeting")
 	void K2_ConfirmTargeting(const FGameplayAbilityTargetDataHandle& InTargetDataHandle);
 
+	UFUNCTION(BlueprintCallable, Category = "ProjectD", DisplayName = "CancelTargeting")
+	void K2_CancelTargeting();
+	
 	virtual void ConfirmTargetingAndContinue() override;// 必须被重写
 
 private:

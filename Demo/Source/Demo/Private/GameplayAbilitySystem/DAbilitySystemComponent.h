@@ -14,7 +14,6 @@ class UGA_WithProjectile;
 class ADCharacter;
 class UDGameplayEffect;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityFireDelegate, const UClass*, AbilityClass);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGEAppliedDelegate, const FGameplayTag&, Tag, const int32, TurnRemaining);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGERemovedDelegate, const FGameplayTag&, Tag);
 
@@ -120,9 +119,7 @@ public:
 	/** 回合结束，施加回合制效果等*/
 	void EndTurn();
 
-	void NotifyAbilityFireOrHit(const UClass* AbilityClass) const;
-
-	FOnAbilityFireDelegate OnAbilityReadyToFire;// 来自Montage的AnimNotify，通知技能可以进行发射
+	void NotifyAbilityFire(const TSubclassOf<UGameplayAbility> InAbilityClass);
 
 protected:
 

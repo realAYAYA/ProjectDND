@@ -14,7 +14,7 @@ void UAnimNotify_AbilityFire::Notify(
 {
 	if (const auto* Character = Cast<ADCharacter>(MeshComp->GetOwner()); Character && Character->GetDAbilitySystemComponent())
 	{
-		Character->GetDAbilitySystemComponent()->NotifyAbilityFireOrHit(AbilityClassToNotify.Get());
+		Character->GetDAbilitySystemComponent()->NotifyAbilityFire(AbilityClassToNotify);
 	}
 	
 	Super::Notify(MeshComp, Animation, EventReference);
