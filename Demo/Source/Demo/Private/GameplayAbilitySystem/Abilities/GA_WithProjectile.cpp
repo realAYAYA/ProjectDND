@@ -3,12 +3,16 @@
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "GameplayAbilitySystem/Tasks/DAbilityTask_PlayMontageAndWait.h"
 #include "GameplayAbilitySystem/Tasks/DAbilityTask_WithTargetData.h"
-#include "GameplayAbilitySystem/DProjectile.h"
 
 UGA_WithProjectile::UGA_WithProjectile()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	//ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
+
+	Montage = nullptr;
+	MontageTask = nullptr;
+	TargetDataTask = nullptr;
 }
 
 void UGA_WithProjectile::ActivateAbility(
@@ -19,8 +23,7 @@ void UGA_WithProjectile::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	auto* Asc = GetDAbilitySystemComponent(ActorInfo);
-	if (!Asc)
+	if (const auto* Asc = GetDAbilitySystemComponent(ActorInfo); !Asc)
 		K2_CancelAbility();
 
 	if (Montage)
@@ -76,7 +79,6 @@ void UGA_WithProjectile::OnFire(UDAbilitySystemComponent* Asc)
 {
 	// 程序运行到该函数时不能保证Ability存有正确的Asc或Actor信息
 	// Todo 法术施法成功进行结算，也可能被法术反制导致失败
-	
 	if (Asc)
 	{
 		K2_FireProjectile(CacheTargetData, Asc->GetOwner());

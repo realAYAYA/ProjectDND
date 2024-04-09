@@ -5,7 +5,6 @@
 
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
-#include "Abilities/DGameplayAbility.h"
 #include "Abilities/GA_WithProjectile.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "Net/UnrealNetwork.h"
@@ -19,6 +18,7 @@ void UDAbilitySystemComponent::InitializeComponent()
 
 	OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &UDAbilitySystemComponent::NotifyGameplayEffectAppliedToBP);
 	ActiveGameplayEffects.OnActiveGameplayEffectRemovedDelegate.AddUObject(this, &UDAbilitySystemComponent::NotifyGameplayEffectRemovedToBP);
+
 }
 
 FGameplayAbilitySpecHandle UDAbilitySystemComponent::FindAbilityWithTag(const FGameplayTag& Tag) const
@@ -264,9 +264,13 @@ void UDAbilitySystemComponent::NetMulticast_FireAbilityProjectile_Implementation
 {
 	if (const auto* AbilitySpec = FindAbilitySpecFromHandle(AbilitySpecHandle))
 	{
-		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(AbilitySpec->Ability.Get()))
+		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(AbilitySpec->GetPrimaryInstance()))
 			AbilityInstance->ReceiveTargetDataAndReadyToFire(TargetData, Caster);
+		else
+			ABILITY_LOG(Display, TEXT("NetMulticast_FireAbilityProjectile. 对应技能没有实例!"));
 	}
+	else
+		ABILITY_LOG(Display, TEXT("NetMulticast_FireAbilityProjectile. 没有对应技能!"));
 }
 
 void UDAbilitySystemComponent::OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo)
@@ -294,11 +298,13 @@ void UDAbilitySystemComponent::NotifyAbilityFire(const TSubclassOf<UGameplayAbil
 {
 	if (const auto* Spec = FindAbilitySpecFromClass(InAbilityClass))
 	{
-		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec->Ability.Get()))
-		{
+		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec->GetPrimaryInstance()))
 			AbilityInstance->OnFire(this);
-		}
+		else
+			ABILITY_LOG(Display, TEXT("NotifyAbilityFire. 对应技能没有实例!"));
 	}
+	else
+		ABILITY_LOG(Display, TEXT("NotifyAbilityFire. 没有对应技能!"));
 }
 
 void UDAbilitySystemComponent::NotifyGameplayEffectAppliedToBP(

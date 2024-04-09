@@ -69,7 +69,7 @@ bool ADTargetActor::InternalInitTargetActor(APlayerController* PC, UAbilitySyste
 	if (Spec.GetAbilityInstances().Num() <= 0)
 		return false;
 	
-	auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec.GetAbilityInstances()[0]);
+	auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec.GetPrimaryInstance());
 	if (!AbilityInstance)
 		return false;
 
