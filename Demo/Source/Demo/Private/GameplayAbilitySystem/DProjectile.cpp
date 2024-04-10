@@ -8,13 +8,14 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
-ADProjectile::ADProjectile()
+ADProjectile::ADProjectile(const FObjectInitializer& ObjectInitializer)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//bReplicates = true;
-	//SetReplicatingMovement(true);
+	// 网络同步
+	bReplicates = true;
+	SetReplicatingMovement(true);
 	
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
@@ -41,13 +42,20 @@ ADProjectile::ADProjectile()
 	//ProjectileMovement->bShouldBounce = true;
 }
 
-void ADProjectile::Initialize(ADCharacter* InCaster, ADCharacter* InTarget, UGA_WithProjectile* InAbility)
+void ADProjectile::Initialize(UGA_WithProjectile* InAbility, ADCharacter* InCaster, const FGameplayAbilityTargetDataHandle& InTargetData)
 {
+	SetLifeSpan(10);
+	
 	if (!HasAuthority())
 		return;
 	
-	Caster = InCaster;
-	Target = InTarget;
+	Caster = Cast<ADCharacter>(GetInstigator());
+	//Cast<UGA_WithProjectile>();
+
+	//SetOwner(InAbility);
+	//SetInstigator(InAbility);
+	
+	TargetData = InTargetData;
 	AbilityInstance = InAbility;
 
 	if (Caster)
@@ -66,19 +74,5 @@ void ADProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 			Destroy();
 		}
 	}
-}
-
-// Called when the game starts or when spawned
-void ADProjectile::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void ADProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	
 }
 

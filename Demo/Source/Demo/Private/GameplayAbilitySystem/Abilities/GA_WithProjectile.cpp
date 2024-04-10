@@ -36,6 +36,9 @@ void UGA_WithProjectile::ActivateAbility(
 		ActiveTasks.Add(Task);
 		MontageTask = Task;
 		MontageTask->ReadyForActivation();
+
+		//UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
+		//AnimInstance->OnPlayMontageNotifyBegin;;
 	}
 
 	auto* Task = UDAbilityTask_WithTargetData::CreateTask(this);
@@ -66,8 +69,7 @@ void UGA_WithProjectile::ReceiveTargetData(const FGameplayAbilityTargetDataHandl
 	// Todo 计算消耗 施加CD 抑或是因为法术反制施法失败，仍计算消耗，但不会施加效果
 	
 	// 收到来自客户端的数据，进行最终施法(攻击)流程
-	if (UDAbilitySystemComponent* Asc = GetDAbilitySystemComponent(CurrentActorInfo))
-		Asc->NetMulticast_FireAbilityProjectile(this->GetCurrentAbilitySpecHandle(), Asc->GetOwner(), CacheTargetData);
+	MontageSetNextSectionName(FName("Loop"), FName("OnFire"));
 }
 
 void UGA_WithProjectile::CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
@@ -79,19 +81,9 @@ void UGA_WithProjectile::OnFire(UDAbilitySystemComponent* Asc)
 {
 	// 程序运行到该函数时不能保证Ability存有正确的Asc或Actor信息
 	// Todo 法术施法成功进行结算，也可能被法术反制导致失败
-	if (Asc)
+	if (Asc && Asc->GetOwner()->HasAuthority())
 	{
 		K2_FireProjectile(CacheTargetData, Asc->GetOwner());
-	}
-}
-
-void UGA_WithProjectile::ReceiveTargetDataAndReadyToFire(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster)
-{
-	CacheTargetData = TargetData;
-	const auto* Character = Cast<ADCharacter>(Caster);;
-	if (Character && Montage)
-	{
-		Character->GetMesh()->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("OnFire"), Montage);
 	}
 }
 
@@ -107,4 +99,9 @@ UDAbilitySystemComponent* UGA_WithProjectile::GetDAbilitySystemComponent(const F
 	if (const auto* Character = GetDCharacter(ActorInfo))
 		return Character->GetDAbilitySystemComponent();
 	return nullptr;
+}
+
+UWorld* UGA_WithProjectile::GetWorld() const
+{
+	return Super::GetWorld();
 }

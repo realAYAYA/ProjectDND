@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Abilities/GameplayAbilityTargetTypes.h"
 #include "GameFramework/Actor.h"
 #include "DProjectile.generated.h"
 
@@ -25,23 +26,21 @@ public:
 	class UProjectileMovementComponent* ProjectileMovement;
 	
 	// Sets default values for this actor's properties
-	ADProjectile();
+	ADProjectile(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	void Initialize(ADCharacter* InCaster, ADCharacter* InTarget, UGA_WithProjectile* InAbility);
+	void Initialize(UGA_WithProjectile* InAbility, ADCharacter* InCaster, const FGameplayAbilityTargetDataHandle& InTargetData);
 
 	/** called when projectile hits something */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
-	UPROPERTY()
-	AActor* Caster;
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
+	ADCharacter* Caster;
 
-	UPROPERTY()
-	AActor* Target;
-
-	UPROPERTY()
-	FVector TargetLocation;// 如果目标丢失，则销毁在最后出现的位置
+	// 如果Target为空，有可能是对应技能采用的是坐标位置作为目标
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
+	FGameplayAbilityTargetDataHandle TargetData;
 
 	UPROPERTY()
 	UGA_WithProjectile* AbilityInstance;
@@ -51,12 +50,9 @@ public:
 protected:
 	
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	//virtual void BeginPlay() override;
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	/** Returns ProjectileMovement sub-object **/
-	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
+	//virtual void Tick(float DeltaTime) override;
 };

@@ -45,9 +45,6 @@ public:
 	virtual void CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
 	UFUNCTION()
-	virtual void ReceiveTargetDataAndReadyToFire(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
-
-	UFUNCTION()
 	virtual void OnFire(UDAbilitySystemComponent* Asc);
 
 	// 根据TargetData, 执行发射逻辑
@@ -59,6 +56,8 @@ public:
 	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo);
 
 protected:
+
+	virtual UWorld* GetWorld() const override;
 
 	UPROPERTY()
 	UDAbilityTask_PlayMontageAndWait* MontageTask;

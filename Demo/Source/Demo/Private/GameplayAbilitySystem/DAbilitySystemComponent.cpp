@@ -257,20 +257,11 @@ bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
 	return bRemoveDone;
 }
 
-void UDAbilitySystemComponent::NetMulticast_FireAbilityProjectile_Implementation(
-	const FGameplayAbilitySpecHandle& AbilitySpecHandle,
-	AActor* Caster,
-	const FGameplayAbilityTargetDataHandle& TargetData)
+void UDAbilitySystemComponent::NotifyAbilityFire(const TSubclassOf<UGameplayAbility> InAbilityClass)
 {
-	if (const auto* AbilitySpec = FindAbilitySpecFromHandle(AbilitySpecHandle))
-	{
-		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(AbilitySpec->GetPrimaryInstance()))
-			AbilityInstance->ReceiveTargetDataAndReadyToFire(TargetData, Caster);
-		else
-			ABILITY_LOG(Display, TEXT("NetMulticast_FireAbilityProjectile. 对应技能没有实例!"));
-	}
-	else
-		ABILITY_LOG(Display, TEXT("NetMulticast_FireAbilityProjectile. 没有对应技能!"));
+	if (const auto* Spec = FindAbilitySpecFromClass(InAbilityClass))
+		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec->GetPrimaryInstance()))
+			AbilityInstance->OnFire(this);
 }
 
 void UDAbilitySystemComponent::OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo)
@@ -292,19 +283,6 @@ void UDAbilitySystemComponent::BeginTurn()
 
 void UDAbilitySystemComponent::EndTurn()
 {
-}
-
-void UDAbilitySystemComponent::NotifyAbilityFire(const TSubclassOf<UGameplayAbility> InAbilityClass)
-{
-	if (const auto* Spec = FindAbilitySpecFromClass(InAbilityClass))
-	{
-		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec->GetPrimaryInstance()))
-			AbilityInstance->OnFire(this);
-		else
-			ABILITY_LOG(Display, TEXT("NotifyAbilityFire. 对应技能没有实例!"));
-	}
-	else
-		ABILITY_LOG(Display, TEXT("NotifyAbilityFire. 没有对应技能!"));
 }
 
 void UDAbilitySystemComponent::NotifyGameplayEffectAppliedToBP(

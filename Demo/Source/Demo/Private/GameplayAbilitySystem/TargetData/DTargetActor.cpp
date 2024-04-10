@@ -80,14 +80,8 @@ bool ADTargetActor::InternalInitTargetActor(APlayerController* PC, UAbilitySyste
 	StartTargeting(AbilityInstance);
 	BindToConfirmCancelInputs();
 
-	// 如果是主机直接发送数据到Ability不用网络RPc
-	if (Asc->GetOwner()->HasAuthority())
-	{
-		// If we spawned the target actor, always register the callbacks for when the data is ready.
-		TargetDataReadyDelegate.AddUObject(AbilityInstance, &UGA_WithProjectile::ReceiveTargetData);
-		CanceledDelegate.AddUObject(AbilityInstance, &UGA_WithProjectile::ReceiveTargetData);
-	}
-	else
+	// 如果不是主机需要发送数据到主机
+	if (!Asc->GetOwner()->HasAuthority())
 	{
 		TargetDataReadyDelegate.AddLambda([Asc, AbilityInstance](const FGameplayAbilityTargetDataHandle& Data){
 			const FGameplayTag ApplicationTag; // Fixme: where would this be useful?
@@ -98,6 +92,11 @@ bool ADTargetActor::InternalInitTargetActor(APlayerController* PC, UAbilitySyste
 			Asc->ServerSetReplicatedTargetDataCancelled(AbilityInstance->GetCurrentAbilitySpecHandle(), AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey(), Asc->ScopedPredictionKey );
 		});
 	}
+
+	// 但不管是不是主机，即使是客户端也需要对自己本地技能发送数据
+	// If we spawned the target actor, always register the callbacks for when the data is ready.
+	TargetDataReadyDelegate.AddUObject(AbilityInstance, &UGA_WithProjectile::ReceiveTargetData);
+	CanceledDelegate.AddUObject(AbilityInstance, &UGA_WithProjectile::ReceiveTargetData);
 	
 	return true;
 }

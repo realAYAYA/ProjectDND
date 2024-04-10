@@ -85,9 +85,8 @@ public:
 	UFUNCTION()
 	void OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo);
 	bool RemoveTurnBasedActiveGameplayEffect(const FActiveGameplayEffectHandle Handle, const int32 StacksToRemove = -1);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void NetMulticast_FireAbilityProjectile(const FGameplayAbilitySpecHandle& AbilitySpecHandle, AActor* Caster, const FGameplayAbilityTargetDataHandle& TargetData);
+	
+	void NotifyAbilityFire(const TSubclassOf<UGameplayAbility> InAbilityClass);
 	
 	// 受到近战攻击时触发的能力
 	
@@ -118,8 +117,6 @@ public:
 
 	/** 回合结束，施加回合制效果等*/
 	void EndTurn();
-
-	void NotifyAbilityFire(const TSubclassOf<UGameplayAbility> InAbilityClass);
 
 protected:
 
