@@ -40,16 +40,17 @@ ADProjectile::ADProjectile(const FObjectInitializer& ObjectInitializer)
 	//ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	//ProjectileMovement->bShouldBounce = true;
+
+	Caster = nullptr;
+	AbilityInstance = nullptr;
 }
 
-void ADProjectile::Initialize(UGA_WithProjectile* InAbility, ADCharacter* InCaster, const FGameplayAbilityTargetDataHandle& InTargetData)
+void ADProjectile::InitializeProjectile(UGA_WithProjectile* InAbility, ADCharacter* InCaster, const FGameplayAbilityTargetDataHandle& InTargetData)
 {
-	SetLifeSpan(10);
-	
 	if (!HasAuthority())
 		return;
 	
-	Caster = Cast<ADCharacter>(GetInstigator());
+	Caster = InCaster;
 	//Cast<UGA_WithProjectile>();
 
 	//SetOwner(InAbility);

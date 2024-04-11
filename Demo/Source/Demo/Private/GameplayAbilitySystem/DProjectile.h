@@ -29,7 +29,7 @@ public:
 	ADProjectile(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	void Initialize(UGA_WithProjectile* InAbility, ADCharacter* InCaster, const FGameplayAbilityTargetDataHandle& InTargetData);
+	void InitializeProjectile(UGA_WithProjectile* InAbility, ADCharacter* InCaster, const FGameplayAbilityTargetDataHandle& InTargetData);
 
 	/** called when projectile hits something */
 	UFUNCTION()

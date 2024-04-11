@@ -1,6 +1,9 @@
 ﻿#include "GA_WithProjectile.h"
+
+#include "AbilitySystemLog.h"
 #include "Character/DCharacter.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
+#include "GameplayAbilitySystem/DProjectile.h"
 #include "GameplayAbilitySystem/Tasks/DAbilityTask_PlayMontageAndWait.h"
 #include "GameplayAbilitySystem/Tasks/DAbilityTask_WithTargetData.h"
 
@@ -81,9 +84,39 @@ void UGA_WithProjectile::OnFire(UDAbilitySystemComponent* Asc)
 {
 	// 程序运行到该函数时不能保证Ability存有正确的Asc或Actor信息
 	// Todo 法术施法成功进行结算，也可能被法术反制导致失败
-	if (Asc && Asc->GetOwner()->HasAuthority())
+	
+	K2_FireProjectile(CacheTargetData, Asc->GetOwner());
+}
+
+void UGA_WithProjectile::BeginSpawningProjectile(const TSubclassOf<ADProjectile>& Class, ADProjectile*& ProjectileActor)
+{
+	ProjectileActor = nullptr;
+	
+	if (UWorld* World = GEngine->GetWorldFromContextObject(this, EGetWorldErrorMode::LogAndReturnNull))
 	{
-		K2_FireProjectile(CacheTargetData, Asc->GetOwner());
+		if (*Class != nullptr)
+			ProjectileActor = World->SpawnActorDeferred<ADProjectile>(*Class, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	}
+
+	if (ProjectileActor)
+	{
+		ProjectileActor->AbilityInstance = this;
+	}
+}
+
+void UGA_WithProjectile::FinishSpawnProjectile(
+	ADProjectile* ProjectileActor,
+	const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+{
+	if (IsValid(ProjectileActor))
+	{
+		auto* Caster = Cast<ADCharacter>(this->GetDAbilitySystemComponent(CurrentActorInfo)->GetOwner());
+		ProjectileActor->InitializeProjectile(this, Caster, TargetDataHandle);
+		ProjectileActor->FinishSpawning(FTransform());
+	}
+	else
+	{
+		ABILITY_LOG(Log, TEXT("UGA_WithProjectile::SpawnProjecile失败"));
 	}
 }
 

@@ -259,6 +259,9 @@ bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
 
 void UDAbilitySystemComponent::NotifyAbilityFire(const TSubclassOf<UGameplayAbility> InAbilityClass)
 {
+	if (!GetOwner()->HasAuthority())
+		return;
+	
 	if (const auto* Spec = FindAbilitySpecFromClass(InAbilityClass))
 		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec->GetPrimaryInstance()))
 			AbilityInstance->OnFire(this);
