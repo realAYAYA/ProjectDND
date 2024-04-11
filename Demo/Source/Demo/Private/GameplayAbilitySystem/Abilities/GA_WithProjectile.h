@@ -51,7 +51,7 @@ public:
 	void BeginSpawningProjectile(const TSubclassOf<ADProjectile>& Class, ADProjectile*& ProjectileActor);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjctD")
-	void FinishSpawnProjectile(ADProjectile* ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+	void FinishSpawningProjectile(ADProjectile* ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 	
 	// 根据TargetData, 执行发射逻辑
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "FireProjectile", meta=(ScriptName = "FireProjectile"))

@@ -104,19 +104,13 @@ void UGA_WithProjectile::BeginSpawningProjectile(const TSubclassOf<ADProjectile>
 	}
 }
 
-void UGA_WithProjectile::FinishSpawnProjectile(
-	ADProjectile* ProjectileActor,
-	const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+void UGA_WithProjectile::FinishSpawningProjectile(ADProjectile* ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
 	if (IsValid(ProjectileActor))
 	{
 		auto* Caster = Cast<ADCharacter>(this->GetDAbilitySystemComponent(CurrentActorInfo)->GetOwner());
 		ProjectileActor->InitializeProjectile(this, Caster, TargetDataHandle);
 		ProjectileActor->FinishSpawning(FTransform());
-	}
-	else
-	{
-		ABILITY_LOG(Log, TEXT("UGA_WithProjectile::SpawnProjecile失败"));
 	}
 }
 
