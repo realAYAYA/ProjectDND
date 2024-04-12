@@ -1,6 +1,5 @@
 ﻿#include "GA_WithProjectile.h"
 
-#include "AbilitySystemLog.h"
 #include "Character/DCharacter.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "GameplayAbilitySystem/DProjectile.h"
