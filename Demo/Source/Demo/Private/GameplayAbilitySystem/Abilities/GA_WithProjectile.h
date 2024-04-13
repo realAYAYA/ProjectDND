@@ -45,7 +45,7 @@ public:
 	virtual void CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
 	UFUNCTION()
-	virtual void OnFire(UDAbilitySystemComponent* Asc);
+	virtual void OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjctD")
 	void BeginSpawningProjectile(const TSubclassOf<ADProjectile>& Class, ADProjectile*& ProjectileActor);
@@ -62,6 +62,9 @@ public:
 	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo);
 
 protected:
+
+	UFUNCTION()
+	void OnNotifyReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
 
 	virtual UWorld* GetWorld() const override;
 

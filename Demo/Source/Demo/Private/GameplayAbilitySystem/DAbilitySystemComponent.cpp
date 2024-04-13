@@ -264,7 +264,7 @@ void UDAbilitySystemComponent::NotifyAbilityFire(const TSubclassOf<UGameplayAbil
 	
 	if (const auto* Spec = FindAbilitySpecFromClass(InAbilityClass))
 		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec->GetPrimaryInstance()))
-			AbilityInstance->OnFire(this);
+			AbilityInstance->OnNotifyReceivedWithComponent(this);
 }
 
 void UDAbilitySystemComponent::OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo)

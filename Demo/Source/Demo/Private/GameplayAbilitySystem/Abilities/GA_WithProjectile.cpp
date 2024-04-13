@@ -30,6 +30,10 @@ void UGA_WithProjectile::ActivateAbility(
 
 	if (Montage)
 	{
+		/*UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
+		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UGA_WithProjectile::OnNotifyReceived);
+		AnimInstance->OnPlayMontageNotifyEnd.AddDynamic(this, &UGA_WithProjectile::OnNotifyReceived);*/
+		
 		auto* Task = UDAbilityTask_PlayMontageAndWait::CreateTask(this, TEXT("Ready"), Montage);
 		Task->OnCompleted.AddDynamic(this, &UGA_WithProjectile::K2_EndAbility);
 		Task->OnCancelled.AddDynamic(this, &UGA_WithProjectile::K2_CancelAbility);
@@ -38,9 +42,6 @@ void UGA_WithProjectile::ActivateAbility(
 		ActiveTasks.Add(Task);
 		MontageTask = Task;
 		MontageTask->ReadyForActivation();
-
-		//UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
-		//AnimInstance->OnPlayMontageNotifyBegin;;
 	}
 
 	auto* Task = UDAbilityTask_WithTargetData::CreateTask(this);
@@ -58,6 +59,10 @@ void UGA_WithProjectile::EndAbility(
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
+
+	/*UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
+	AnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &UGA_WithProjectile::OnNotifyReceived);
+	AnimInstance->OnPlayMontageNotifyEnd.RemoveDynamic(this, &UGA_WithProjectile::OnNotifyReceived);*/
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -79,7 +84,7 @@ void UGA_WithProjectile::CancelTargetData(const FGameplayAbilityTargetDataHandle
 	K2_CancelAbility();
 }
 
-void UGA_WithProjectile::OnFire(UDAbilitySystemComponent* Asc)
+void UGA_WithProjectile::OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc)
 {
 	// 程序运行到该函数时不能保证Ability存有正确的Asc或Actor信息
 	// Todo 法术施法成功进行结算，也可能被法术反制导致失败
@@ -125,6 +130,15 @@ UDAbilitySystemComponent* UGA_WithProjectile::GetDAbilitySystemComponent(const F
 	if (const auto* Character = GetDCharacter(ActorInfo))
 		return Character->GetDAbilitySystemComponent();
 	return nullptr;
+}
+
+void UGA_WithProjectile::OnNotifyReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
+{
+	if (NotifyName == FName("OnFire"))
+	{
+		if (const auto* Asc = GetDAbilitySystemComponent(CurrentActorInfo))
+			K2_FireProjectile(CacheTargetData, Asc->GetOwner());
+	}
 }
 
 UWorld* UGA_WithProjectile::GetWorld() const
