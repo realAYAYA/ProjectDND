@@ -86,8 +86,6 @@ public:
 	void OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo);
 	bool RemoveTurnBasedActiveGameplayEffect(const FActiveGameplayEffectHandle Handle, const int32 StacksToRemove = -1);
 	
-	void NotifyAbilityFire(const TSubclassOf<UGameplayAbility> InAbilityClass);
-	
 	// 受到近战攻击时触发的能力
 	
 	// 受到近战攻击时给对方施加效果
@@ -134,7 +132,11 @@ protected:
 	UFUNCTION()
 	void NotifyGameplayEffectRemovedToBP(const FActiveGameplayEffect& Effect) const;
 
+	void OnNotifyReceived(const FString& NotifyName, const TSubclassOf<UGameplayAbility> InAbilityClass);
+	
 private:
+
+	//TMap<FString, UDGameplayAbility> MontageNotifyDelegate;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

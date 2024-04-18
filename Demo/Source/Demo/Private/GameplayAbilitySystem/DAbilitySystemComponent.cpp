@@ -257,16 +257,6 @@ bool UDAbilitySystemComponent::RemoveTurnBasedActiveGameplayEffect(
 	return bRemoveDone;
 }
 
-void UDAbilitySystemComponent::NotifyAbilityFire(const TSubclassOf<UGameplayAbility> InAbilityClass)
-{
-	if (!GetOwner()->HasAuthority())
-		return;
-	
-	if (const auto* Spec = FindAbilitySpecFromClass(InAbilityClass))
-		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec->GetPrimaryInstance()))
-			AbilityInstance->OnNotifyReceivedWithComponent(this);
-}
-
 void UDAbilitySystemComponent::OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo)
 {
 	RemoveTurnBasedActiveGameplayEffect(InGameplayEffectRemovalInfo.ActiveEffect->Handle);
@@ -299,6 +289,27 @@ void UDAbilitySystemComponent::NotifyGameplayEffectAppliedToBP(
 void UDAbilitySystemComponent::NotifyGameplayEffectRemovedToBP(const FActiveGameplayEffect& Effect) const
 {
 	OnGERemovedCallback.Broadcast(Effect.Spec.Def->GetAssetTags().First());
+}
+
+void UDAbilitySystemComponent::OnNotifyReceived(const FString& NotifyName, const TSubclassOf<UGameplayAbility> InAbilityClass)
+{
+	if (!GetOwner()->HasAuthority())
+		return;
+	
+	if (InAbilityClass.Get() == nullptr)
+	{
+		const auto Handle = FindAbilityWithTag(FGameplayTag::RequestGameplayTag(FName(NotifyName)));
+		if (Handle.IsValid())
+		{
+			const auto* Spec = FindAbilitySpecFromHandle(Handle);
+		}
+		
+		return;
+	}
+	
+	if (const auto* Spec = FindAbilitySpecFromClass(InAbilityClass))
+		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec->GetPrimaryInstance()))
+			AbilityInstance->OnNotifyReceivedWithComponent(this);
 }
 
 void UDAbilitySystemComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const

@@ -1,10 +1,8 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
-#include "GA_WithProjectile.generated.h"
+#include "GA_WithTargetData.generated.h"
 
 class UDAbilityTask_WithTargetData;
 class UDAbilityTask_PlayMontageAndWait;
@@ -18,13 +16,13 @@ class UAbilityTask_Move;
  * 
  */
 UCLASS()
-class UGA_WithProjectile : public UGameplayAbility
+class UGA_WithTargetData : public UGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
 
-	UGA_WithProjectile();
+	/*UGA_WithTargetData();
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	UAnimMontage* Montage;
@@ -72,5 +70,5 @@ protected:
 	UPROPERTY()
 	UDAbilityTask_WithTargetData* TargetDataTask;
 
-	FGameplayAbilityTargetDataHandle CacheTargetData;
+	FGameplayAbilityTargetDataHandle CacheTargetData;*/
 };

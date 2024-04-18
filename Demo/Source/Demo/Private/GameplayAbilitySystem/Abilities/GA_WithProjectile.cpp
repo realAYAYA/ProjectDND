@@ -140,8 +140,3 @@ void UGA_WithProjectile::OnNotifyReceived(FName NotifyName, const FBranchingPoin
 			K2_FireProjectile(CacheTargetData, Asc->GetOwner());
 	}
 }
-
-UWorld* UGA_WithProjectile::GetWorld() const
-{
-	return Super::GetWorld();
-}
