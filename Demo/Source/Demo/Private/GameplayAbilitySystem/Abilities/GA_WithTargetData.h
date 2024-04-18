@@ -13,7 +13,7 @@ class UAbilityTask_WaitTargetData;
 class UAbilityTask_Move;
 
 /**
- * 
+ * 需要客户端玩家发送TargetData确认执行的技能类
  */
 UCLASS()
 class UGA_WithTargetData : public UGameplayAbility
@@ -22,38 +22,11 @@ class UGA_WithTargetData : public UGameplayAbility
 
 public:
 
-	/*UGA_WithTargetData();
-
-	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	UAnimMontage* Montage;
+	UGA_WithTargetData();
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectD")
-	TSubclassOf<ADProjectile> ProjectileClass;
-	
-	// Todo 技能被打断
-
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
-	
-	UFUNCTION()
-	virtual void ReceiveTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
-
-	UFUNCTION()
-	virtual void CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
-
-	UFUNCTION()
-	virtual void OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc);
-
-	UFUNCTION(BlueprintCallable, Category = "ProjctD")
-	void BeginSpawningProjectile(const TSubclassOf<ADProjectile>& Class, ADProjectile*& ProjectileActor);
-
-	UFUNCTION(BlueprintCallable, Category = "ProjctD")
-	void FinishSpawningProjectile(ADProjectile* ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
-	
-	// 根据TargetData, 执行发射逻辑
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "FireProjectile", meta=(ScriptName = "FireProjectile"))
-	void K2_FireProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
 
 	// 留意客户端下的AbilityActorInfo等变量是没有被进行初始化的（或同步）
 	static ADCharacter* GetDCharacter(const FGameplayAbilityActorInfo* ActorInfo);
@@ -61,14 +34,37 @@ public:
 
 protected:
 
+
+	// TargetData
+
+public:
+
 	UFUNCTION()
-	void OnNotifyReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
+	virtual void ReceiveTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+
+	UFUNCTION()
+	virtual void CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 	
-	UPROPERTY()
-	UDAbilityTask_PlayMontageAndWait* MontageTask;
+private:
 
 	UPROPERTY()
 	UDAbilityTask_WithTargetData* TargetDataTask;
 
-	FGameplayAbilityTargetDataHandle CacheTargetData;*/
+	FGameplayAbilityTargetDataHandle CacheTargetData;
+
+
+	// Animation
+	
+public:
+
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	UAnimMontage* Montage;
+	
+	UFUNCTION()
+	virtual void OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc);
+
+private:
+
+	UPROPERTY()
+	UDAbilityTask_PlayMontageAndWait* MontageTask;
 };

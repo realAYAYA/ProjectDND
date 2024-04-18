@@ -131,8 +131,6 @@ protected:
 
 	UFUNCTION()
 	void NotifyGameplayEffectRemovedToBP(const FActiveGameplayEffect& Effect) const;
-
-	void OnNotifyReceived(const FString& NotifyName, const TSubclassOf<UGameplayAbility> InAbilityClass);
 	
 private:
 
@@ -142,4 +140,10 @@ private:
 
 	UPROPERTY(Replicated)
 	FTurnBasedActiveGameplayEffectsContainer TurnBasedActiveGameplayEffectsContainer;
+
+	// Animation
+
+public:
+
+	void OnNotifyReceived(const FString& NotifyName, const TSubclassOf<UGameplayAbility> InAbilityClass);
 };

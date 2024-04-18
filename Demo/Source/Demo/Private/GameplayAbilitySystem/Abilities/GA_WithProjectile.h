@@ -62,9 +62,6 @@ public:
 	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo);
 
 protected:
-
-	UFUNCTION()
-	void OnNotifyReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
 	
 	UPROPERTY()
 	UDAbilityTask_PlayMontageAndWait* MontageTask;

@@ -131,12 +131,3 @@ UDAbilitySystemComponent* UGA_WithProjectile::GetDAbilitySystemComponent(const F
 		return Character->GetDAbilitySystemComponent();
 	return nullptr;
 }
-
-void UGA_WithProjectile::OnNotifyReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
-{
-	if (NotifyName == FName("OnFire"))
-	{
-		if (const auto* Asc = GetDAbilitySystemComponent(CurrentActorInfo))
-			K2_FireProjectile(CacheTargetData, Asc->GetOwner());
-	}
-}
