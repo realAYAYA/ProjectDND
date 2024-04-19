@@ -45,7 +45,7 @@ public:
 	UFUNCTION()
 	virtual void CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 	
-private:
+protected:
 
 	UPROPERTY()
 	UDAbilityTask_WithTargetData* TargetDataTask;
@@ -60,10 +60,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	UAnimMontage* Montage;
 	
-	UFUNCTION()
 	virtual void OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc);
 
-private:
+protected:
 
 	UPROPERTY()
 	UDAbilityTask_PlayMontageAndWait* MontageTask;

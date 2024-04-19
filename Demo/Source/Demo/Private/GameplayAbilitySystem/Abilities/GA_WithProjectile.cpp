@@ -3,70 +3,11 @@
 #include "Character/DCharacter.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "GameplayAbilitySystem/DProjectile.h"
-#include "GameplayAbilitySystem/Tasks/DAbilityTask_PlayMontageAndWait.h"
-#include "GameplayAbilitySystem/Tasks/DAbilityTask_WithTargetData.h"
 
 UGA_WithProjectile::UGA_WithProjectile()
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
-	//ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
-
-	Montage = nullptr;
-	MontageTask = nullptr;
-	TargetDataTask = nullptr;
-}
-
-void UGA_WithProjectile::ActivateAbility(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
-{
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (const auto* Asc = GetDAbilitySystemComponent(ActorInfo); !Asc)
-		K2_CancelAbility();
-
-	if (Montage)
-	{
-		/*UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
-		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UGA_WithProjectile::OnNotifyReceived);
-		AnimInstance->OnPlayMontageNotifyEnd.AddDynamic(this, &UGA_WithProjectile::OnNotifyReceived);*/
-		
-		auto* Task = UDAbilityTask_PlayMontageAndWait::CreateTask(this, TEXT("Ready"), Montage);
-		Task->OnCompleted.AddDynamic(this, &UGA_WithProjectile::K2_EndAbility);
-		Task->OnCancelled.AddDynamic(this, &UGA_WithProjectile::K2_CancelAbility);
-		Task->OnInterrupted.AddDynamic(this, &UGA_WithProjectile::K2_CancelAbility);
-		Task->OnBlendOut.AddDynamic(this, &UGA_WithProjectile::K2_EndAbility);
-		ActiveTasks.Add(Task);
-		MontageTask = Task;
-		MontageTask->ReadyForActivation();
-	}
-
-	auto* Task = UDAbilityTask_WithTargetData::CreateTask(this);
-	Task->ValidData.AddDynamic(this, &UGA_WithProjectile::ReceiveTargetData);
-	Task->Cancelled.AddDynamic(this, &UGA_WithProjectile::CancelTargetData);
-	ActiveTasks.Add(Task);
-	TargetDataTask = Task;
-	Task->ReadyForActivation();
-}
-
-void UGA_WithProjectile::EndAbility(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateEndAbility,
-	bool bWasCancelled)
-{
-
-	/*UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
-	AnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &UGA_WithProjectile::OnNotifyReceived);
-	AnimInstance->OnPlayMontageNotifyEnd.RemoveDynamic(this, &UGA_WithProjectile::OnNotifyReceived);*/
 	
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
-
 
 void UGA_WithProjectile::ReceiveTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
@@ -74,14 +15,10 @@ void UGA_WithProjectile::ReceiveTargetData(const FGameplayAbilityTargetDataHandl
 
 	// Todo 检测数据合法性，取消技能
 	// Todo 计算消耗 施加CD 抑或是因为法术反制施法失败，仍计算消耗，但不会施加效果
+	// Todo 通知其它角色我要施法了
 	
 	// 收到来自客户端的数据，进行最终施法(攻击)流程
 	MontageSetNextSectionName(FName("Loop"), FName("OnFire"));
-}
-
-void UGA_WithProjectile::CancelTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
-{
-	K2_CancelAbility();
 }
 
 void UGA_WithProjectile::OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc)
@@ -116,18 +53,4 @@ void UGA_WithProjectile::FinishSpawningProjectile(ADProjectile* ProjectileActor,
 		ProjectileActor->InitializeProjectile(this, Caster, TargetDataHandle);
 		ProjectileActor->FinishSpawning(FTransform());
 	}
-}
-
-ADCharacter* UGA_WithProjectile::GetDCharacter(const FGameplayAbilityActorInfo* ActorInfo)
-{
-	if (ActorInfo)
-		return Cast<ADCharacter>(ActorInfo->AvatarActor.Get());
-	return nullptr;
-}
-
-UDAbilitySystemComponent* UGA_WithProjectile::GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo)
-{
-	if (const auto* Character = GetDCharacter(ActorInfo))
-		return Character->GetDAbilitySystemComponent();
-	return nullptr;
 }

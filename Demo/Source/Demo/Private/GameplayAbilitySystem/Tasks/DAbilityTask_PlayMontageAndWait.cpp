@@ -1,10 +1,10 @@
 ﻿#include "DAbilityTask_PlayMontageAndWait.h"
+#include "GameplayAbilitySystem/Abilities/GA_WithTargetData.h"
 
 #include "AbilitySystemGlobals.h"
-#include "GameplayAbilitySystem/Abilities/GA_WithProjectile.h"
 
 UDAbilityTask_PlayMontageAndWait* UDAbilityTask_PlayMontageAndWait::CreateTask(
-	UGA_WithProjectile* OwningAbility,
+	UGA_WithTargetData* OwningAbility,
 	const FName TaskInstanceName,
 	UAnimMontage* MontageToPlay,
 	float Rate,

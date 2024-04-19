@@ -6,7 +6,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "DAbilityTask_PlayMontageAndWait.generated.h"
 
-class UGA_WithProjectile;
+class UGA_WithTargetData;
 class ADCharacter;
 
 /**
@@ -24,7 +24,7 @@ public:
 	FMontageWaitSimpleDelegate	OnAbilityFire;
 	
 	static UDAbilityTask_PlayMontageAndWait* CreateTask(
-		UGA_WithProjectile* OwningAbility,
+		UGA_WithTargetData* OwningAbility,
 		FName TaskInstanceName,
 		UAnimMontage* MontageToPlay,
 		float Rate = 1.f,
