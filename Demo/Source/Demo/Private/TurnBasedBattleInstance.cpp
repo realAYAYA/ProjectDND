@@ -7,7 +7,6 @@
 #include "DPlayerController.h"
 #include "Character/DCharacter.h"
 
-#include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -34,6 +33,19 @@ void ATurnBasedBattleInstance::PostNetInit()
 
 	if (CurrentCharacter)
 		CurrentCharacter->YourTurn();
+
+	for (const auto& Id : CharacterIdList)
+	{
+		// 如果角色是本地控制的，通知其PlayerControler进入战斗
+		ADCharacter* Character = nullptr;
+		if (Character && Character->IsLocallyControlled())
+		{
+			if (auto* PC = Cast<ADPlayerController>(Character->Controller))
+			{
+				PC->K2_OnBattle(Character);
+			}
+		}
+	}
 }
 
 // Called every frame

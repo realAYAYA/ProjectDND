@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "DGameplayAbility.h"
 #include "GA_WithTargetData.generated.h"
 
 class UDAbilityTask_WithTargetData;
@@ -16,7 +16,7 @@ class UAbilityTask_Move;
  * 需要客户端玩家发送TargetData确认执行的技能类
  */
 UCLASS()
-class UGA_WithTargetData : public UGameplayAbility
+class UGA_WithTargetData : public UDGameplayAbility
 {
 	GENERATED_BODY()
 

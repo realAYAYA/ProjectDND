@@ -24,7 +24,6 @@ public:
 	// Sets default values for this character's properties
 	ADCharacter();
 	
-
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	UDCharacterDataAsset* CharacterDataAsset;
 
@@ -45,9 +44,7 @@ protected:
 	virtual void BeginDestroy() override;
 
 	virtual void PossessedBy(AController* NewController) override;
-
 	
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UDAbilitySystemComponent* AbilitySystemComponent;
 	
@@ -59,21 +56,15 @@ public:
 
 public:
 	
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnRep_BattleInstance)
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", Replicated)
 	ATurnBasedBattleInstance* BattleInstance;
 	void SetBattleInstance(ATurnBasedBattleInstance* In);// Called by server
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "OnBattleInstance")
-	void K2_OnBattleInstance();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
 	void K2_YourTurn();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleEnd")
 	void K2_BattleEnd();
-
-	UFUNCTION()
-	void OnRep_BattleInstance();
 	
 	UFUNCTION(Client, Reliable)
 	void NotifyYourTurn();

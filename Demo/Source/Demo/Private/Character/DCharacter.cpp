@@ -96,14 +96,8 @@ void ADCharacter::SetBattleInstance(ATurnBasedBattleInstance* In)
 #if !UE_SERVER // 如果不是以DS编译，而是以Listening Server启动方式时，OnRep不会在主机上调用，需要手动触发
 	if (HasAuthority() && IsLocallyControlled())
 	{
-		K2_OnBattleInstance();
 	}
 #endif
-}
-
-void ADCharacter::OnRep_BattleInstance()
-{
-	K2_OnBattleInstance();
 }
 
 void ADCharacter::NotifyYourTurn_Implementation()
@@ -185,7 +179,7 @@ void ADCharacter::InitCharacterData()
 		const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(Effect, 1, EffectContextHandle);
 		if (SpecHandle.IsValid())
 		{
-			const FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 		}
 	}
 }

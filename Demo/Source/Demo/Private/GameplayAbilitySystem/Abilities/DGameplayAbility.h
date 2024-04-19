@@ -3,9 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GA_WithProjectile.h"
+#include "Abilities/GameplayAbility.h"
 #include "DGameplayAbility.generated.h"
-
 
 class ADCharacter;
 class UAbilityTask_WaitTargetData;
@@ -18,12 +17,5 @@ UCLASS()
 class UDGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
-
-public:
-
-	
-private:
-	
-
 	
 };
