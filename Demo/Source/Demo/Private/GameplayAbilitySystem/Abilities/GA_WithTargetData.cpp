@@ -86,6 +86,6 @@ void UGA_WithTargetData::CancelTargetData(const FGameplayAbilityTargetDataHandle
 	K2_CancelAbility();
 }
 
-void UGA_WithTargetData::OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc)
+void UGA_WithTargetData::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 {
 }

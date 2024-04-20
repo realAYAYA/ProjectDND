@@ -49,6 +49,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	FGameplayAbilitySpecHandle FindAbilityWithTag(const FGameplayTag& Tag) const;
 	
+	FGameplayAbilitySpec* FindAbilitySpecFromNotifyName(const FString& InName) const;
+	
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	bool ConfirmTargetDataWithTag(const FGameplayTag& Tag, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
@@ -145,5 +147,5 @@ private:
 
 public:
 
-	void OnNotifyReceived(const FString& NotifyName, const TSubclassOf<UGameplayAbility> InAbilityClass);
+	void OnNotifyReceived(const FString& NotifyName);
 };

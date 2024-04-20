@@ -60,7 +60,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	UAnimMontage* Montage;
 	
-	virtual void OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc);
+	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc);
 
 protected:
 

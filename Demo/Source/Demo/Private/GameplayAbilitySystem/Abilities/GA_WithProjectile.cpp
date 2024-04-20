@@ -21,7 +21,7 @@ void UGA_WithProjectile::ReceiveTargetData(const FGameplayAbilityTargetDataHandl
 	MontageSetNextSectionName(FName("Loop"), FName("OnFire"));
 }
 
-void UGA_WithProjectile::OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc)
+void UGA_WithProjectile::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 {
 	// 程序运行到该函数时不能保证Ability存有正确的Asc或Actor信息
 	// Todo 法术施法成功进行结算，也可能被法术反制导致失败

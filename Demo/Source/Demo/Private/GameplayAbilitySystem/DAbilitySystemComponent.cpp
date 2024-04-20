@@ -5,7 +5,7 @@
 
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
-#include "Abilities/GA_WithProjectile.h"
+#include "Abilities/GA_WithTargetData.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
 #include "Net/UnrealNetwork.h"
 
@@ -39,6 +39,25 @@ FGameplayAbilitySpecHandle UDAbilitySystemComponent::FindAbilityWithTag(const FG
 		return FGameplayAbilitySpecHandle();
 
 	return AbilitySpecHandles[0];
+}
+
+FGameplayAbilitySpec* UDAbilitySystemComponent::FindAbilitySpecFromNotifyName(const FString& InName) const
+{
+	//SCOPE_CYCLE_COUNTER(STAT_FindAbilitySpecFromHandle);
+
+	for (const FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+	{
+		if (Spec.Ability == nullptr)
+		{
+			continue;
+		}
+
+		const auto* AbilityInstance = Cast<UDGameplayAbility>(Spec.Ability);
+		if (AbilityInstance && AbilityInstance->AnimNotifyName == InName)
+			return const_cast<FGameplayAbilitySpec*>(&Spec);
+	}
+
+	return nullptr;
 }
 
 bool UDAbilitySystemComponent::ConfirmTargetDataWithTag(const FGameplayTag& Tag, const FGameplayAbilityTargetDataHandle& TargetDataHandle)
@@ -291,25 +310,14 @@ void UDAbilitySystemComponent::NotifyGameplayEffectRemovedToBP(const FActiveGame
 	OnGERemovedCallback.Broadcast(Effect.Spec.Def->GetAssetTags().First());
 }
 
-void UDAbilitySystemComponent::OnNotifyReceived(const FString& NotifyName, const TSubclassOf<UGameplayAbility> InAbilityClass)
+void UDAbilitySystemComponent::OnNotifyReceived(const FString& NotifyName)
 {
 	if (!GetOwner()->HasAuthority())
 		return;
 	
-	if (InAbilityClass.Get() == nullptr)
-	{
-		const auto Handle = FindAbilityWithTag(FGameplayTag::RequestGameplayTag(FName(NotifyName)));
-		if (Handle.IsValid())
-		{
-			const auto* Spec = FindAbilitySpecFromHandle(Handle);
-		}
-		
-		return;
-	}
-	
-	if (const auto* Spec = FindAbilitySpecFromClass(InAbilityClass))
-		if (auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec->GetPrimaryInstance()))
-			AbilityInstance->OnNotifyReceivedWithComponent(this);
+	if (const auto* Spec = FindAbilitySpecFromNotifyName(NotifyName))
+		if (auto* AbilityInstance = Cast<UGA_WithTargetData>(Spec->GetPrimaryInstance()))
+			AbilityInstance->OnReceiveAnimNotify(this);
 }
 
 void UDAbilitySystemComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const

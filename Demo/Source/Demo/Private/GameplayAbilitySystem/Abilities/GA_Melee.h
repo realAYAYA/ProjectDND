@@ -23,5 +23,5 @@ public:
 
 	virtual void ReceiveTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle) override;
 	
-	virtual void OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc) override;
+	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc) override;
 };

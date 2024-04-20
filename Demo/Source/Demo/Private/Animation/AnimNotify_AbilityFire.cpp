@@ -5,7 +5,6 @@
 
 #include "Character/DCharacter.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
-#include "GameplayAbilitySystem/Abilities/GA_WithProjectile.h"
 
 void UAnimNotify_AbilityFire::Notify(
 	USkeletalMeshComponent* MeshComp,
@@ -14,7 +13,7 @@ void UAnimNotify_AbilityFire::Notify(
 {
 	if (const auto* Character = Cast<ADCharacter>(MeshComp->GetOwner()); Character && Character->GetDAbilitySystemComponent())
 	{
-		Character->GetDAbilitySystemComponent()->OnNotifyReceived(GetNotifyName(), AbilityClassToNotify);
+		Character->GetDAbilitySystemComponent()->OnNotifyReceived(GetNotifyName());
 	}
 	
 	Super::Notify(MeshComp, Animation, EventReference);

@@ -16,7 +16,7 @@ void UGA_Melee::ReceiveTargetData(const FGameplayAbilityTargetDataHandle& Target
 	MontageSetNextSectionName(FName("Loop"), FName("OnFire"));
 }
 
-void UGA_Melee::OnNotifyReceivedWithComponent(UDAbilitySystemComponent* Asc)
+void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 {
 	// Todo 施加近战攻击效果
 	// Todo 可能被闪避
