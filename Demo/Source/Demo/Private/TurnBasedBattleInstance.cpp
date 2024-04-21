@@ -34,10 +34,9 @@ void ATurnBasedBattleInstance::PostNetInit()
 	if (CurrentCharacter)
 		CurrentCharacter->YourTurn();
 
-	for (const auto& Id : CharacterIdList)
+	for (const auto& Character : CharacterList)
 	{
-		// 如果角色是本地控制的，通知其PlayerControler进入战斗
-		ADCharacter* Character = nullptr;
+		// 如果角色是本地控制的，通知其PlayerController进入战斗
 		if (Character && Character->IsLocallyControlled())
 		{
 			if (auto* PC = Cast<ADPlayerController>(Character->Controller))
@@ -69,9 +68,9 @@ void ATurnBasedBattleInstance::BeginBattle()
 	
 	// Todo
 	// 计算先攻顺序, 通知第一个角色调用YourTurn
-	if (CharacterIdList.IsValidIndex(0))
+	if (CharacterList.IsValidIndex(0))
 	{
-		auto* NextCharacter = FindCharacter(CharacterIdList[0]);
+		auto* NextCharacter = CharacterList[0];
 		if (NextCharacter && NextCharacter->BattleInstance == this)
 		{
 			YourTurn(NextCharacter);
@@ -86,14 +85,14 @@ void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
 		return;
 	
 	// 切换下一个角色
-	const int64 Id = InCharacter->GetRoleId();
-	int32 Index = CharacterIdList.Find(Id) + 1;
-	if (!CharacterIdList.IsValidIndex(Index))
+	ADCharacter* FoundCharacter = nullptr;
+	int32 Index = FindCharacter(InCharacter->GetRoleId(), FoundCharacter) + 1;
+	if (!CharacterList.IsValidIndex(Index))
 		Index = 0;
 
 	if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
 	{
-		auto* NextCharacter = GameInstance->CharacterManager->Find(CharacterIdList[Index]);
+		auto* NextCharacter = GameInstance->CharacterManager->Find(CharacterList[Index]->GetRoleId());
 		if (NextCharacter && NextCharacter->BattleInstance == this)
 		{
 			YourTurn(NextCharacter);
@@ -129,13 +128,18 @@ void ATurnBasedBattleInstance::MergeBattle(ATurnBasedBattleInstance* In)
 {
 }
 
-ADCharacter* ATurnBasedBattleInstance::FindCharacter(const int32 Id) const
+int32 ATurnBasedBattleInstance::FindCharacter(const int32 Id, ADCharacter*& Out) const
 {
-	for (auto* Character : CharacterList)
-		if (Character->GetRoleId() == Id)
-			return Character;
+	for (int32 i = 0; i < CharacterList.Num(); i++)
+	{
+		if (CharacterList[i]->GetRoleId() == Id)
+		{
+			Out = CharacterList[i];
+			return i;
+		}
+	}
 
-	return nullptr;
+	return INDEX_NONE;
 }
 
 void ATurnBasedBattleInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -146,7 +150,6 @@ void ATurnBasedBattleInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	
 	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
 	DOREPLIFETIME_WITH_PARAMS_FAST(ATurnBasedBattleInstance, CurrentTurnNum, SharedParams);
-	DOREPLIFETIME_WITH_PARAMS_FAST(ATurnBasedBattleInstance, CharacterIdList, SharedParams);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ATurnBasedBattleInstance, CurrentCharacter, SharedParams);
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

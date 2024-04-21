@@ -37,11 +37,8 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentCharacter)
 	ADCharacter* CurrentCharacter;
 
-	UPROPERTY()
-	TArray<ADCharacter*> CharacterList;
-
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterList)
-	TArray<int32> CharacterIdList;
+	TArray<ADCharacter*> CharacterList;
 
 	UPROPERTY(ReplicatedUsing = OnTurnNumChanged)
 	int32 CurrentTurnNum = 0;
@@ -79,7 +76,7 @@ public:
 
 private:
 
-	ADCharacter* FindCharacter(const int32 Id) const;
+	int32 FindCharacter(const int32 Id, ADCharacter*& Out) const;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

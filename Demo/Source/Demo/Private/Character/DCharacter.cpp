@@ -190,7 +190,6 @@ void ADCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	SharedParams.bIsPushBased = true;
 	
 	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
-	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, BattleInstance, SharedParams);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, ReplicatedRoleId, SharedParams);
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

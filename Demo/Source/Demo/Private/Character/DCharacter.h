@@ -56,7 +56,7 @@ public:
 
 public:
 	
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", Replicated)
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	ATurnBasedBattleInstance* BattleInstance;
 	void SetBattleInstance(ATurnBasedBattleInstance* In);// Called by server
 

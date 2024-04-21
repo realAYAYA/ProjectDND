@@ -33,7 +33,6 @@ void ADGameModeBase::BuildBattleWithAllCharacters()
 		// 角色死亡或其它某种状态不得参加战斗
 		if (auto* PC = Cast<ADPlayerController>(Character->GetPlayerState()->GetPlayerController()))
 		{
-			BattleInstance->CharacterIdList.Add(Character->GetRoleId());
 			BattleInstance->CharacterList.Add(Character);
 		}
 		
