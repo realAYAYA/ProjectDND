@@ -26,7 +26,7 @@ void UGA_WithProjectile::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 	// 程序运行到该函数时不能保证Ability存有正确的Asc或Actor信息
 	// Todo 法术施法成功进行结算，也可能被法术反制导致失败
 	
-	K2_FireProjectile(CacheTargetData, Asc->GetOwner());
+	FireProjectile(CacheTargetData, Asc->GetOwner());
 }
 
 void UGA_WithProjectile::BeginSpawningProjectile(const TSubclassOf<ADProjectile>& Class, ADProjectile*& ProjectileActor)
@@ -53,4 +53,8 @@ void UGA_WithProjectile::FinishSpawningProjectile(ADProjectile* ProjectileActor,
 		ProjectileActor->InitializeProjectile(this, Caster, TargetDataHandle);
 		ProjectileActor->FinishSpawning(FTransform());
 	}
+}
+
+void UGA_WithProjectile::FireProjectile_Implementation(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster)
+{
 }

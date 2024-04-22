@@ -40,7 +40,7 @@ public:
 	void FinishSpawningProjectile(ADProjectile* ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 	
 	// 根据TargetData, 执行发射逻辑
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "FireProjectile", meta=(ScriptName = "FireProjectile"))
-	void K2_FireProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "ProjectD")
+	void FireProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
 	
 };

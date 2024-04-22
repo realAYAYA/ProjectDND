@@ -89,7 +89,7 @@ UAbilitySystemComponent* ADCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void ADCharacter::SetBattleInstance(ATurnBasedBattleInstance* In)
+void ADCharacter::SetTurnBasedInstance(ATurnBasedBattleInstance* In)
 {
 	BattleInstance = In;
 	
@@ -98,10 +98,6 @@ void ADCharacter::SetBattleInstance(ATurnBasedBattleInstance* In)
 	{
 	}
 #endif
-}
-
-void ADCharacter::NotifyYourTurn_Implementation()
-{
 }
 
 void ADCharacter::YourTurn()

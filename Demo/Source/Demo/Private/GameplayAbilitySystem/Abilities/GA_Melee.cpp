@@ -13,11 +13,16 @@ void UGA_Melee::ReceiveTargetData(const FGameplayAbilityTargetDataHandle& Target
 	// Todo 通知其它角色我要施法了，近战技能可能会被招架
 	
 	// 收到来自客户端的数据，进行最终施法(攻击)流程
-	MontageSetNextSectionName(FName("Loop"), FName("OnFire"));
+	MontageSetNextSectionName(FName("Loop"), FName("OnCut"));
 }
 
 void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 {
 	// Todo 施加近战攻击效果
 	// Todo 可能被闪避
+}
+
+void UGA_Melee::HitTarget_Implementation(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster)
+{
+	
 }

@@ -54,6 +54,16 @@ void ATurnBasedBattleInstance::Tick(float DeltaTime)
 
 }
 
+void ATurnBasedBattleInstance::ServerSetCurrentCharacter(ADCharacter* In)
+{
+	CurrentCharacter = In;
+	
+#if !UE_SERVER
+	if (HasAuthority())
+		OnRep_CurrentCharacter();// 如果不是DS，但作为主机端，需要单独执行表现
+#endif
+}
+
 void ATurnBasedBattleInstance::BeginBattle()
 {
 	if (!HasAuthority())
@@ -62,16 +72,12 @@ void ATurnBasedBattleInstance::BeginBattle()
 	const UDGameplayEffect* GameplayEffect = BattleBeginGEClass->GetDefaultObject<UDGameplayEffect>();
 	for (const auto* Character : CharacterList)
 		Character->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectToSelf(GameplayEffect, 0, 0, FGameplayEffectContextHandle());
-
-	for (auto* Character : CharacterList)
-		Character->SetBattleInstance(this);
 	
 	// Todo
 	// 计算先攻顺序, 通知第一个角色调用YourTurn
 	if (CharacterList.IsValidIndex(0))
 	{
-		auto* NextCharacter = CharacterList[0];
-		if (NextCharacter && NextCharacter->BattleInstance == this)
+		if (auto* NextCharacter = CharacterList[0]; NextCharacter && NextCharacter->BattleInstance == this)
 		{
 			YourTurn(NextCharacter);
 		}
@@ -102,9 +108,9 @@ void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
 
 void ATurnBasedBattleInstance::YourTurn(ADCharacter* InCharacter)
 {
-	CurrentCharacter = InCharacter;
+	ServerSetCurrentCharacter(InCharacter);
+	
 	// Todo 恢复动作 移动力 附赠动作
-
 	const UDGameplayEffect* GameplayEffect = MyTurnGEClass->GetDefaultObject<UDGameplayEffect>();
 	InCharacter->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectToSelf(GameplayEffect, 0, 0, FGameplayEffectContextHandle());
 }

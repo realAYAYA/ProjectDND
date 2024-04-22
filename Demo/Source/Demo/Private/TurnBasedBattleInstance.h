@@ -30,14 +30,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	TSubclassOf<UGameplayEffect> BattleBeginGEClass;
-	
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	int32 GetCurrentTurnNum() const { return CurrentTurnNum; }
 
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentCharacter)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentCharacter)
 	ADCharacter* CurrentCharacter;
+	void ServerSetCurrentCharacter(ADCharacter* In);
 
-	UPROPERTY(ReplicatedUsing = OnRep_CharacterList)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CharacterList)
 	TArray<ADCharacter*> CharacterList;
 
 	UPROPERTY(ReplicatedUsing = OnTurnNumChanged)

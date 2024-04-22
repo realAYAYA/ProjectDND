@@ -52,13 +52,10 @@ public:
 	
 	// Called every frame
 	//virtual void Tick(float DeltaTime) override;
-
-
-public:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	ATurnBasedBattleInstance* BattleInstance;
-	void SetBattleInstance(ATurnBasedBattleInstance* In);// Called by server
+	void SetTurnBasedInstance(ATurnBasedBattleInstance* In);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
 	void K2_YourTurn();
@@ -66,9 +63,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleEnd")
 	void K2_BattleEnd();
 	
-	UFUNCTION(Client, Reliable)
-	void NotifyYourTurn();
-	void YourTurn();// Called by Server
+	void YourTurn();
 
 	UFUNCTION(Client, Reliable)
 	void NotifyBattleEnd();

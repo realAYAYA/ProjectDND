@@ -24,4 +24,8 @@ public:
 	virtual void ReceiveTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle) override;
 	
 	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc) override;
+
+	// 根据TargetData, 执行命中逻辑
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "ProjectD")
+	void HitTarget(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
 };
