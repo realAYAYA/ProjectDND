@@ -19,7 +19,7 @@ class ADTargetActor : public AGameplayAbilityTargetActor
 public:
 
 	ADTargetActor(const FObjectInitializer& ObjectInitializer);
-
+	
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	bool SetAbilityInfo(APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayTag& Tag);
 

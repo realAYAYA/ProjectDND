@@ -23,6 +23,12 @@ class UGA_WithTargetData : public UDGameplayAbility
 public:
 
 	UGA_WithTargetData();
+
+	/*UFUNCTION(BlueprintCallable, Category = "ProjctD")
+	static void BeginSpawningTargetActor(const TSubclassOf<ADTargetActor>& Class, APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayTag& Tag, ADTargetActor*& Actor);
+
+	UFUNCTION(BlueprintCallable, Category = "ProjctD")
+	static void FinishSpawningTargetActor(ADTargetActor* Actor, const FGameplayAbilityTargetDataHandle& TargetDataHandle);*/
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 

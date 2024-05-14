@@ -25,10 +25,7 @@ class UGA_WithProjectile : public UGA_WithTargetData
 public:
 
 	UGA_WithProjectile();
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectD")
-	TSubclassOf<ADProjectile> ProjectileClass;
-	
+
 	virtual void ReceiveTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle) override;
 	
 	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc) override;
@@ -39,7 +36,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjctD")
 	void FinishSpawningProjectile(ADProjectile* ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 	
-	// 根据TargetData, 执行发射逻辑
+	// 根据TargetData, 执行发射逻辑(Server Only)
 	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "ProjectD")
 	void FireProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
 	

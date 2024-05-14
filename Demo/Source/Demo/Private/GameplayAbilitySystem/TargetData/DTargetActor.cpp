@@ -1,6 +1,5 @@
 #include "DTargetActor.h"
-
-#include "GameplayAbilitySystem/Abilities/DGameplayAbility.h"
+#include "GameplayAbilitySystem/Abilities/GA_WithProjectile.h"
 
 ADTargetActor::ADTargetActor(const FObjectInitializer& ObjectInitializer)
 {
@@ -92,8 +91,8 @@ bool ADTargetActor::InternalInitTargetActor(APlayerController* PC, UAbilitySyste
 			Asc->ServerSetReplicatedTargetDataCancelled(AbilityInstance->GetCurrentAbilitySpecHandle(), AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey(), Asc->ScopedPredictionKey );
 		});
 	}
-
-	// 但不管是不是主机，即使是客户端也需要对自己本地技能发送数据
+	
+	// Todo 但不管是不是主机，即使是客户端也需要对自己本地技能发送数据, 理由是技能施放者（客户端）不能自己表现攻击结束动作
 	// If we spawned the target actor, always register the callbacks for when the data is ready.
 	TargetDataReadyDelegate.AddUObject(AbilityInstance, &UGA_WithProjectile::ReceiveTargetData);
 	CanceledDelegate.AddUObject(AbilityInstance, &UGA_WithProjectile::ReceiveTargetData);
