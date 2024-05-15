@@ -32,8 +32,8 @@ public:
 	TSubclassOf<UGameplayEffect> BattleBeginGEClass;
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentCharacter)
-	ADCharacter* CurrentCharacter;
-	void ServerSetCurrentCharacter(ADCharacter* In);
+	ADCharacter* CurrentCharacter;// Todo 不止一个角色，如果角色先攻顺序上同阵营是连着的，则可以同时行动
+	void SetCurrentCharacter(ADCharacter* In);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CharacterList)
 	TArray<ADCharacter*> CharacterList;

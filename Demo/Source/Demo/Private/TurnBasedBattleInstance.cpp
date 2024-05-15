@@ -41,7 +41,7 @@ void ATurnBasedBattleInstance::PostNetInit()
 		{
 			if (auto* PC = Cast<ADPlayerController>(Character->Controller))
 			{
-				PC->K2_OnBattle(Character);
+				PC->K2_OnBattle(Character);// 通知用户进入战斗（战斗界面, 操作模式变更）
 			}
 		}
 	}
@@ -54,7 +54,7 @@ void ATurnBasedBattleInstance::Tick(float DeltaTime)
 
 }
 
-void ATurnBasedBattleInstance::ServerSetCurrentCharacter(ADCharacter* In)
+void ATurnBasedBattleInstance::SetCurrentCharacter(ADCharacter* In)
 {
 	CurrentCharacter = In;
 	
@@ -71,7 +71,14 @@ void ATurnBasedBattleInstance::BeginBattle()
 
 	const UDGameplayEffect* GameplayEffect = BattleBeginGEClass->GetDefaultObject<UDGameplayEffect>();
 	for (const auto* Character : CharacterList)
+	{
+		const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_BattleBegin;
+		FGameplayEventData Payload;
+		Payload.EventTag = Tag;
+		Character->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
+
 		Character->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectToSelf(GameplayEffect, 0, 0, FGameplayEffectContextHandle());
+	}
 	
 	// Todo
 	// 计算先攻顺序, 通知第一个角色调用YourTurn
@@ -108,7 +115,12 @@ void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
 
 void ATurnBasedBattleInstance::YourTurn(ADCharacter* InCharacter)
 {
-	ServerSetCurrentCharacter(InCharacter);
+	SetCurrentCharacter(InCharacter);
+
+	const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_MyTurn;
+	FGameplayEventData Payload;
+	Payload.EventTag = Tag;
+	InCharacter->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
 	
 	// Todo 恢复动作 移动力 附赠动作
 	const UDGameplayEffect* GameplayEffect = MyTurnGEClass->GetDefaultObject<UDGameplayEffect>();

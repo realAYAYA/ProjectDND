@@ -30,8 +30,6 @@ ADCharacter::ADCharacter()
 
 void ADCharacter::BeginReplication()
 {
-	Super::BeginReplication();
-
 	// Network & Replicated
 	if (HasAuthority())
 	{
@@ -41,6 +39,8 @@ void ADCharacter::BeginReplication()
 			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);
 		}
 	}
+
+	Super::BeginReplication();
 }
 
 // Called when the game starts or when spawned
@@ -142,6 +142,10 @@ void ADCharacter::OnRep_CharacterId()
 			OldRoleId = ReplicatedRoleId;
 		}
 	}
+}
+
+void ADCharacter::OnRep_ControllerId()
+{
 }
 
 void ADCharacter::InitCharacterData()

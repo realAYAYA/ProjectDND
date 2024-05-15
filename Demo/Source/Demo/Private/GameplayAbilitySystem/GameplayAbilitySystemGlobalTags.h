@@ -9,9 +9,17 @@
 struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdder
 {
 	FGameplayTag InBattle;
-	FGameplayTag MyBattle;
+	
+	// 机制类GameplayTag
+	FGameplayTag Event_BattleBegin;
+	FGameplayTag Event_BattleEnd;
+	FGameplayTag Event_MyTurn;
+	FGameplayTag Event_Hostility;// 敌对行为（例如，对中立目标进行攻击）
 
-	FGameplayTag CriticalHit;
+	FGameplayTag Event_GetHit;
+	FGameplayTag Event_GetCriticalHit;
+	FGameplayTag Event_GetHitWithCritical;
+	
 	FGameplayTag AbilityHit;
 	FGameplayTag HitByPhyMelee;
 	FGameplayTag HitByPhyRange;
@@ -37,10 +45,18 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		if (GasTags.InBattle.IsValid())
 			return;
 
-		InBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Rules.InBattle"), TEXT("ProjectD"));
-		MyBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Rules.MyTurn"), TEXT("ProjectD"));
+		Event_BattleBegin = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.BattleBegin"), TEXT("ProjectD"));
+		Event_BattleEnd = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.BattleEnd"), TEXT("ProjectD"));
+		Event_MyTurn = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.MyTurn"), TEXT("ProjectD"));
+		Event_Hostility = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.Hostility"), TEXT("ProjectD"));
+		
+		Event_GetHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.GetHit"), TEXT("ProjectD"));
+		Event_GetHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.GetHit.Mag"), TEXT("ProjectD"));
+		Event_GetHitWithCritical = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.GetHit.Crit"), TEXT("ProjectD"));
 
-		CriticalHit	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Event.Cirtical.Phy"), TEXT("ProjectD"));
+		InBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.InBattle"), TEXT("ProjectD"));
+
+		
 		AbilityHit	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit"), TEXT("ProjectD"));
 		HitByPhyMelee	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Melee.Phy"), TEXT("ProjectD"));
 		HitByPhyRange	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Range.Phy"), TEXT("ProjectD"));

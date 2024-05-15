@@ -86,12 +86,20 @@ public:
 
 private:
 
+	// 角色唯一Id，由服务器分发
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterId)
 	int64 ReplicatedRoleId = 0;
 	int64 OldRoleId = 0;
 
 	UFUNCTION()
 	void OnRep_CharacterId();
+
+	// 当前角色的控制者Id, 对应角色的当前控制权归属, 它可以是SteamId或其它
+	UPROPERTY(ReplicatedUsing = OnRep_CharacterId)
+	int64 ReplicatedControllerId = 0;
+
+	UFUNCTION()
+	void OnRep_ControllerId();
 
 	// Only called by Server
 	virtual void InitCharacterData();
