@@ -281,22 +281,6 @@ void UDAbilitySystemComponent::OnTurnBasedGameEffectRemoved(const FGameplayEffec
 	RemoveTurnBasedActiveGameplayEffect(InGameplayEffectRemovalInfo.ActiveEffect->Handle);
 }
 
-void UDAbilitySystemComponent::BattleBegin()
-{
-}
-
-void UDAbilitySystemComponent::OnHit()
-{
-}
-
-void UDAbilitySystemComponent::BeginTurn()
-{
-}
-
-void UDAbilitySystemComponent::EndTurn()
-{
-}
-
 void UDAbilitySystemComponent::NotifyGameplayEffectAppliedToBP(
 	UAbilitySystemComponent* Asc,
 	const FGameplayEffectSpec& Spec,

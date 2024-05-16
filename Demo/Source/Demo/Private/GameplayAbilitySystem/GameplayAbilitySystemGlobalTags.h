@@ -16,15 +16,13 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	FGameplayTag Event_MyTurn;
 	FGameplayTag Event_Hostility;// 敌对行为（例如，对中立目标进行攻击）
 
-	FGameplayTag Event_GetHit;
-	FGameplayTag Event_GetCriticalHit;
-	FGameplayTag Event_GetHitWithCritical;
+	FGameplayTag Event_TakeHit;
+	FGameplayTag Event_TakeDamage;
+
+	// 能显示在玩家界面的GE标签
 	
-	FGameplayTag AbilityHit;
-	FGameplayTag HitByPhyMelee;
-	FGameplayTag HitByPhyRange;
-	FGameplayTag HitByMagMelee;
-	FGameplayTag HitByMagRange;
+	FGameplayTag Buff;
+	FGameplayTag DeBuff;
 	
 	FGameplayTag Paralysis;
 	FGameplayTag Stun;
@@ -35,8 +33,7 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	
 	FGameplayTag Silence;
 	
-	FGameplayTag Buff;
-	FGameplayTag DeBuff;
+	// 行为标签
 	
 	FGameplayTag Move;
 	
@@ -48,20 +45,29 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		Event_BattleBegin = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.BattleBegin"), TEXT("ProjectD"));
 		Event_BattleEnd = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.BattleEnd"), TEXT("ProjectD"));
 		Event_MyTurn = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.MyTurn"), TEXT("ProjectD"));
-		Event_Hostility = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.Hostility"), TEXT("ProjectD"));
+		Event_Hostility = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HostilityBehavior"), TEXT("ProjectD"));
 		
-		Event_GetHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.GetHit"), TEXT("ProjectD"));
-		Event_GetHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.GetHit.Mag"), TEXT("ProjectD"));
-		Event_GetHitWithCritical = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.GetHit.Crit"), TEXT("ProjectD"));
+		Event_TakeHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit.Phy"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit.Mag"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit.Melee"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit.Remote"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit.Crit"), TEXT("ProjectD"));
+		
+		Event_TakeDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage.Phy"), TEXT("ProjectD"));
+		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage.Arc"), TEXT("ProjectD"));
+		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage.Frost"), TEXT("ProjectD"));
+		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage.Flame"), TEXT("ProjectD"));
+		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage.Divine"), TEXT("ProjectD"));
+		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage.Shadow"), TEXT("ProjectD"));
+		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage.Nature"), TEXT("ProjectD"));
 
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Category.Buff"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Category.DeBuff"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Category.Limit"), TEXT("ProjectD"));
+		
 		InBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.InBattle"), TEXT("ProjectD"));
-
-		
-		AbilityHit	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit"), TEXT("ProjectD"));
-		HitByPhyMelee	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Melee.Phy"), TEXT("ProjectD"));
-		HitByPhyRange	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Range.Phy"), TEXT("ProjectD"));
-		HitByMagMelee	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Melee.Mag"), TEXT("ProjectD"));
-		HitByMagRange	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Passion.Hit.Range.Mag"), TEXT("ProjectD"));
 		
 		Paralysis	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Paralysis"), TEXT("ProjectD"));
 		Stun		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Paralysis.Stun"), TEXT("ProjectD"));
@@ -69,12 +75,14 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		Fear		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Paralysis.Fear"), TEXT("ProjectD"));
 
 		Root		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Root"), TEXT("ProjectD"));
-
 		Silence		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Limit.Silence"), TEXT("ProjectD"));
 
-		Buff		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.Buff"), TEXT("ProjectD"));
-		DeBuff		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.DeBuff"), TEXT("ProjectD"));
-
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category.Action"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category.Reaction"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category.AdditionalAction"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category.Combat"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category.Spell"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category.Class.Mage"), TEXT("ProjectD"));
 		Move		= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Movement.Move"), TEXT("ProjectD"));
 	}
 

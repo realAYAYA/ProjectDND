@@ -87,46 +87,8 @@ public:
 	UFUNCTION()
 	void OnTurnBasedGameEffectRemoved(const FGameplayEffectRemovalInfo& InGameplayEffectRemovalInfo);
 	bool RemoveTurnBasedActiveGameplayEffect(const FActiveGameplayEffectHandle Handle, const int32 StacksToRemove = -1);
-	
-	// 受到近战攻击时触发的能力
-	
-	// 受到近战攻击时给对方施加效果
-
-	// 受到法术敌对行为时触发的能力
-
-	// 受到法术伤害时给对方施加效果
-
-	// 近战攻击敌人时触发的效果
-
-	// 远程攻击敌人时给对方施加效果
-
-	// 向敌方施法时给对方的效果
-
-	// 施放法术时触发的效果
-
-	// 监听地方的行为（或被通知）
-
-	// 反应技能
-
-	void BattleBegin();
-
-	void OnHit();
-
-	/** 回合开始，施加回合制效果等*/
-	void BeginTurn();
-
-	/** 回合结束，施加回合制效果等*/
-	void EndTurn();
 
 protected:
-
-	//void OnTakingMeleeAttack();
-
-	//void OnTakingSpellAttack();
-
-	//void OnTakingDamage();
-
-	//void OnTakingHostileBehavior();
 
 	UFUNCTION()
 	void NotifyGameplayEffectAppliedToBP(UAbilitySystemComponent* Asc, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle Handle) const;
