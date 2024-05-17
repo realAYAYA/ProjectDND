@@ -17,6 +17,10 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	FGameplayTag Event_Hostility;// 敌对行为（例如，对中立目标进行攻击）
 
 	FGameplayTag Event_TakeHit;
+	FGameplayTag CritHit;// 承受暴击
+	FGameplayTag MeleeHit;// 承受近战攻击
+	FGameplayTag RemoteHit;// 承受远程攻击
+	
 	FGameplayTag Event_TakeDamage;
 
 	// 能显示在玩家界面的GE标签
@@ -46,22 +50,36 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		Event_BattleEnd = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.BattleEnd"), TEXT("ProjectD"));
 		Event_MyTurn = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.MyTurn"), TEXT("ProjectD"));
 		Event_Hostility = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HostilityBehavior"), TEXT("ProjectD"));
-		
+
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HostilityBehavior"), TEXT("ProjectD"));
+
+		// 获得状态
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.GetEffect"), TEXT("ProjectD"));
+
+		// 施加状态
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.GiveEffect"), TEXT("ProjectD"));
+
+		// 角色受到攻击
 		Event_TakeHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit"), TEXT("ProjectD"));
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit.Phy"), TEXT("ProjectD"));
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit.Mag"), TEXT("ProjectD"));
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit.Melee"), TEXT("ProjectD"));
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit.Remote"), TEXT("ProjectD"));
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit.Crit"), TEXT("ProjectD"));
+		// 命中对方
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.Hit"), TEXT("ProjectD"));
+
+		// 受击类型
+		MeleeHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HitType.Melee"), TEXT("ProjectD"));
+		RemoteHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HitType.Remote"), TEXT("ProjectD"));
+		CritHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HitType.Crit"), TEXT("ProjectD"));
+		
+		// 角色受到伤害
+		Event_TakeDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage"), TEXT("ProjectD"));
+		
+		// 角色受到任何控制
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.bRestricted.bRooted"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.bRestricted.bParalyzed"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.bRestricted.bSilenced"), TEXT("ProjectD"));
-		
-		Event_TakeDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage"), TEXT("ProjectD"));
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage"), TEXT("ProjectD"));
 
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Category1.Buff"), TEXT("ProjectD"));
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Category1.DeBuff"), TEXT("ProjectD"));
+		// 是否为DeBuff
+		Buff = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Category1.Buff"), TEXT("ProjectD"));
+		DeBuff = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Category1.DeBuff"), TEXT("ProjectD"));
 
 		// Buff类型
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.Category2.None"), TEXT("ProjectD"));
@@ -79,13 +97,14 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 
 		// 伤害类标签
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Phy"), TEXT("ProjectD"));
-		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Arc"), TEXT("ProjectD"));
-		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Frost"), TEXT("ProjectD"));
-		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Flame"), TEXT("ProjectD"));
-		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Divine"), TEXT("ProjectD"));
-		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Shadow"), TEXT("ProjectD"));
-		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Nature"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Arc"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Frost"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Flame"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Divine"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Shadow"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Nature"), TEXT("ProjectD"));
 
+		// 按消耗技能分类
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category1.Action"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category1.Reaction"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category1.AdditionalAction"), TEXT("ProjectD"));
@@ -93,30 +112,63 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		// 专注技能
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Focus"), TEXT("ProjectD"));
 
-		
+		// 是否为法术（或战技）
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Combat"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell"), TEXT("ProjectD"));
 
-		// 各职业三系流派
+		// 各职业流派
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Frost"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Flame"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Arc"), TEXT("ProjectD"));
 		
 		Move = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category.Movement.Move"), TEXT("ProjectD"));
 
-		InBattle	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.InBattle"), TEXT("ProjectD"));
+		InBattle = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.InBattle"), TEXT("ProjectD"));
 	}
 
-	static bool IsDeBuff(const FGameplayTag& Tag) { return false; }
-	static bool HitByMelee(const FGameplayTag& Tag) { return false; }
-	static bool HitBySpell(const FGameplayTag& Tag) { return false; }
+	bool IsBuff(const FGameplayTagContainer& Tags, const bool bDeBuff = false) const
+	{
+		for (const auto& Tag : Tags)
+		{
+			if (!bDeBuff && Tag == Buff)
+				return true;
+
+			if (bDeBuff && Tag == DeBuff)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	bool CheckHitWithDistance(const FGameplayTagContainer& Tags, const bool bMelee) const
+	{
+		for (const auto& Tag : Tags)
+		{
+			if (!bMelee && Tag == RemoteHit)
+				return true;
+
+			if (bMelee && Tag == MeleeHit)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	bool IsCriticalHit(const FGameplayTagContainer& Tags) const
+	{
+		for (const auto& Tag : Tags)
+			if (Tag == CritHit)
+				return true;
+		
+		return false;
+	}
 
 	FORCEINLINE static const FGameplayAbilityGlobalTags& Get()
 	{
 		return GasTags;
 	}
 
-	// 一种在编译阶段Get方法
+	// 一种在编译阶段Get方法(构造函数中调用）
 	FORCEINLINE static FGameplayAbilityGlobalTags& GetPreConstruct()
 	{
 		if (!GasTags.InBattle.IsValid())

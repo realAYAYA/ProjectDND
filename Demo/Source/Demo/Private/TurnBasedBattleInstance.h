@@ -25,12 +25,6 @@ public:
 	// Sets default values for this actor's properties
 	ATurnBasedBattleInstance();
 
-	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	TSubclassOf<UGameplayEffect> MyTurnGEClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	TSubclassOf<UGameplayEffect> BattleBeginGEClass;
-
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentCharacter)
 	ADCharacter* CurrentCharacter;// Todo 不止一个角色，如果角色先攻顺序上同阵营是连着的，则可以同时行动
 	void SetCurrentCharacter(ADCharacter* In);

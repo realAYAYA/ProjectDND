@@ -68,8 +68,7 @@ void ATurnBasedBattleInstance::BeginBattle()
 {
 	if (!HasAuthority())
 		return;
-
-	const UDGameplayEffect* GameplayEffect = BattleBeginGEClass->GetDefaultObject<UDGameplayEffect>();
+	
 	for (const auto* Character : CharacterList)
 	{
 		const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_BattleBegin;
@@ -77,7 +76,7 @@ void ATurnBasedBattleInstance::BeginBattle()
 		Payload.EventTag = Tag;
 		Character->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
 
-		Character->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectToSelf(GameplayEffect, 0, 0, FGameplayEffectContextHandle());
+		//Character->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectToSelf(GameplayEffect, 0, 0, FGameplayEffectContextHandle());
 	}
 	
 	// Todo
@@ -121,10 +120,6 @@ void ATurnBasedBattleInstance::YourTurn(ADCharacter* InCharacter)
 	FGameplayEventData Payload;
 	Payload.EventTag = Tag;
 	InCharacter->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
-	
-	// Todo 恢复动作 移动力 附赠动作
-	const UDGameplayEffect* GameplayEffect = MyTurnGEClass->GetDefaultObject<UDGameplayEffect>();
-	InCharacter->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectToSelf(GameplayEffect, 0, 0, FGameplayEffectContextHandle());
 }
 
 void ATurnBasedBattleInstance::OnRep_CurrentCharacter()
