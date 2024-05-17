@@ -39,6 +39,10 @@ private:
 	TObjectPtr<UPathFollowingComponent> PathFollowingComponent;
 	
 public:
+
+	// 检查当前控制的角色是否处于战斗中
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	bool InBattle() const;
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
 	void K2_YourTurn(const ADCharacter* InCharacter);
@@ -57,5 +61,11 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void YourTurn(const ADCharacter* InCharacter);// Called by Server
+
 	
+private:
+	
+	// Steam | Ps4 | XBox
+	UPROPERTY(Replicated)
+	uint64 PlayerId = 0;
 };

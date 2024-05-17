@@ -29,3 +29,18 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	FDCharacterGasData GasData;
 };
+
+USTRUCT(BlueprintType)
+struct FDPlayerData
+{
+	GENERATED_USTRUCT_BODY()
+
+	// Steam Ps4 Xbox
+	UPROPERTY()
+	uint64 PlayerId = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
+	FString Name;
+
+	
+};

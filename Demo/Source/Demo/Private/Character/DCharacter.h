@@ -55,18 +55,21 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	ATurnBasedBattleInstance* BattleInstance;
-	void SetTurnBasedInstance(ATurnBasedBattleInstance* In);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleBegin")
+	void K2_BattleBegin();
+	
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
 	void K2_YourTurn();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleEnd")
 	void K2_BattleEnd();
-	
-	void YourTurn();
 
-	UFUNCTION(Client, Reliable)
-	void NotifyBattleEnd();
+	void OnBattleBegin();
+	void YourTurn();
+	void OnBattleEnd();
+
+	bool InBattle() const;
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	UDAttributeSet* GetAttributeSet() const { return AttributeSet; }
@@ -82,21 +85,21 @@ private:
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	int64 GetRoleId() const { return ReplicatedRoleId; }
+	int64 GetRoleId() const { return RoleId; }
 
 private:
 
 	// 角色唯一Id，由服务器分发
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterId)
-	int64 ReplicatedRoleId = 0;
+	int64 RoleId = 0;
 	int64 OldRoleId = 0;
 
 	UFUNCTION()
 	void OnRep_CharacterId();
 
 	// 当前角色的控制者Id, 对应角色的当前控制权归属, 它可以是SteamId或其它
-	UPROPERTY(ReplicatedUsing = OnRep_CharacterId)
-	int64 ReplicatedControllerId = 0;
+	UPROPERTY(Replicated)
+	uint64 ControllerId = 0;
 
 	UFUNCTION()
 	void OnRep_ControllerId();

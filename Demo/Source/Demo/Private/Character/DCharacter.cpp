@@ -35,8 +35,8 @@ void ADCharacter::BeginReplication()
 	{
 		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
 		{
-			ReplicatedRoleId = GameInstance->CharacterManager->GenerateRoleId();// 由服务器为角色下发唯一Id
-			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);
+			RoleId = GameInstance->CharacterManager->GenerateRoleId();// 由服务器为角色下发唯一Id
+			GameInstance->CharacterManager->RegisterCharacter(RoleId,this);
 		}
 	}
 
@@ -57,7 +57,7 @@ void ADCharacter::PostNetInit()
 		// 注册自己的信息
 		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
 		{
-			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);
+			GameInstance->CharacterManager->RegisterCharacter(RoleId,this);
 		}
 	}
 	
@@ -89,15 +89,9 @@ UAbilitySystemComponent* ADCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void ADCharacter::SetTurnBasedInstance(ATurnBasedBattleInstance* In)
+void ADCharacter::OnBattleBegin()
 {
-	BattleInstance = In;
-	
-#if !UE_SERVER // 如果不是以DS编译，而是以Listening Server启动方式时，OnRep不会在主机上调用，需要手动触发
-	if (HasAuthority() && IsLocallyControlled())
-	{
-	}
-#endif
+	K2_BattleBegin();
 }
 
 void ADCharacter::YourTurn()
@@ -126,9 +120,14 @@ void ADCharacter::OnMoveDistanceChange(const FOnAttributeChangeData& Data) const
 	}
 }
 
-void ADCharacter::NotifyBattleEnd_Implementation()
+void ADCharacter::OnBattleEnd()
 {
 	K2_BattleEnd();
+}
+
+bool ADCharacter::InBattle() const
+{
+	return AbilitySystemComponent->HasMatchingGameplayTag(FGameplayAbilityGlobalTags::Get().InBattle);
 }
 
 void ADCharacter::OnRep_CharacterId()
@@ -138,8 +137,8 @@ void ADCharacter::OnRep_CharacterId()
 		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
 		{
 			GameInstance->CharacterManager->UnRegisterCharacter(OldRoleId);// 移除旧信息
-			GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);// 重新注册角色信息
-			OldRoleId = ReplicatedRoleId;
+			GameInstance->CharacterManager->RegisterCharacter(RoleId,this);// 重新注册角色信息
+			OldRoleId = RoleId;
 		}
 	}
 }
@@ -190,7 +189,8 @@ void ADCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	SharedParams.bIsPushBased = true;
 	
 	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
-	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, ReplicatedRoleId, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, RoleId, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, ControllerId, SharedParams);
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

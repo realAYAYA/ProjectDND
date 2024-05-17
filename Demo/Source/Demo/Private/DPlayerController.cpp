@@ -138,6 +138,14 @@ void ADPlayerController::StopMove() const
 	PathFollowingComponent->AbortMove(*NavSys, FPathFollowingResultFlags::ForcedScript | FPathFollowingResultFlags::MovementStop);
 }
 
+bool ADPlayerController::InBattle() const
+{
+	if (const auto* Character = Cast<ADCharacter>(GetPawn()))
+		return Character->InBattle();
+
+	return false;
+}
+
 void ADPlayerController::K2_TurnEnd()
 {
 	// 当前并不是自己的回合
