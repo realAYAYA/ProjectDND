@@ -59,14 +59,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleBegin")
 	void K2_BattleBegin();
 	
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
-	void K2_YourTurn();
+	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "MyTurn")
+	void K2_MyTurn();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleEnd")
 	void K2_BattleEnd();
 
 	void OnBattleBegin();
-	void YourTurn();
+	void MyTurn();
 	void OnBattleEnd();
 
 	bool InBattle() const;
@@ -86,6 +86,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	int64 GetRoleId() const { return RoleId; }
+
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	bool bReadyTurnEnd = false;// 该角色当前准备结束回合
 
 private:
 

@@ -7,6 +7,7 @@
 #include "TurnBasedBattleInstance.h"
 #include "Character/DCharacter.h"
 #include "Navigation/PathFollowingComponent.h"
+#include "Net/UnrealNetwork.h"
 
 
 ADPlayerController::ADPlayerController(const FObjectInitializer& ObjectInitializer)
@@ -140,19 +141,24 @@ void ADPlayerController::StopMove() const
 
 bool ADPlayerController::InBattle() const
 {
-	if (const auto* Character = Cast<ADCharacter>(GetPawn()))
-		return Character->InBattle();
+	if (const auto* DCharacter = Cast<ADCharacter>(GetPawn()))
+		return DCharacter->InBattle();
 
 	return false;
 }
 
 void ADPlayerController::K2_TurnEnd()
 {
-	// 当前并不是自己的回合
-	if (const auto* DCharacter = Cast<ADCharacter>(this->GetPawn()))
+	const auto* DCharacter = Cast<ADCharacter>(this->GetPawn());
+	if (!DCharacter || !DCharacter->BattleInstance)
 	{
-		if (DCharacter->BattleInstance && DCharacter->BattleInstance->CurrentCharacter != DCharacter)
-			return;
+		return;
+	}
+	
+	// 检查当前是否为自己回合
+	if (!DCharacter->BattleInstance->IsMyTurn(DCharacter))
+	{
+		return;
 	}
 	
 	ReqTurnEnd();
@@ -166,9 +172,23 @@ void ADPlayerController::YourTurn_Implementation(const ADCharacter* InCharacter)
 
 void ADPlayerController::ReqTurnEnd_Implementation()
 {
-	const auto* DCharacter = Cast<ADCharacter>(this->GetPawn());
+	auto* DCharacter = Cast<ADCharacter>(this->GetPawn());
 	if (DCharacter && DCharacter->BattleInstance)
 	{
+		DCharacter->bReadyTurnEnd = true;
 		DCharacter->BattleInstance->TurnEnd(DCharacter);
 	}
+}
+
+
+
+void ADPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	FDoRepLifetimeParams SharedParams;
+	SharedParams.bIsPushBased = true;
+	
+	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
+	DOREPLIFETIME_WITH_PARAMS_FAST(ADPlayerController, PlayerId, SharedParams);
+	
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

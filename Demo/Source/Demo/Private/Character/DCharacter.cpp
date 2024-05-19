@@ -94,7 +94,7 @@ void ADCharacter::OnBattleBegin()
 	K2_BattleBegin();
 }
 
-void ADCharacter::YourTurn()
+void ADCharacter::MyTurn()
 {
 	if (const auto* PS = GetPlayerState())
 	{
@@ -105,7 +105,7 @@ void ADCharacter::YourTurn()
 		}
 	}
 
-	K2_YourTurn();
+	K2_MyTurn();
 }
 
 void ADCharacter::OnMoveDistanceChange(const FOnAttributeChangeData& Data) const
@@ -191,6 +191,7 @@ void ADCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
 	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, RoleId, SharedParams);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, ControllerId, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, bReadyTurnEnd, SharedParams);
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

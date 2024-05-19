@@ -38,4 +38,6 @@ void ADGameModeBase::BuildBattleWithAllCharacters()
 		
 		return true;
 	});
+
+	BattleInstance->BeginBattle();
 }
