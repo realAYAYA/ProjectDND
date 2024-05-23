@@ -42,5 +42,6 @@ struct FDPlayerData
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	FString Name;
 
-	
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
+	FString PlatformId;// SteamId | PS4 | Xbox ...
 };

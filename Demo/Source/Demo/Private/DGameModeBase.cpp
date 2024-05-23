@@ -2,25 +2,15 @@
 
 
 #include "DGameModeBase.h"
-#include "DCharacterManager.h"
-#include "DGameInstance.h"
-#include "DPlayerController.h"
 #include "TurnBasedBattleInstance.h"
-
-#include "GameFramework/PlayerState.h"
-
 
 void ADGameModeBase::BuildBattleWithAllCharacters()
 {
-	const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance());
-	if (!GameInstance)
-		return;
-
 	FActorSpawnParameters SpawnInfo;
 	SpawnInfo.Instigator = GetInstigator();
 	SpawnInfo.ObjectFlags |= RF_Transient;
 	
-	ATurnBasedBattleInstance* BattleInstance = GetWorld()->SpawnActor<ATurnBasedBattleInstance>(BattleInstanceClass, FTransform(), SpawnInfo);
+	ATurnBasedBattleInstance* BattleInstance = GetWorld()->SpawnActorDeferred<ATurnBasedBattleInstance>(BattleInstanceClass, FTransform(), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	if (!BattleInstance)
 		return;
 	
@@ -28,16 +18,14 @@ void ADGameModeBase::BuildBattleWithAllCharacters()
 
 	BattleInstances.Add(BattleInstance);
 
-	GameInstance->CharacterManager->Foreach([BattleInstance](ADCharacter* Character) -> bool
+	ADCharacter::Foreach([BattleInstance](ADCharacter* Character) -> bool
 	{
-		// 角色死亡或其它某种状态不得参加战斗
-		if (auto* PC = Cast<ADPlayerController>(Character->GetPlayerState()->GetPlayerController()))
-		{
-			BattleInstance->CharacterList.Add(Character);
-		}
+		// Todo 角色死亡或其它某种状态不得参加战斗
+		BattleInstance->CharacterList.Add(Character);
 		
 		return true;
 	});
 
 	BattleInstance->BeginBattle();
+	BattleInstance->FinishSpawning(FTransform());
 }

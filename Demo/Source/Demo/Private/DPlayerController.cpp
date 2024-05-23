@@ -42,6 +42,14 @@ void ADPlayerController::OnPossess(APawn* InPawn)
 	}
 }
 
+void ADPlayerController::PostNetInit()
+{
+	Super::PostNetInit();
+
+	// Todo 向主机提交一分自己的用户信息，主机收到后会将新玩家信息转发到其它客户端
+	ClientSendPlayerInfo();
+}
+
 void ADPlayerController::OnUnPossess()
 {
 	Super::OnUnPossess();
@@ -150,22 +158,15 @@ bool ADPlayerController::InBattle() const
 void ADPlayerController::K2_TurnEnd()
 {
 	const auto* DCharacter = Cast<ADCharacter>(this->GetPawn());
-	if (!DCharacter || !DCharacter->BattleInstance)
+	if (!DCharacter || !DCharacter->IsMyTurn())
 	{
-		return;
-	}
-	
-	// 检查当前是否为自己回合
-	if (!DCharacter->BattleInstance->IsMyTurn(DCharacter))
-	{
-		return;
+		return;// 检查当前是否为自己回合
 	}
 	
 	ReqTurnEnd();
 }
 
-
-void ADPlayerController::YourTurn_Implementation(const ADCharacter* InCharacter)
+void ADPlayerController::Client_MyTurn(const ADCharacter* InCharacter)
 {
 	K2_YourTurn(InCharacter);
 }
@@ -180,7 +181,14 @@ void ADPlayerController::ReqTurnEnd_Implementation()
 	}
 }
 
+void ADPlayerController::ClientSendPlayerInfo_Implementation()
+{
+}
 
+void ADPlayerController::ServerSendPlayerInfo_Implementation()
+{
+	ServerSendPlayerInfo();// 服务器向其它所有客户端广播
+}
 
 void ADPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

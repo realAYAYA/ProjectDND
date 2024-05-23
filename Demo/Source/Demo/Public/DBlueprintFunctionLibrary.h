@@ -7,7 +7,6 @@
 #include "DBlueprintFunctionLibrary.generated.h"
 
 class UNavigationPath;
-class UDCharacterManager;
 class UDGameInstance;
 class ADCharacter;
 /**
@@ -22,15 +21,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category= "ProjectD", meta = (WorldContext = "WorldContextObject"))
 	static UDGameInstance* GetDGameInstance(const UObject* WorldContextObject);
-
-	/** 给定Id, 查找关卡中的角色*/
-	UFUNCTION(BlueprintCallable, Category= "ProjectD", meta = (WorldContext = "WorldContextObject"))
-	static ADCharacter* FindCharacterByRoleId(const UObject* WorldContextObject, const int64 Id);
-
-	UFUNCTION(BlueprintCallable, Category= "ProjectD", meta = (WorldContext = "WorldContextObject"))
-	static UDCharacterManager* GetCharacterManager(const UObject* WorldContextObject);
-
-
+	
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	static UNavigationPath* FindPath(AController* Controller, const FVector& GoalLocation);
 };

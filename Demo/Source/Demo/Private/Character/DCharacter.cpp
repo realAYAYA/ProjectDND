@@ -2,16 +2,15 @@
 
 
 #include "DCharacter.h"
-
-#include "AbilitySystemLog.h"
-#include "DCharacterManager.h"
-#include "DGameInstance.h"
 #include "DPlayerController.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PlayerState.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "GameplayAbilitySystem/DAttributeSet.h"
+
 #include "Net/UnrealNetwork.h"
+#include "AbilitySystemLog.h"
+#include "TurnBasedBattleInstance.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerState.h"
 
 // Sets default values
 ADCharacter::ADCharacter()
@@ -33,11 +32,8 @@ void ADCharacter::BeginReplication()
 	// Network & Replicated
 	if (HasAuthority())
 	{
-		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
-		{
-			RoleId = GameInstance->CharacterManager->GenerateRoleId();// 由服务器为角色下发唯一Id
-			GameInstance->CharacterManager->RegisterCharacter(RoleId,this);
-		}
+		RoleId = GenerateRoleId();// 由服务器为角色下发唯一Id
+		RegisterCharacter(RoleId,this);
 	}
 
 	Super::BeginReplication();
@@ -54,11 +50,7 @@ void ADCharacter::PostNetInit()
 {
 	if (!HasAuthority())
 	{
-		// 注册自己的信息
-		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
-		{
-			GameInstance->CharacterManager->RegisterCharacter(RoleId,this);
-		}
+		RegisterCharacter(RoleId,this);
 	}
 	
 	Super::PostNetInit();
@@ -66,10 +58,7 @@ void ADCharacter::PostNetInit()
 
 void ADCharacter::BeginDestroy()
 {
-	/*if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
-	{
-		GameInstance->CharacterManager->RegisterCharacter(ReplicatedRoleId,this);
-	}*/
+	UnRegisterCharacter(this->RoleId);
 	
 	Super::BeginDestroy();
 }
@@ -89,19 +78,40 @@ UAbilitySystemComponent* ADCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void ADCharacter::OnBattleBegin()
+void ADCharacter::OnBattleBegin(ATurnBasedBattleInstance* In)
 {
+	BattleInstance = In;
 	K2_BattleBegin();
+
+	// 通知到PC
+	if (auto* PC = Cast<ADPlayerController>(Controller))
+	{
+		PC->K2_OnBattle(this);// 通知用户进入战斗（战斗界面, 操作模式变更）
+	}
 }
 
-void ADCharacter::MyTurn()
+void ADCharacter::Client_MyTurn()
 {
 	if (const auto* PS = GetPlayerState())
 	{
-		// Todo 确认控制权所属，控制器不一定正在控制角色
+		// 玩家正在控制该角色，通知到PC
 		if (auto* PC = Cast<ADPlayerController>(PS->GetPlayerController()))
 		{
-			PC->YourTurn(this);
+			PC->Client_MyTurn(this);
+		}
+		else
+		{
+			// 检查该角色的控制权归属是否为本地PC
+			PC = Cast<ADPlayerController>(GetWorld()->GetFirstPlayerController());
+			if (!PC || PC->PlayerId == ControllerId)
+				return;// 该角色的控制权非本地控制
+
+			// 检查本地PC是否在对回合中的角色进行控制，如果没有角色或角色没有处于活动回合，就通知到PC(自动切换镜头以及角色控制等等)
+			const auto* C = Cast<ADCharacter>(PC->GetPawn());
+			if (!C || !C->IsMyTurn())
+				return;
+
+			PC->Client_MyTurn(this);
 		}
 	}
 
@@ -130,16 +140,21 @@ bool ADCharacter::InBattle() const
 	return AbilitySystemComponent->HasMatchingGameplayTag(FGameplayAbilityGlobalTags::Get().InBattle);
 }
 
+bool ADCharacter::IsMyTurn() const
+{
+	if (BattleInstance)
+		return BattleInstance->IsMyTurn(this);
+
+	return false;
+}
+
 void ADCharacter::OnRep_CharacterId()
 {
 	if (!HasAuthority())
 	{
-		if (const auto* GameInstance = Cast<UDGameInstance>(GetGameInstance()))
-		{
-			GameInstance->CharacterManager->UnRegisterCharacter(OldRoleId);// 移除旧信息
-			GameInstance->CharacterManager->RegisterCharacter(RoleId,this);// 重新注册角色信息
-			OldRoleId = RoleId;
-		}
+		UnRegisterCharacter(OldRoleId);// 移除旧信息
+		RegisterCharacter(RoleId,this);// 重新注册角色信息
+		OldRoleId = RoleId;
 	}
 }
 
@@ -183,6 +198,44 @@ void ADCharacter::InitCharacterData()
 	}
 }
 
+static TMap<int64, ADCharacter*> CharacterMap;
+
+ADCharacter* ADCharacter::SearchCharacterWithId(const int64 Id)
+{
+	if (const auto* Ptr = CharacterMap.Find(Id))
+		return *Ptr;
+
+	return nullptr;
+}
+
+void ADCharacter::RegisterCharacter(const int64 Id, ADCharacter* In)
+{
+	CharacterMap.Add(Id, In);
+}
+
+void ADCharacter::UnRegisterCharacter(const int64 Id)
+{
+	CharacterMap.Remove(Id);
+}
+
+static int64 SerialNum = 0;
+int64 ADCharacter::GenerateRoleId()
+{
+	return ++SerialNum;
+}
+
+void ADCharacter::Foreach(const TFunction<bool(ADCharacter*)>& InFunc)
+{
+	for (const auto T : CharacterMap)
+	{
+		if (T.Value)
+		{
+			if (!InFunc(T.Value))
+				return;
+		}
+	}
+}
+
 void ADCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	FDoRepLifetimeParams SharedParams;
@@ -192,6 +245,7 @@ void ADCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, RoleId, SharedParams);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, ControllerId, SharedParams);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, bReadyTurnEnd, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ADCharacter, CharacterName, SharedParams);
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

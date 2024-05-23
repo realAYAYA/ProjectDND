@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+
+#include "DGameTypes.h"
 #include "DPlayerController.generated.h"
 
 class UPathFollowingComponent;
@@ -24,6 +26,8 @@ public:
 	virtual void Reset() override;
 
 	virtual void OnPossess(APawn* InPawn) override;
+
+	virtual void PostNetInit() override;
 
 	virtual void OnUnPossess() override;
 
@@ -59,13 +63,20 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ReqTurnEnd();
 
-	UFUNCTION(Client, Reliable)
-	void YourTurn(const ADCharacter* InCharacter);// Called by Server
+	UFUNCTION()
+	void Client_MyTurn(const ADCharacter* InCharacter);
 
+	// Steam | Ps4 | XBox
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "ProjectD")
+	int64 PlayerId = 0;
 	
 private:
 	
-	// Steam | Ps4 | XBox
-	UPROPERTY(Replicated)
-	uint64 PlayerId = 0;
+	UFUNCTION(Server, Reliable)
+	void ClientSendPlayerInfo();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ServerSendPlayerInfo();
+
+	static TMap<uint64, FDPlayerData> PlayerMap;
 };

@@ -6,8 +6,6 @@
 #include "Engine/GameInstance.h"
 #include "DGameInstance.generated.h"
 
-class UDCharacterManager;
-
 /**
  * 
  */
@@ -19,7 +17,5 @@ class DEMO_API UDGameInstance : public UGameInstance
 public:
 
 	virtual void Init() override;
-
-	UPROPERTY()
-	UDCharacterManager* CharacterManager;
+	
 };

@@ -4,7 +4,6 @@
 #include "DGameInstance.h"
 
 #include "AbilitySystemGlobals.h"
-#include "DCharacterManager.h"
 
 void UDGameInstance::Init()
 {
@@ -12,6 +11,5 @@ void UDGameInstance::Init()
 
 	UAbilitySystemGlobals::Get().InitGlobalData();
 
-	CharacterManager = NewObject<UDCharacterManager>(this);
-	CharacterManager->Init();
+	
 }

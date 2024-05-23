@@ -21,11 +21,8 @@ struct FTurnBasedInfo
 	UPROPERTY()
 	int32 CurrentTurnNum = 0;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
-	TArray<ADCharacter*> ActivatedCharacters;
-
 	UPROPERTY()
-	int32 CurrentIndex;// 当前进行回合的所有角色中最后一个的数组下标
+	int32 CurrentIndex = 0;// 当前进行回合的所有角色中最后一个的数组下标
 
 	bool operator==(const FTurnBasedInfo& Right) const
 	{
@@ -54,11 +51,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CharacterList)
 	TArray<ADCharacter*> CharacterList;
 
+	UPROPERTY(Replicated)
+	TArray<ADCharacter*> ActivatedCharacters;
+
 	UPROPERTY(ReplicatedUsing = OnTurnChanged)
 	FTurnBasedInfo CurrentTurnInfo;
 
+	// 战斗开始. Server only
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	void BeginBattle();// 战斗开始
+	void BeginBattle();
 	
 	void TurnEnd(const ADCharacter* InCharacter);
 
