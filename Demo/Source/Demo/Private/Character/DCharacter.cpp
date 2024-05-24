@@ -81,38 +81,39 @@ UAbilitySystemComponent* ADCharacter::GetAbilitySystemComponent() const
 void ADCharacter::OnBattleBegin(ATurnBasedBattleInstance* In)
 {
 	BattleInstance = In;
-	K2_BattleBegin();
 
 	// 通知到PC
 	if (auto* PC = Cast<ADPlayerController>(Controller))
 	{
-		PC->K2_OnBattle(this);// 通知用户进入战斗（战斗界面, 操作模式变更）
+		if (PC->IsLocalController())
+			PC->K2_OnBattle(this);// 通知用户进入战斗（战斗界面, 操作模式变更）
 	}
+
+	K2_BattleBegin();
 }
 
 void ADCharacter::Client_MyTurn()
 {
-	if (const auto* PS = GetPlayerState())
+	// 玩家正在控制该角色，通知到PC
+	if (auto* PC = Cast<ADPlayerController>(Controller))
 	{
-		// 玩家正在控制该角色，通知到PC
-		if (auto* PC = Cast<ADPlayerController>(PS->GetPlayerController()))
-		{
+		if (PC->IsLocalController())
 			PC->Client_MyTurn(this);
-		}
-		else
-		{
-			// 检查该角色的控制权归属是否为本地PC
-			PC = Cast<ADPlayerController>(GetWorld()->GetFirstPlayerController());
-			if (!PC || PC->PlayerId == ControllerId)
-				return;// 该角色的控制权非本地控制
+	}
+	else
+	{
+		/*// 检查该角色的控制权归属是否为本地PC
+		PC = Cast<ADPlayerController>(GetWorld()->GetFirstPlayerController());
+		if (!PC || PC->PlayerId == ControllerId)
+			return;// 该角色的控制权非本地控制
 
-			// 检查本地PC是否在对回合中的角色进行控制，如果没有角色或角色没有处于活动回合，就通知到PC(自动切换镜头以及角色控制等等)
-			const auto* C = Cast<ADCharacter>(PC->GetPawn());
-			if (!C || !C->IsMyTurn())
-				return;
+		// 检查本地PC是否在对回合中的角色进行控制，如果没有角色或角色没有处于活动回合，就通知到PC(自动切换镜头以及角色控制等等)
+		const auto* C = Cast<ADCharacter>(PC->GetPawn());
+		if (!C || !C->IsMyTurn())
+			return;
 
-			PC->Client_MyTurn(this);
-		}
+		if (PC->IsLocalController())
+			PC->Client_MyTurn(this);*/
 	}
 
 	K2_MyTurn();
@@ -198,6 +199,7 @@ void ADCharacter::InitCharacterData()
 	}
 }
 
+static int64 SerialNum = 0;
 static TMap<int64, ADCharacter*> CharacterMap;
 
 ADCharacter* ADCharacter::SearchCharacterWithId(const int64 Id)
@@ -216,9 +218,10 @@ void ADCharacter::RegisterCharacter(const int64 Id, ADCharacter* In)
 void ADCharacter::UnRegisterCharacter(const int64 Id)
 {
 	CharacterMap.Remove(Id);
+	if (CharacterMap.Num() == 0) SerialNum = 0;// 重置Id生成器
 }
 
-static int64 SerialNum = 0;
+
 int64 ADCharacter::GenerateRoleId()
 {
 	return ++SerialNum;

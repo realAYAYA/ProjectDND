@@ -6,10 +6,6 @@
 
 void ADGameModeBase::BuildBattleWithAllCharacters()
 {
-	FActorSpawnParameters SpawnInfo;
-	SpawnInfo.Instigator = GetInstigator();
-	SpawnInfo.ObjectFlags |= RF_Transient;
-	
 	ATurnBasedBattleInstance* BattleInstance = GetWorld()->SpawnActorDeferred<ATurnBasedBattleInstance>(BattleInstanceClass, FTransform(), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	if (!BattleInstance)
 		return;
@@ -18,10 +14,10 @@ void ADGameModeBase::BuildBattleWithAllCharacters()
 
 	BattleInstances.Add(BattleInstance);
 
-	ADCharacter::Foreach([BattleInstance](ADCharacter* Character) -> bool
+	ADCharacter::Foreach([BattleInstance](const ADCharacter* Character) -> bool
 	{
 		// Todo 角色死亡或其它某种状态不得参加战斗
-		BattleInstance->CharacterList.Add(Character);
+		BattleInstance->CharacterList.Add(Character->GetRoleId());
 		
 		return true;
 	});

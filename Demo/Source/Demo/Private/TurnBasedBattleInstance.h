@@ -17,16 +17,16 @@ USTRUCT(BlueprintType)
 struct FTurnBasedInfo
 {
 	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY()
-	int32 CurrentTurnNum = 0;
-
+	
 	UPROPERTY()
 	int32 CurrentIndex = 0;// 当前进行回合的所有角色中最后一个的数组下标
 
+	UPROPERTY()
+	TArray<int32> ActivatedCharacters;
+
 	bool operator==(const FTurnBasedInfo& Right) const
 	{
-		if (CurrentTurnNum != Right.CurrentTurnNum)
+		if (CurrentIndex != Right.CurrentIndex)
 			return false;
 
 		return true;
@@ -48,13 +48,13 @@ public:
 	// Sets default values for this actor's properties
 	ATurnBasedBattleInstance();
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CharacterList)
-	TArray<ADCharacter*> CharacterList;
-
 	UPROPERTY(Replicated)
-	TArray<ADCharacter*> ActivatedCharacters;
+	int32 CurrentTurnNum = 0;
+	
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CharacterList)
+	TArray<int32> CharacterList;
 
-	UPROPERTY(ReplicatedUsing = OnTurnChanged)
+	UPROPERTY(ReplicatedUsing = OnTurnInfoChanged)
 	FTurnBasedInfo CurrentTurnInfo;
 
 	// 战斗开始. Server only
@@ -73,7 +73,7 @@ public:
 	void OnRep_CharacterList();
 
 	UFUNCTION()
-	void OnTurnChanged();
+	void OnTurnInfoChanged();
 
 	// 合并两场战斗
 	void MergeBattle(ATurnBasedBattleInstance* In);

@@ -163,7 +163,7 @@ void ADPlayerController::K2_TurnEnd()
 		return;// 检查当前是否为自己回合
 	}
 	
-	ReqTurnEnd();
+	Server_TurnEnd();
 }
 
 void ADPlayerController::Client_MyTurn(const ADCharacter* InCharacter)
@@ -171,7 +171,7 @@ void ADPlayerController::Client_MyTurn(const ADCharacter* InCharacter)
 	K2_YourTurn(InCharacter);
 }
 
-void ADPlayerController::ReqTurnEnd_Implementation()
+void ADPlayerController::Server_TurnEnd_Implementation()
 {
 	auto* DCharacter = Cast<ADCharacter>(this->GetPawn());
 	if (DCharacter && DCharacter->BattleInstance)

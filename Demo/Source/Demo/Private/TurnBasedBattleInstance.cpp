@@ -27,9 +27,9 @@ void ATurnBasedBattleInstance::PostNetInit()
 {
 	Super::PostNetInit();
 	
-	for (const auto& Character : CharacterList)
+	for (const auto& CharacterId : CharacterList)
 	{
-		if (Character)
+		if (auto* Character = ADCharacter::SearchCharacterWithId(CharacterId))
 		{
 			Character->OnBattleBegin(this);
 		}
@@ -48,33 +48,38 @@ void ATurnBasedBattleInstance::BeginBattle()
 	if (!HasAuthority())
 		return;
 	
-	for (const auto* Character : CharacterList)
+	for (const auto& CharacterId : CharacterList)
 	{
-		const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_BattleBegin;
-		FGameplayEventData Payload;
-		Payload.EventTag = Tag;
-		Character->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
+		if (auto* Character = ADCharacter::SearchCharacterWithId(CharacterId))
+		{
+			const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_BattleBegin;
+			FGameplayEventData Payload;
+			Payload.EventTag = Tag;
+			Character->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
+
+			Character->OnBattleBegin(this);
+		}
 	}
 
-	ActivatedCharacters.Empty();
+	CurrentTurnInfo.ActivatedCharacters.Empty();
 	
-	CurrentTurnInfo.CurrentTurnNum = 1;
+	CurrentTurnNum = 1;
 	CurrentTurnInfo.CurrentIndex = 0;
 	
 	// Todo
 	// 计算先攻顺序, 通知第一个角色调用YourTurn
 	if (CharacterList.IsValidIndex(0))
 	{
-		if (auto* NextCharacter = CharacterList[0])
+		if (const auto* NextCharacter = ADCharacter::SearchCharacterWithId(CharacterList[0]))
 		{
-			ActivatedCharacters.Add(NextCharacter);
+			CurrentTurnInfo.ActivatedCharacters.Add(NextCharacter->GetRoleId());
 			YourTurn(NextCharacter);
 		}
 	}
 
 #if !UE_SERVER
 	if (HasAuthority())
-		OnTurnChanged();
+		OnTurnInfoChanged();
 #endif
 }
 
@@ -84,37 +89,50 @@ void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
 	if (!IsMyTurn(InCharacter))
 		return;
 
-	// 检查所有可活动的角色是否同时结束回合
-	for (const auto* Character : ActivatedCharacters)
+	// 检查所有可活动的角色是否都准备结束回合
+	for (const auto& CharacterId : CurrentTurnInfo.ActivatedCharacters)
 	{
+		const auto* Character = ADCharacter::SearchCharacterWithId(CharacterId);
 		if (Character && !Character->bReadyTurnEnd)
 		{
 			return;
 		}
 	}
 	
-	// 切换下一回合角色
-	ActivatedCharacters.Empty();
+	// 切换下一批合角色
+	CurrentTurnInfo.ActivatedCharacters.Empty();
 	for (int32 i = CurrentTurnInfo.CurrentIndex + 1; i < CharacterList.Num(); i++)
 	{
 		// Todo 可能不止一个，如果队列中连续几个角色阵营相同，则允许这些角色同时进入回合
 	}
-	
-	{
-		if (const auto* Character = CharacterList[CurrentTurnInfo.CurrentIndex + 1])
-		{
-			YourTurn(Character);
-			CurrentTurnInfo.CurrentIndex += 1;
-		}
-	}
 
-	CurrentTurnInfo.CurrentTurnNum += 1;// 回合数+1
+	// Todo 第一版只进行单个角色轮询
+	{
+		if (CharacterList.IsValidIndex(CurrentTurnInfo.CurrentIndex + 1))
+		{
+			if (const auto* Character = ADCharacter::SearchCharacterWithId(CharacterList[CurrentTurnInfo.CurrentIndex]))
+			{
+				CurrentTurnInfo.CurrentIndex += 1;
+				CurrentTurnInfo.ActivatedCharacters.Add(CharacterList[CurrentTurnInfo.CurrentIndex]);
+				YourTurn(Character);
+			}
+			else
+				CurrentTurnInfo.CurrentIndex = -1;
+		}
+		else
+			CurrentTurnInfo.CurrentIndex = 0;
 
 #if !UE_SERVER
-	if (HasAuthority())
-		OnTurnChanged();
+		if (HasAuthority())
+			OnTurnInfoChanged();
 #endif
-	
+	}
+
+	// 当前轮询一圈，当前回合结束，进入下一回合
+	if (CurrentTurnInfo.CurrentIndex == 0)
+	{
+		CurrentTurnNum += 1;// 回合数+1
+	}
 }
 
 void ATurnBasedBattleInstance::YourTurn(const ADCharacter* InCharacter)
@@ -130,9 +148,9 @@ bool ATurnBasedBattleInstance::IsMyTurn(const ADCharacter* InCharacter) const
 	if (!InCharacter)
 		return false;
 	
-	for (const auto* Character : ActivatedCharacters)
+	for (const auto& CharacterId : CurrentTurnInfo.ActivatedCharacters)
 	{
-		if (Character->GetRoleId() == InCharacter->GetRoleId())
+		if (CharacterId == InCharacter->GetRoleId())
 			return true;
 	}
 
@@ -150,29 +168,18 @@ void ATurnBasedBattleInstance::OnRep_CharacterList()
 	// Todo 有新角色加入战斗，通常新加入战斗的角色先攻掷点不会在当前回合角色之前
 }
 
-void ATurnBasedBattleInstance::OnTurnChanged()
+void ATurnBasedBattleInstance::OnTurnInfoChanged()
 {
-	
-#if WITH_EDITOR
-	if (HasAuthority())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("服务器回合变更"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("客户端接收回合变更消息"));
-	}
-#endif
-	
 	if (CurrentTurnInfo.CurrentIndex == -1)
 	{
 		// Todo 战斗结束
 	}
 	
 	// 通知角色及其PlayerController回合开始
-	for (auto* Character : ActivatedCharacters)
+	for (const auto& CharacterId : CurrentTurnInfo.ActivatedCharacters)
 	{
-		Character->Client_MyTurn();
+		if (auto* Character = ADCharacter::SearchCharacterWithId(CharacterId))
+			Character->Client_MyTurn();
 	}
 }
 
@@ -185,9 +192,9 @@ int32 ATurnBasedBattleInstance::FindCharacter(const int32 Id, ADCharacter*& Out)
 {
 	for (int32 i = 0; i < CharacterList.Num(); i++)
 	{
-		if (CharacterList[i]->GetRoleId() == Id)
+		if (CharacterList[i] == Id)
 		{
-			Out = CharacterList[i];
+			Out = ADCharacter::SearchCharacterWithId(Id);
 			return i;
 		}
 	}
@@ -202,9 +209,9 @@ void ATurnBasedBattleInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	SharedParams.bIsPushBased = true;
 	
 	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
+	DOREPLIFETIME_WITH_PARAMS_FAST(ATurnBasedBattleInstance, CurrentTurnNum, SharedParams);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ATurnBasedBattleInstance, CurrentTurnInfo, SharedParams);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ATurnBasedBattleInstance, CharacterList, SharedParams);
-	DOREPLIFETIME_WITH_PARAMS_FAST(ATurnBasedBattleInstance, ActivatedCharacters, SharedParams);
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
