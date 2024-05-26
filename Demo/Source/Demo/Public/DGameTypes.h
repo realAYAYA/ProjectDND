@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "DGameTypes.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogProjectD, Log, All);
+
 class UGameplayAbility;
 class UGameplayEffect;
 

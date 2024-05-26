@@ -6,10 +6,10 @@
 
 void ADGameModeBase::BuildBattleWithAllCharacters()
 {
-	ATurnBasedBattleInstance* BattleInstance = GetWorld()->SpawnActorDeferred<ATurnBasedBattleInstance>(BattleInstanceClass, FTransform(), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	if (!BattleInstance)
+	if (!HasAuthority())
 		return;
 	
+	ATurnBasedBattleInstance* BattleInstance = GetWorld()->SpawnActorDeferred<ATurnBasedBattleInstance>(BattleInstanceClass, FTransform(), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	BattleInstance->SetReplicates(true);
 
 	BattleInstances.Add(BattleInstance);
@@ -18,7 +18,6 @@ void ADGameModeBase::BuildBattleWithAllCharacters()
 	{
 		// Todo 角色死亡或其它某种状态不得参加战斗
 		BattleInstance->CharacterList.Add(Character->GetRoleId());
-		
 		return true;
 	});
 

@@ -61,7 +61,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "MyTurn")
 	void K2_MyTurn();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleEnd")
+	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleEnd") 
 	void K2_BattleEnd();
 
 	void OnBattleBegin(ATurnBasedBattleInstance* In);

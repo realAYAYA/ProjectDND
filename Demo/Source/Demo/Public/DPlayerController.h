@@ -51,11 +51,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
 	void K2_YourTurn(const ADCharacter* InCharacter);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "OnBattle")
-	void K2_OnBattle(const ADCharacter* InCharacter);
+	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleBegin")
+	void K2_BattleBegin(const ADCharacter* InCharacter);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleEnd")
-	void K2_OnBattleEnd(const ADCharacter* InCharacter);
+	void K2_BattleEnd(const ADCharacter* InCharacter);
 	
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", DisplayName = "ReqTurnEnd")
 	void K2_TurnEnd();

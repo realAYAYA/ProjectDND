@@ -85,8 +85,8 @@ void ADCharacter::OnBattleBegin(ATurnBasedBattleInstance* In)
 	// 通知到PC
 	if (auto* PC = Cast<ADPlayerController>(Controller))
 	{
-		if (PC->IsLocalController())
-			PC->K2_OnBattle(this);// 通知用户进入战斗（战斗界面, 操作模式变更）
+		if (IsLocallyControlled())
+			PC->K2_BattleBegin(this);// 通知用户进入战斗（战斗界面, 操作模式变更）
 	}
 
 	K2_BattleBegin();
@@ -97,7 +97,7 @@ void ADCharacter::Client_MyTurn()
 	// 玩家正在控制该角色，通知到PC
 	if (auto* PC = Cast<ADPlayerController>(Controller))
 	{
-		if (PC->IsLocalController())
+		if (IsLocallyControlled())
 			PC->Client_MyTurn(this);
 	}
 	else
