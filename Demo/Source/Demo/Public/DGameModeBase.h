@@ -20,7 +20,7 @@ class DEMO_API ADGameModeBase : public AGameModeBase
 public:
 
 	// Todo 测试战斗用
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "ProjectD")
 	void BuildBattleWithAllCharacters();
 
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")

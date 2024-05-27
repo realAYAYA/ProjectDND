@@ -30,11 +30,8 @@ ADCharacter::ADCharacter()
 void ADCharacter::BeginReplication()
 {
 	// Network & Replicated
-	if (HasAuthority())
-	{
-		RoleId = GenerateRoleId();// 由服务器为角色下发唯一Id
-		RegisterCharacter(RoleId,this);
-	}
+	RoleId = GenerateRoleId();// 由服务器为角色下发唯一Id
+	RegisterCharacter(RoleId,this);
 
 	Super::BeginReplication();
 }
@@ -48,10 +45,7 @@ void ADCharacter::BeginPlay()
 
 void ADCharacter::PostNetInit()
 {
-	if (!HasAuthority())
-	{
-		RegisterCharacter(RoleId,this);
-	}
+	RegisterCharacter(RoleId,this);
 	
 	Super::PostNetInit();
 }
@@ -70,7 +64,7 @@ void ADCharacter::PossessedBy(AController* NewController)
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
 	// PossessedBy()只在服务器执行
-	InitCharacterData();
+	Server_InitCharacterData();
 }
 
 UAbilitySystemComponent* ADCharacter::GetAbilitySystemComponent() const
@@ -151,19 +145,16 @@ bool ADCharacter::IsMyTurn() const
 
 void ADCharacter::OnRep_CharacterId()
 {
-	if (!HasAuthority())
-	{
-		UnRegisterCharacter(OldRoleId);// 移除旧信息
-		RegisterCharacter(RoleId,this);// 重新注册角色信息
-		OldRoleId = RoleId;
-	}
+	UnRegisterCharacter(OldRoleId);// 移除旧信息
+	RegisterCharacter(RoleId,this);// 重新注册角色信息
+	OldRoleId = RoleId;
 }
 
 void ADCharacter::OnRep_ControllerId()
 {
 }
 
-void ADCharacter::InitCharacterData()
+void ADCharacter::Server_InitCharacterData()
 {
 	if (!HasAuthority() || !AbilitySystemComponent || !IsValid(CharacterDataAsset))
 		return;
@@ -212,6 +203,12 @@ ADCharacter* ADCharacter::SearchCharacterWithId(const int64 Id)
 
 void ADCharacter::RegisterCharacter(const int64 Id, ADCharacter* In)
 {
+	if (CharacterMap.Contains(Id))
+	{
+		*CharacterMap.Find(Id) = In;
+		return;
+	}
+	
 	CharacterMap.Add(Id, In);
 }
 

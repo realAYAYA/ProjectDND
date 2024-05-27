@@ -113,7 +113,7 @@ private:
 	void OnRep_ControllerId();
 
 	// Only called by Server
-	virtual void InitCharacterData();
+	virtual void Server_InitCharacterData();
 
 
 	// 全局角色管理
