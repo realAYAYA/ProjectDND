@@ -155,15 +155,14 @@ bool ADPlayerController::InBattle() const
 	return false;
 }
 
-void ADPlayerController::K2_TurnEnd()
+bool ADPlayerController::TurnEnd()
 {
 	const auto* DCharacter = Cast<ADCharacter>(this->GetPawn());
 	if (!DCharacter || !DCharacter->IsMyTurn())
-	{
-		return;// 检查当前是否为自己回合
-	}
+		return false;// 检查当前是否为自己回合(情景满足结束回合的条件)
 	
 	Server_TurnEnd();
+	return true;
 }
 
 void ADPlayerController::Client_MyTurn(const ADCharacter* InCharacter)
@@ -177,7 +176,7 @@ void ADPlayerController::Server_TurnEnd_Implementation()
 	if (DCharacter && DCharacter->BattleInstance)
 	{
 		DCharacter->bReadyTurnEnd = true;
-		DCharacter->BattleInstance->TurnEnd(DCharacter);
+		DCharacter->BattleInstance->Server_TurnEnd(DCharacter);
 	}
 }
 

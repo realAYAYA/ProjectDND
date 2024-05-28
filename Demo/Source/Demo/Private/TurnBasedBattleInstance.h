@@ -18,10 +18,10 @@ struct FTurnBasedInfo
 {
 	GENERATED_USTRUCT_BODY()
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	int32 CurrentIndex = 0;// 当前进行回合的所有角色中最后一个的数组下标
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	TArray<int32> ActivatedCharacters;
 
 	bool operator==(const FTurnBasedInfo& Right) const
@@ -48,22 +48,22 @@ public:
 	// Sets default values for this actor's properties
 	ATurnBasedBattleInstance();
 
-	UPROPERTY(Replicated)
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "ProjectD")
 	int32 CurrentTurnNum = 0;
 	
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CharacterList)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CharacterList, Category = "ProjectD")
 	TArray<int32> CharacterList;
 
-	UPROPERTY(ReplicatedUsing = OnTurnInfoChanged)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnTurnInfoChanged, Category = "ProjectD")
 	FTurnBasedInfo CurrentTurnInfo;
 
 	// 战斗开始. Server only
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "ProjectD")
 	void BeginBattle();
 	
-	void TurnEnd(const ADCharacter* InCharacter);
+	void Server_TurnEnd(const ADCharacter* InCharacter);
 
-	void YourTurn(const ADCharacter* InCharacter);// 通知角色回合开始
+	void Server_YourTurn(ADCharacter* InCharacter);// 通知角色回合开始
 
 	bool IsMyTurn(const ADCharacter* InCharacter) const;// 查询当前回合是否为当前角色
 

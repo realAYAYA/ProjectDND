@@ -70,10 +70,10 @@ void ATurnBasedBattleInstance::BeginBattle()
 	// 计算先攻顺序, 通知第一个角色调用YourTurn
 	if (CharacterList.IsValidIndex(0))
 	{
-		if (const auto* NextCharacter = ADCharacter::SearchCharacterWithId(CharacterList[0]))
+		if (auto* NextCharacter = ADCharacter::SearchCharacterWithId(CharacterList[0]))
 		{
 			CurrentTurnInfo.ActivatedCharacters.Add(NextCharacter->GetRoleId());
-			YourTurn(NextCharacter);
+			Server_YourTurn(NextCharacter);
 		}
 	}
 
@@ -83,7 +83,7 @@ void ATurnBasedBattleInstance::BeginBattle()
 #endif
 }
 
-void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
+void ATurnBasedBattleInstance::Server_TurnEnd(const ADCharacter* InCharacter)
 {
 	// 不是该角色的回合
 	if (!IsMyTurn(InCharacter))
@@ -108,19 +108,18 @@ void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
 
 	// Todo 第一版只进行单个角色轮询
 	{
-		if (CharacterList.IsValidIndex(CurrentTurnInfo.CurrentIndex + 1))
-		{
-			if (const auto* Character = ADCharacter::SearchCharacterWithId(CharacterList[CurrentTurnInfo.CurrentIndex]))
-			{
-				CurrentTurnInfo.CurrentIndex += 1;
-				CurrentTurnInfo.ActivatedCharacters.Add(CharacterList[CurrentTurnInfo.CurrentIndex]);
-				YourTurn(Character);
-			}
-			else
-				CurrentTurnInfo.CurrentIndex = -1;
-		}
+		int32 NextIndex = CurrentTurnInfo.CurrentIndex + 1;
+		if (CharacterList.IsValidIndex(NextIndex))
+			CurrentTurnInfo.CurrentIndex = NextIndex;
 		else
 			CurrentTurnInfo.CurrentIndex = 0;
+
+		// 通知到角色
+		if (auto* NextRole = ADCharacter::SearchCharacterWithId(CharacterList[CurrentTurnInfo.CurrentIndex]))
+		{
+			CurrentTurnInfo.ActivatedCharacters.Add(CharacterList[CurrentTurnInfo.CurrentIndex]);
+			Server_YourTurn(NextRole);
+		}
 
 #if !UE_SERVER
 		if (HasAuthority())
@@ -135,12 +134,13 @@ void ATurnBasedBattleInstance::TurnEnd(const ADCharacter* InCharacter)
 	}
 }
 
-void ATurnBasedBattleInstance::YourTurn(const ADCharacter* InCharacter)
+void ATurnBasedBattleInstance::Server_YourTurn(ADCharacter* InCharacter)
 {
 	const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_MyTurn;
 	FGameplayEventData Payload;
 	Payload.EventTag = Tag;
 	InCharacter->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
+	InCharacter->bReadyTurnEnd = false;
 }
 
 bool ATurnBasedBattleInstance::IsMyTurn(const ADCharacter* InCharacter) const

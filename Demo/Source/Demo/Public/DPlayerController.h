@@ -57,8 +57,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleEnd")
 	void K2_BattleEnd(const ADCharacter* InCharacter);
 	
-	UFUNCTION(BlueprintCallable, Category = "ProjectD", DisplayName = "ReqTurnEnd")
-	void K2_TurnEnd();
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	bool TurnEnd();
 
 	UFUNCTION(Server, Reliable)
 	void Server_TurnEnd();

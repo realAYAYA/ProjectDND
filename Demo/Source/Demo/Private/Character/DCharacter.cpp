@@ -10,7 +10,6 @@
 #include "AbilitySystemLog.h"
 #include "TurnBasedBattleInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PlayerState.h"
 
 // Sets default values
 ADCharacter::ADCharacter()
@@ -30,8 +29,11 @@ ADCharacter::ADCharacter()
 void ADCharacter::BeginReplication()
 {
 	// Network & Replicated
-	RoleId = GenerateRoleId();// 由服务器为角色下发唯一Id
-	RegisterCharacter(RoleId,this);
+	if (HasAuthority())
+	{
+		RoleId = GenerateRoleId();// 由服务器为角色下发唯一Id
+		RegisterCharacter(RoleId,this);
+	}
 
 	Super::BeginReplication();
 }
@@ -45,7 +47,8 @@ void ADCharacter::BeginPlay()
 
 void ADCharacter::PostNetInit()
 {
-	RegisterCharacter(RoleId,this);
+	if (HasAuthority())
+		RegisterCharacter(RoleId,this);
 	
 	Super::PostNetInit();
 }
