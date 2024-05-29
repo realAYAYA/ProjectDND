@@ -69,7 +69,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta=(DisplayName = "ApplyTurnBasedGameplayEffectToSelf"))
 	FActiveGameplayEffectHandle K2_ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, const int32 Level, const int32 CustomDuration, FGameplayEffectContextHandle EffectContext);
 	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectToSelf(const UDGameplayEffect *GameplayEffect, const int32 Level, const int32 CustomDuration, FGameplayEffectContextHandle EffectContext, const FPredictionKey& PredictionKey = FPredictionKey());
-	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectSpecToSelf(const FGameplayEffectSpec& Spec, const int32 CustomDuration, const FPredictionKey& PredictionKey = FPredictionKey());
+	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectSpecToSelf(const FGameplayEffectSpec& Spec, const int32 CustomDuration = 0, const FPredictionKey& PredictionKey = FPredictionKey());
 
 	/** 回合制专用 GE施加, 确保在服务端逻辑调用 */
 	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta=(DisplayName = "ApplyTurnBasedGameplayEffectToTarget"))

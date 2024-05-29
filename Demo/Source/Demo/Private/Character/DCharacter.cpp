@@ -5,10 +5,10 @@
 #include "DPlayerController.h"
 #include "GameplayAbilitySystem/DAbilitySystemComponent.h"
 #include "GameplayAbilitySystem/DAttributeSet.h"
+#include "TurnBasedBattleInstance.h"
 
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystemLog.h"
-#include "TurnBasedBattleInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values

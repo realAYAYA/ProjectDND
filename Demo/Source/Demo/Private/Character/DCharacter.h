@@ -49,9 +49,6 @@ protected:
 	
 public:
 	
-	// Called every frame
-	//virtual void Tick(float DeltaTime) override;
-	
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	ATurnBasedBattleInstance* BattleInstance;
 

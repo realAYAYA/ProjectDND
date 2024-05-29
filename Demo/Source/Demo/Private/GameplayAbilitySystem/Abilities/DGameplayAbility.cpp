@@ -1,1 +1,94 @@
 ﻿#include "DGameplayAbility.h"
+#include "GameplayAbilitySystem/DAbilitySystemComponent.h"
+#include "GameplayAbilitySystem/GameplayEffects/DGameplayEffect.h"
+
+#include "AbilitySystemLog.h"
+
+bool UDGameplayAbility::CanActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags,
+	FGameplayTagContainer* OptionalRelevantTags) const
+{
+	const UDAbilitySystemComponent* Asc = Cast<UDAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+	if (!Asc)
+		return false;
+	
+	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+}
+
+void UDGameplayAbility::ActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	UDAbilitySystemComponent* Asc = Cast<UDAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+
+	FGameplayEffectContextHandle EffectContext = Asc->MakeEffectContext();
+	EffectContext.SetAbility(this);
+	EffectContext.AddInstigator(ActorInfo->AvatarActor.Get(), ActorInfo->AvatarActor.Get());
+	EffectContext.AddSourceObject(this);
+	
+	// 处理技能开始时施加效果
+	for (TSubclassOf<UDGameplayEffect>& GameplayEffect : EffectsJustApplyOnStart)
+	{
+		if (!GameplayEffect.Get())
+			continue;
+		
+		const FGameplayEffectSpecHandle SpecHandle = Asc->MakeOutgoingSpec(GameplayEffect, Level, EffectContext);
+		if (!SpecHandle.IsValid())
+			continue;
+		
+		FActiveGameplayEffectHandle ActiveGEHandle = Asc->ApplyTurnBasedGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		if (!ActiveGEHandle.WasSuccessfullyApplied())
+			ABILITY_LOG(Log, TEXT("Ability %s faild to apply Startup Effect %s"), *GetName(), *GetNameSafe(GameplayEffect));
+	}
+	
+	if (this->IsInstantiated())
+	{
+		for (TSubclassOf<UDGameplayEffect>& GameplayEffect : EffectsRemoveOnEnd)
+		{
+			if (!GameplayEffect.Get())
+				continue;
+		
+			const FGameplayEffectSpecHandle SpecHandle = Asc->MakeOutgoingSpec(GameplayEffect, Level, EffectContext);
+			if (!SpecHandle.IsValid())
+				continue;
+		
+			FActiveGameplayEffectHandle ActiveGEHandle = Asc->ApplyTurnBasedGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			if (!ActiveGEHandle.WasSuccessfullyApplied())
+				ABILITY_LOG(Log, TEXT("Ability %s faild to apply Startup Effect %s"), *GetName(), *GetNameSafe(GameplayEffect));
+
+			EffectHandlesRemoveOnEnd.Add(ActiveGEHandle);
+		}
+	}
+}
+
+void UDGameplayAbility::EndAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility,
+	bool bWasCancelled)
+{
+	// 移除技能GE
+	if (IsInstantiated())
+	{
+		UDAbilitySystemComponent* Asc = Cast<UDAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+		for (FActiveGameplayEffectHandle& ActiveGEHandle : EffectHandlesRemoveOnEnd)
+		{
+			if (ActiveGEHandle.IsValid())
+			{
+				Asc->RemoveTurnBasedActiveGameplayEffect(ActiveGEHandle);
+			}
+		}
+
+		EffectHandlesRemoveOnEnd.Empty();
+	}
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
