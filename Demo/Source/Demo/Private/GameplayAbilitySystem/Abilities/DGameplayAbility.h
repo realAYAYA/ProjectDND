@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "DGameplayAbility.generated.h"
 
+class UDAbilitySystemComponent;
 class UDGameplayEffect;
 class ADCharacter;
 class UAbilityTask_WaitTargetData;
@@ -45,7 +46,13 @@ public:
 
 	// 被动触发技能很有用的函数
 	//virtual bool ShouldAbilityRespondToEvent(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayEventData* Payload) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	static ADCharacter* GetDCharacter(const FGameplayAbilityActorInfo& ActorInfo);
 
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo& ActorInfo);
+	
 private:
 
 	TArray<FActiveGameplayEffectHandle> EffectHandlesRemoveOnEnd;

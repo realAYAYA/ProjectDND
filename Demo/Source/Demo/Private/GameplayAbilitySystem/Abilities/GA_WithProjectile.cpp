@@ -33,6 +33,9 @@ void UGA_WithProjectile::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 
 void UGA_WithProjectile::BeginSpawningProjectile(const TSubclassOf<ADProjectile>& Class, ADProjectile*& ProjectileActor)
 {
+	if (!this->IsInstantiated())
+		return;
+	
 	ProjectileActor = nullptr;
 	
 	if (UWorld* World = GEngine->GetWorldFromContextObject(this, EGetWorldErrorMode::LogAndReturnNull))
@@ -51,7 +54,7 @@ void UGA_WithProjectile::FinishSpawningProjectile(ADProjectile* ProjectileActor,
 {
 	if (IsValid(ProjectileActor))
 	{
-		auto* Caster = Cast<ADCharacter>(this->GetDAbilitySystemComponent(CurrentActorInfo)->GetOwner());
+		auto* Caster = Cast<ADCharacter>(this->GetDAbilitySystemComponent(*CurrentActorInfo)->GetOwner());
 		ProjectileActor->InitializeProjectile(this, Caster, TargetDataHandle);
 		ProjectileActor->FinishSpawning(FTransform());
 	}

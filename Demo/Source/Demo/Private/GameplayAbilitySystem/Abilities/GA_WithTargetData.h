@@ -41,10 +41,6 @@ public:
 
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-	// 留意客户端下的AbilityActorInfo等变量是没有被进行初始化的（或同步）
-	static ADCharacter* GetDCharacter(const FGameplayAbilityActorInfo* ActorInfo);
-	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo);
-
 protected:
 
 

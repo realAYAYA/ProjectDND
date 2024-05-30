@@ -3,6 +3,7 @@
 #include "GameplayAbilitySystem/GameplayEffects/DGameplayEffect.h"
 
 #include "AbilitySystemLog.h"
+#include "Character/DCharacter.h"
 
 bool UDGameplayAbility::CanActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
@@ -91,4 +92,18 @@ void UDGameplayAbility::EndAbility(
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+
+ADCharacter* UDGameplayAbility::GetDCharacter(const FGameplayAbilityActorInfo& ActorInfo)
+{
+	return Cast<ADCharacter>(ActorInfo.AvatarActor.Get());
+}
+
+UDAbilitySystemComponent* UDGameplayAbility::GetDAbilitySystemComponent(const FGameplayAbilityActorInfo& ActorInfo)
+{
+	if (const auto* Character = GetDCharacter(ActorInfo))
+		return Character->GetDAbilitySystemComponent();
+	
+	return nullptr;
 }

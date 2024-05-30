@@ -22,7 +22,7 @@ void UGA_WithTargetData::BeginSpawningTargetActor(const TSubclassOf<ADTargetActo
 	if (!Class.Get() || !Ability || !Ability->IsInstantiated() || !Ability->GetCurrentAbilitySpec() || !PlayerController)
 		return;
 
-	const auto* Character = GetDCharacter(Ability->GetCurrentActorInfo());
+	const auto* Character = GetDCharacter(*Ability->GetCurrentActorInfo());
 	if (!Character || !Character->IsPlayerControlled() || !Character->IsLocallyControlled())
 		return;
 
@@ -61,7 +61,7 @@ bool UGA_WithTargetData::CanActivateAbility(
 		return false;
 	}
 
-	if (!GetDAbilitySystemComponent(ActorInfo))
+	if (!GetDAbilitySystemComponent(*ActorInfo))
 	{
 		return false;
 	}
@@ -98,6 +98,11 @@ void UGA_WithTargetData::ActivateAbility(
 		TargetDataTask = Task;
 		Task->ReadyForActivation();
 	}
+
+	// 设置角色ControlYaw，方便角色跟随镜头或鼠标转向（服务器端调用才有效）
+	{
+		GetDCharacter(*ActorInfo)->bUseControllerRotationYaw = true;
+	}
 }
 
 void UGA_WithTargetData::EndAbility(
@@ -107,23 +112,12 @@ void UGA_WithTargetData::EndAbility(
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
-
-ADCharacter* UGA_WithTargetData::GetDCharacter(const FGameplayAbilityActorInfo* ActorInfo)
-{
-	if (ActorInfo)
-		return Cast<ADCharacter>(ActorInfo->AvatarActor.Get());
-	return nullptr;
-}
-
-UDAbilitySystemComponent* UGA_WithTargetData::GetDAbilitySystemComponent(const FGameplayAbilityActorInfo* ActorInfo)
-{
-	if (const auto* Character = GetDCharacter(ActorInfo))
-		return Character->GetDAbilitySystemComponent();
+	// 设置角色ControlYaw，方便角色跟随镜头或鼠标转向（服务器端调用才有效）
+	{
+		GetDCharacter(*ActorInfo)->bUseControllerRotationYaw = false;
+	}
 	
-	return nullptr;
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UGA_WithTargetData::ReceiveTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
