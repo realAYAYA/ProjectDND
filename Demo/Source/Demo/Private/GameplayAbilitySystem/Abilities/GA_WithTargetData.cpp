@@ -2,6 +2,7 @@
 #include "GameplayAbilitySystem/Tasks/DAbilityTask_PlayMontageAndWait.h"
 #include "GameplayAbilitySystem/Tasks/DAbilityTask_WithTargetData.h"
 #include "Character/DCharacter.h"
+#include "GameplayAbilitySystem/TargetData/DTargetActor.h"
 
 UGA_WithTargetData::UGA_WithTargetData()
 {
@@ -14,6 +15,38 @@ UGA_WithTargetData::UGA_WithTargetData()
 	Montage = nullptr;
 	MontageTask = nullptr;
 	TargetDataTask = nullptr;
+}
+
+void UGA_WithTargetData::BeginSpawningTargetActor(const TSubclassOf<ADTargetActor>& Class, APlayerController* PlayerController, const UDGameplayAbility* Ability, ADTargetActor*& OutTargetActor)
+{
+	if (!Class.Get() || !Ability || !Ability->IsInstantiated() || !Ability->GetCurrentAbilitySpec() || !PlayerController)
+		return;
+
+	const auto* Character = GetDCharacter(Ability->GetCurrentActorInfo());
+	if (!Character || !Character->IsPlayerControlled() || !Character->IsLocallyControlled())
+		return;
+
+	if (Character != PlayerController->GetPawn())
+		return;// 施法者与玩家控制器不是同一个
+	
+	if (UWorld* World = Character->GetWorld())
+	{
+		if (*Class != nullptr)
+			OutTargetActor = World->SpawnActorDeferred<ADTargetActor>(*Class, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	}
+
+	if (IsValid(OutTargetActor))
+	{
+		OutTargetActor->InitTargetActor(PlayerController, Character->GetAbilitySystemComponent(), *Ability->GetCurrentAbilitySpec());
+	}
+}
+
+void UGA_WithTargetData::FinishSpawningTargetActor(ADTargetActor* Actor)
+{
+	if (IsValid(Actor))
+	{
+		Actor->FinishSpawning(FTransform());
+	}
 }
 
 bool UGA_WithTargetData::CanActivateAbility(

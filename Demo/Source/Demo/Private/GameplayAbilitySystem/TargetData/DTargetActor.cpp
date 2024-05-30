@@ -1,5 +1,5 @@
 #include "DTargetActor.h"
-#include "GameplayAbilitySystem/Abilities/GA_WithProjectile.h"
+#include "GameplayAbilitySystem/Abilities/GA_WithTargetData.h"
 
 ADTargetActor::ADTargetActor(const FObjectInitializer& ObjectInitializer)
 {
@@ -26,7 +26,7 @@ bool ADTargetActor::SetAbilityInfo(APlayerController* PC, UAbilitySystemComponen
 	if (!Spec)
 		return false;
 	
-	return InternalInitTargetActor(PC, Asc, *Spec);
+	return InitTargetActor(PC, Asc, *Spec);
 }
 
 bool ADTargetActor::SetAbilityInfoByClass(APlayerController* PC, UAbilitySystemComponent* Asc, const TSubclassOf<UDGameplayAbility>& AbilityClass)
@@ -38,7 +38,7 @@ bool ADTargetActor::SetAbilityInfoByClass(APlayerController* PC, UAbilitySystemC
 	if (!Spec)
 		return false;
 	
-	return InternalInitTargetActor(PC, Asc, *Spec);
+	return InitTargetActor(PC, Asc, *Spec);
 }
 
 void ADTargetActor::K2_ConfirmTargeting(const FGameplayAbilityTargetDataHandle& InTargetDataHandle)
@@ -63,12 +63,12 @@ void ADTargetActor::ConfirmTargetingAndContinue()
 	}
 }
 
-bool ADTargetActor::InternalInitTargetActor(APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayAbilitySpec& Spec)
+bool ADTargetActor::InitTargetActor(APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayAbilitySpec& Spec)
 {
 	if (Spec.GetAbilityInstances().Num() <= 0)
 		return false;
 	
-	auto* AbilityInstance = Cast<UGA_WithProjectile>(Spec.GetPrimaryInstance());
+	auto* AbilityInstance = Cast<UGA_WithTargetData>(Spec.GetPrimaryInstance());
 	if (!AbilityInstance)
 		return false;
 
@@ -94,8 +94,8 @@ bool ADTargetActor::InternalInitTargetActor(APlayerController* PC, UAbilitySyste
 	
 	// Todo 但不管是不是主机，即使是客户端也需要对自己本地技能发送数据, 理由是技能施放者（客户端）不能自己表现攻击结束动作
 	// If we spawned the target actor, always register the callbacks for when the data is ready.
-	TargetDataReadyDelegate.AddUObject(AbilityInstance, &UGA_WithProjectile::ReceiveTargetData);
-	CanceledDelegate.AddUObject(AbilityInstance, &UGA_WithProjectile::ReceiveTargetData);
+	TargetDataReadyDelegate.AddUObject(AbilityInstance, &UGA_WithTargetData::ReceiveTargetData);
+	CanceledDelegate.AddUObject(AbilityInstance, &UGA_WithTargetData::ReceiveTargetData);
 	
 	return true;
 }

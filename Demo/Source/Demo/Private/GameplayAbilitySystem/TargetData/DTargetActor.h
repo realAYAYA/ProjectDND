@@ -34,10 +34,10 @@ public:
 	
 	virtual void ConfirmTargetingAndContinue() override;// 必须被重写
 
+	bool InitTargetActor(APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayAbilitySpec& Spec);
+	
 private:
-
-	bool InternalInitTargetActor(APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayAbilitySpec& Spec);
-
+	
 	UPROPERTY()
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 };

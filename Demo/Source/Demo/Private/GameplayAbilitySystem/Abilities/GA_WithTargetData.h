@@ -28,11 +28,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "ProjectD")
 	TSubclassOf<ADTargetActor> TargetActorClass;
 
+	//  Can only be called on instanced abilities
 	UFUNCTION(BlueprintCallable, Category = "ProjctD")
-	void BeginSpawningTargetActor(const TSubclassOf<ADTargetActor>& Class, APlayerController* PC, UAbilitySystemComponent* Asc, ADTargetActor*& Actor);
+	static void BeginSpawningTargetActor(const TSubclassOf<ADTargetActor>& Class, APlayerController* PlayerController, const UDGameplayAbility* Ability, ADTargetActor*& OutTargetActor);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjctD")
-	void FinishSpawningTargetActor(ADTargetActor* Actor);
+	static void FinishSpawningTargetActor(ADTargetActor* Actor);
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
 	
