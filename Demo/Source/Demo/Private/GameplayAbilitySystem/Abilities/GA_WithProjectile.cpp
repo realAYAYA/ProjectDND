@@ -41,7 +41,7 @@ void UGA_WithProjectile::BeginSpawningProjectile(const TSubclassOf<ADProjectile>
 			ProjectileActor = World->SpawnActorDeferred<ADProjectile>(*Class, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	}
 
-	if (ProjectileActor)
+	if (IsValid(ProjectileActor))
 	{
 		ProjectileActor->AbilityInstance = this;
 	}
@@ -57,6 +57,7 @@ void UGA_WithProjectile::FinishSpawningProjectile(ADProjectile* ProjectileActor,
 	}
 }
 
-void UGA_WithProjectile::FireProjectile_Implementation(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster)
+bool UGA_WithProjectile::FireProjectile_Implementation(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster)
 {
+	return true;
 }

@@ -16,9 +16,9 @@ void UAnimNotify_AbilityFire::Notify(
 		Character->GetDAbilitySystemComponent()->OnNotifyReceived(GetNotifyName());
 	}
 
-#if WITH_EDITOR
+/*#if WITH_EDITOR
 	UE_LOG(LogProjectD, Log, TEXT("技能组件收到动画通知: %s, 是否为服务器端? %d"), *this->GetNotifyName(), MeshComp->GetOwner()->HasAuthority());
-#endif
+#endif*/
 	
 	Super::Notify(MeshComp, Animation, EventReference);
 }

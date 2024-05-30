@@ -23,7 +23,7 @@ class UDGameplayAbility : public UGameplayAbility
 public:
 
 	// 动画通知识别名，用于查找，响应AnimNotifyClass逻辑
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectD")
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	FString AnimNotifyName;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")

@@ -37,7 +37,8 @@ bool UGA_Move::CanActivateAbility(
 	if (!Caster)
 		return false;
 
-	Result = Caster->GetAttributeSet()->GetMoveDistance() > 0;
+	const float CurrentMoveDistance = Caster->GetAttributeSet()->GetMoveDistance();
+	Result = CurrentMoveDistance > 0;
 	
 	return Result;
 }
@@ -53,7 +54,6 @@ void UGA_Move::ActivateAbility(
 	this->ActiveTasks.Add(MoveTask);
 	MoveTask->ReadyForActivation();
 	
-
 	Super::ActivateAbility(Handle, OwnerInfo, ActivationInfo, TriggerEventData);
 }
 

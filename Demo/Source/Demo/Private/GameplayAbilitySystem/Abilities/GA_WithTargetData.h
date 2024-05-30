@@ -4,6 +4,7 @@
 #include "DGameplayAbility.h"
 #include "GA_WithTargetData.generated.h"
 
+class ADTargetActor;
 class UDAbilityTask_WithTargetData;
 class UDAbilityTask_PlayMontageAndWait;
 class ADProjectile;
@@ -24,11 +25,16 @@ public:
 
 	UGA_WithTargetData();
 
-	/*UFUNCTION(BlueprintCallable, Category = "ProjctD")
-	static void BeginSpawningTargetActor(const TSubclassOf<ADTargetActor>& Class, APlayerController* PC, UAbilitySystemComponent* Asc, const FGameplayTag& Tag, ADTargetActor*& Actor);
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "ProjectD")
+	TSubclassOf<ADTargetActor> TargetActorClass;
 
 	UFUNCTION(BlueprintCallable, Category = "ProjctD")
-	static void FinishSpawningTargetActor(ADTargetActor* Actor, const FGameplayAbilityTargetDataHandle& TargetDataHandle);*/
+	void BeginSpawningTargetActor(const TSubclassOf<ADTargetActor>& Class, APlayerController* PC, UAbilitySystemComponent* Asc, ADTargetActor*& Actor);
+
+	UFUNCTION(BlueprintCallable, Category = "ProjctD")
+	void FinishSpawningTargetActor(ADTargetActor* Actor);
+
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 

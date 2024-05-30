@@ -37,7 +37,7 @@ public:
 	void FinishSpawningProjectile(ADProjectile* ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 	
 	// 根据TargetData, 执行发射逻辑(Server Only)
-	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "ProjectD")
-	void FireProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
+	UFUNCTION(BlueprintNativeEvent, BlueprintAuthorityOnly, Category = "ProjectD")
+	bool FireProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
 	
 };
