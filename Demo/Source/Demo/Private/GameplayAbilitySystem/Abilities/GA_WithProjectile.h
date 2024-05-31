@@ -31,10 +31,10 @@ public:
 	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc) override;
 
 	UFUNCTION(BlueprintCallable, Category = "ProjctD")
-	void BeginSpawningProjectile(const TSubclassOf<ADProjectile>& Class, ADProjectile*& ProjectileActor);
+	static void BeginSpawningProjectile(const TSubclassOf<ADProjectile>& Class, UGA_WithProjectile* Ability, ADProjectile*& ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjctD")
-	void FinishSpawningProjectile(ADProjectile* ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+	static void FinishSpawningProjectile(ADProjectile* ProjectileActor);
 	
 	// 根据TargetData, 执行发射逻辑(Server Only)
 	UFUNCTION(BlueprintNativeEvent, BlueprintAuthorityOnly, Category = "ProjectD")

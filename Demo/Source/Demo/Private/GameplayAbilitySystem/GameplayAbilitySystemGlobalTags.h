@@ -103,6 +103,13 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Divine"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Shadow"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Nature"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Mind"), TEXT("ProjectD"));
+
+		// 全GE列表
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Moving"), TEXT("ProjectD"));
+		InBattle = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.InBattle"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Casting"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Attacking"), TEXT("ProjectD"));
 
 		// 按消耗技能分类
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category1.Action"), TEXT("ProjectD"));
@@ -115,15 +122,19 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		// 是否为法术（或战技）
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Combat"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell"), TEXT("ProjectD"));
-
+		
 		// 各职业流派
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Frost"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Flame"), TEXT("ProjectD"));
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Arc"), TEXT("ProjectD"));
-		
-		Move = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category.Movement.Move"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Divine"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Shadow"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Nature"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Mind"), TEXT("ProjectD"));
 
-		InBattle = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.State.InBattle"), TEXT("ProjectD"));
+		// 全技能列表
+		Move = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.List.Move"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.List.MoveInBattle"), TEXT("ProjectD"));
 	}
 
 	bool IsBuff(const FGameplayTagContainer& Tags, const bool bDeBuff = false) const

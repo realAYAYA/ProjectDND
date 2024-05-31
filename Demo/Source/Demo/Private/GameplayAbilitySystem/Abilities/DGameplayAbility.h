@@ -23,6 +23,12 @@ class UDGameplayAbility : public UGameplayAbility
 
 public:
 
+#if WITH_EDITORONLY_DATA
+	/** 技能描述，仅存在编辑器模式可用*/
+	UPROPERTY(EditDefaultsOnly, Category = "PorjectD")
+	FText Description;
+#endif
+
 	// 动画通知识别名，用于查找，响应AnimNotifyClass逻辑
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	FString AnimNotifyName;

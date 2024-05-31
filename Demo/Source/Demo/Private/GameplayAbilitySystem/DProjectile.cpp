@@ -47,9 +47,6 @@ ADProjectile::ADProjectile(const FObjectInitializer& ObjectInitializer)
 
 void ADProjectile::InitializeProjectile(UGA_WithProjectile* InAbility, ADCharacter* InCaster, const FGameplayAbilityTargetDataHandle& InTargetData)
 {
-	if (!HasAuthority())
-		return;
-	
 	Caster = InCaster;
 	//Cast<UGA_WithProjectile>();
 

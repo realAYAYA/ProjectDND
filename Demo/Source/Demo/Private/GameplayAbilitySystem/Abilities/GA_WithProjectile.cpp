@@ -31,31 +31,28 @@ void UGA_WithProjectile::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 	}
 }
 
-void UGA_WithProjectile::BeginSpawningProjectile(const TSubclassOf<ADProjectile>& Class, ADProjectile*& ProjectileActor)
+void UGA_WithProjectile::BeginSpawningProjectile(const TSubclassOf<ADProjectile>& Class, UGA_WithProjectile* Ability, ADProjectile*& ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
-	if (!this->IsInstantiated())
+	if (!Ability || !Ability->IsInstantiated() || !Class.Get())
+		return;
+
+	auto* Character = GetDCharacter(*Ability->GetCurrentActorInfo());
+	if (!Character || !Character->HasAuthority())
 		return;
 	
 	ProjectileActor = nullptr;
-	
-	if (UWorld* World = GEngine->GetWorldFromContextObject(this, EGetWorldErrorMode::LogAndReturnNull))
-	{
-		if (*Class != nullptr)
-			ProjectileActor = World->SpawnActorDeferred<ADProjectile>(*Class, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	}
+	ProjectileActor = Character->GetWorld()->SpawnActorDeferred<ADProjectile>(*Class, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
 	if (IsValid(ProjectileActor))
 	{
-		ProjectileActor->AbilityInstance = this;
+		ProjectileActor->InitializeProjectile(Ability, Character, TargetDataHandle);
 	}
 }
 
-void UGA_WithProjectile::FinishSpawningProjectile(ADProjectile* ProjectileActor, const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+void UGA_WithProjectile::FinishSpawningProjectile(ADProjectile* ProjectileActor)
 {
 	if (IsValid(ProjectileActor))
 	{
-		auto* Caster = Cast<ADCharacter>(this->GetDAbilitySystemComponent(*CurrentActorInfo)->GetOwner());
-		ProjectileActor->InitializeProjectile(this, Caster, TargetDataHandle);
 		ProjectileActor->FinishSpawning(FTransform());
 	}
 }
