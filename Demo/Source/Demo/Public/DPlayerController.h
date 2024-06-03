@@ -48,13 +48,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	bool InBattle() const;
 	
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "YourTurn")
-	void K2_YourTurn(const ADCharacter* InCharacter);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "ProjectD", DisplayName = "MyTurn")
+	void K2_MyTurn(const ADCharacter* InCharacter);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleBegin")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "ProjectD", DisplayName = "BattleBegin")
 	void K2_BattleBegin(const ADCharacter* InCharacter);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectD", DisplayName = "BattleEnd")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "ProjectD", DisplayName = "BattleEnd")
 	void K2_BattleEnd(const ADCharacter* InCharacter);
 	
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
@@ -62,9 +62,6 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void Server_TurnEnd();
-
-	UFUNCTION()
-	void Client_MyTurn(const ADCharacter* InCharacter);
 
 	// Steam | Ps4 | XBox
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "ProjectD")

@@ -311,7 +311,7 @@ void UDAbilitySystemComponent::GetLifetimeReplicatedProps(TArray< FLifetimePrope
 	FDoRepLifetimeParams Params;
 	Params.bIsPushBased = true;
 
-	Params.Condition = COND_Dynamic;
+	Params.Condition = COND_None;
 	DOREPLIFETIME_WITH_PARAMS_FAST(UDAbilitySystemComponent, TurnBasedActiveGameplayEffectsContainer, Params);
 	
 

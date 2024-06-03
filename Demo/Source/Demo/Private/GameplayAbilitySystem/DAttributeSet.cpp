@@ -50,36 +50,3 @@ void UDAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
-
-
-void UDAttributeSet::OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxMoveSpeed, OldValue);
-}
-
-void UDAttributeSet::OnRep_MoveDistance(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MoveDistance, OldValue);
-	OnMoveDistanceChange.Broadcast(GetMoveDistance());
-}
-
-void UDAttributeSet::OnRep_MaxMoveDistance(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxMoveDistance, OldValue);
-	
-	OnMaxMoveDistanceChange.Broadcast(GetMaxMoveDistance());
-
-}
-
-
-void UDAttributeSet::OnRep_Health(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, Health, OldValue);
-	OnHealthChanged.Broadcast(GetHealth());
-}
-
-void UDAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UDAttributeSet, MaxHealth, OldValue);
-	OnMaxHealthChanged.Broadcast(GetMaxHealth());
-}

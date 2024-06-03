@@ -103,7 +103,7 @@ private:
 	void OnRep_CharacterId();
 
 	// 当前角色的控制者Id, 对应角色的当前控制权归属, 它可以是SteamId或其它
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_ControllerId)
 	uint64 ControllerId = 0;
 
 	UFUNCTION()

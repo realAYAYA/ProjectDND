@@ -30,11 +30,11 @@ public:
 	//		Battle Properties
 	// -------------------------------------------------------------------------------
 
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnRep_MoveDistance)
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", Replicated)
 	FGameplayAttributeData MoveDistance;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MoveDistance)
 	
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnRep_MaxMoveDistance)
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", Replicated)
 	FGameplayAttributeData MaxMoveDistance;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxMoveDistance)
 
@@ -42,7 +42,7 @@ public:
 	FGameplayAttributeData MoveCost;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MoveCost)
 
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", ReplicatedUsing = OnRep_MaxMoveSpeed)
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD", Replicated)
 	FGameplayAttributeData MaxMoveSpeed;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxMoveSpeed)
 	
@@ -67,11 +67,11 @@ public:
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, Stamina)
 	
 	
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_Health)
+	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", Replicated)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, Health)
 
-	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", ReplicatedUsing = OnRep_MaxHealth)
+	UPROPERTY(BlueprintReadOnly, Category = "BaseAttributes", Replicated)
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UDAttributeSet, MaxHealth)
 
@@ -205,19 +205,5 @@ public:
 protected:
 
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
-
-	UFUNCTION()
-	virtual void OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_MoveDistance(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_MaxMoveDistance(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_Health(const FGameplayAttributeData& OldValue);
-
-	UFUNCTION()
-	virtual void OnRep_MaxHealth(const FGameplayAttributeData& OldValue);
+	
 };

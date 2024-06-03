@@ -92,14 +92,14 @@ void ADCharacter::OnBattleBegin(ATurnBasedBattleInstance* In)
 void ADCharacter::Client_MyTurn()
 {
 	// 玩家正在控制该角色，通知到PC
-	if (auto* PC = Cast<ADPlayerController>(Controller))
+	/*if (auto* PC = Cast<ADPlayerController>(Controller))
 	{
-		if (IsLocallyControlled())
-			PC->Client_MyTurn(this);
+		//if (IsLocallyControlled())
+			//PC->Client_MyTurn(this);
 	}
 	else
 	{
-		/*// 检查该角色的控制权归属是否为本地PC
+		/#1#/ 检查该角色的控制权归属是否为本地PC
 		PC = Cast<ADPlayerController>(GetWorld()->GetFirstPlayerController());
 		if (!PC || PC->PlayerId == ControllerId)
 			return;// 该角色的控制权非本地控制
@@ -110,8 +110,8 @@ void ADCharacter::Client_MyTurn()
 			return;
 
 		if (PC->IsLocalController())
-			PC->Client_MyTurn(this);*/
-	}
+			PC->Client_MyTurn(this);#1#
+	}*/
 
 	K2_MyTurn();
 }

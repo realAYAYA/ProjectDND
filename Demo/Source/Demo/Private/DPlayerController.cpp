@@ -165,11 +165,6 @@ bool ADPlayerController::TurnEnd()
 	return true;
 }
 
-void ADPlayerController::Client_MyTurn(const ADCharacter* InCharacter)
-{
-	K2_YourTurn(InCharacter);
-}
-
 void ADPlayerController::Server_TurnEnd_Implementation()
 {
 	auto* DCharacter = Cast<ADCharacter>(this->GetPawn());
