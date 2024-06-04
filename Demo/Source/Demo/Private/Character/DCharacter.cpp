@@ -26,6 +26,10 @@ ADCharacter::ADCharacter()
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMoveDistanceAttribute()).AddUObject(this, &ADCharacter::OnMoveDistanceChange);
 }
 
+void ADCharacter::ReceivePostNetInit_Implementation()
+{
+}
+
 void ADCharacter::BeginReplication()
 {
 	// Network & Replicated
@@ -47,10 +51,13 @@ void ADCharacter::BeginPlay()
 
 void ADCharacter::PostNetInit()
 {
-	if (HasAuthority())
-		RegisterCharacter(RoleId,this);
-	
 	Super::PostNetInit();
+
+	if (!HasAuthority())
+	{
+		RegisterCharacter(RoleId,this);
+		ReceivePostNetInit();
+	}
 }
 
 void ADCharacter::BeginDestroy()

@@ -28,6 +28,10 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UDAbilitySystemComponent* GetDAbilitySystemComponent() const { return AbilitySystemComponent; }
+
+	// 在网络数据初始化和BeginPlay之后执行
+	UFUNCTION(BlueprintNativeEvent, meta=(DisplayName = "PostNetInit"))
+	void ReceivePostNetInit();
 	
 protected:
 

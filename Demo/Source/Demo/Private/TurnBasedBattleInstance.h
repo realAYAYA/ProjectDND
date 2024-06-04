@@ -60,6 +60,10 @@ public:
 	// 战斗开始. Server only
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "ProjectD")
 	void BeginBattle();
+
+	// 回合开始. Server only
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "ProjectD")
+	void BeginTurn();
 	
 	void Server_TurnEnd(const ADCharacter* InCharacter);
 

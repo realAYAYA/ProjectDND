@@ -60,7 +60,13 @@ void ATurnBasedBattleInstance::BeginBattle()
 			Character->OnBattleBegin(this);
 		}
 	}
+}
 
+void ATurnBasedBattleInstance::BeginTurn()
+{
+	if (!HasAuthority())
+		return;
+	
 	CurrentTurnInfo.ActivatedCharacters.Empty();
 	
 	CurrentTurnNum = 1;
