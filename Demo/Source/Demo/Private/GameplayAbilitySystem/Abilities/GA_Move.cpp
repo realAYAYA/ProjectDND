@@ -51,6 +51,7 @@ void UGA_Move::ActivateAbility(
 {
 	MoveTask = UAbilityTask_Move::CreateTask(this);
 	MoveTask->OnNoMoreMoveDistance.AddDynamic(this, &UGA_Move::K2_CancelAbility);
+	MoveTask->OnArrivedDestination.AddDynamic(this, &UGA_Move::K2_EndAbility);
 	this->ActiveTasks.Add(MoveTask);
 	MoveTask->ReadyForActivation();
 	

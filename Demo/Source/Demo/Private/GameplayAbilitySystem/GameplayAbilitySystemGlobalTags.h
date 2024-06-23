@@ -133,8 +133,8 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category2.Spell.Mind"), TEXT("ProjectD"));
 
 		// 全技能列表
-		Move = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.List.Move"), TEXT("ProjectD"));
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.List.MoveInBattle"), TEXT("ProjectD"));
+		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.List.Move"), TEXT("ProjectD"));
+		Move = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.List.MoveInBattle"), TEXT("ProjectD"));
 	}
 
 	bool IsBuff(const FGameplayTagContainer& Tags, const bool bDeBuff = false) const

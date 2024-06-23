@@ -8,7 +8,7 @@
 
 class ADCharacter;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNoMoreMoveDistance);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMoveTaskEnd);
 
 /**
  * 
@@ -29,10 +29,15 @@ public:
 	virtual void TickTask(float DeltaTime) override;
 
 	UPROPERTY()
-	FOnNoMoreMoveDistance OnNoMoreMoveDistance;
+	FOnMoveTaskEnd OnNoMoreMoveDistance;
+
+	UPROPERTY()
+	FOnMoveTaskEnd OnArrivedDestination;
 	
 	UPROPERTY()
 	ADCharacter* Caster;
 
 	FVector LastLocation;
+
+	FVector Destination;
 };

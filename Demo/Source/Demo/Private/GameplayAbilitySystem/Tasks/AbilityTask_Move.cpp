@@ -38,8 +38,17 @@ void UAbilityTask_Move::TickTask(float DeltaTime)
 	if (Caster && Caster->GetAttributeSet())
 	{
 		auto* Att = Caster->GetAttributeSet();
-
 		const FVector CurrentLocation = Caster->GetActorLocation();
+
+		// 提前抵达目的地 Todo FixMe: 技能还无法知道选中目的地
+		/*const float DistanceRemaining = (CurrentLocation - Destination).Length();
+		if (DistanceRemaining <= 0.0001)
+		{
+			OnArrivedDestination.Broadcast();
+			EndTask();
+			return;
+		}*/
+		
 		const float Distance = (CurrentLocation - LastLocation).Length();
 		const float MoveCost = Att->GetMoveCost() * Distance;
 		const float NewValue = Att->GetMoveDistance() - MoveCost;
