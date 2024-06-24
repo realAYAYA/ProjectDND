@@ -69,10 +69,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	UAnimMontage* Montage;
 	
-	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc);
+	
 
 protected:
 
 	UPROPERTY()
 	UDAbilityTask_PlayMontageAndWait* MontageTask;
+
+	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc);
 };

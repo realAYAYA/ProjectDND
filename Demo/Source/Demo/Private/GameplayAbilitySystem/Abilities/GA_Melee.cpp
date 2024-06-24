@@ -1,5 +1,7 @@
 #include "GA_Melee.h"
 
+#include "GameplayAbilitySystem/DAbilitySystemComponent.h"
+
 UGA_Melee::UGA_Melee()
 {
 }
@@ -20,9 +22,27 @@ void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 {
 	// Todo 施加近战攻击效果
 	// Todo 可能被闪避
+
+	HitTarget(CacheTargetData, Asc->GetOwner());
 }
 
-void UGA_Melee::HitTarget_Implementation(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster)
+bool UGA_Melee::HitTarget_Implementation(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster)
 {
 	
+	/*for (TSubclassOf<UDGameplayEffect>& GameplayEffect : EffectsJustApplyOnStart)
+	{
+		if (!GameplayEffect.Get())
+			continue;
+		
+		const FGameplayEffectSpecHandle SpecHandle = Asc->MakeOutgoingSpec(GameplayEffect, Level, EffectContext);
+		if (!SpecHandle.IsValid())
+			continue;
+		
+		FActiveGameplayEffectHandle ActiveGEHandle = Asc->ApplyTurnBasedGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		if (!ActiveGEHandle.WasSuccessfullyApplied())
+			ABILITY_LOG(Log, TEXT("Ability %s faild to apply Startup Effect %s"), *GetName(), *GetNameSafe(GameplayEffect));
+	}
+	*/
+	
+	return false;
 }

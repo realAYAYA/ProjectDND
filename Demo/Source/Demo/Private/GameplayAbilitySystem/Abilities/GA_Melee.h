@@ -16,6 +16,10 @@ class UGA_Melee : public UGA_WithTargetData
 
 public:
 
+	/** 技能激活时赋予效果，结束时并不会主动移除*/
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	TArray<TSubclassOf<UDGameplayEffect>> EffectsJustApplyOnStart;
+	
 	UGA_Melee();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectD")
@@ -27,5 +31,5 @@ public:
 
 	// 根据TargetData, 执行命中逻辑
 	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "ProjectD")
-	void HitTarget(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
+	bool HitTarget(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
 };
