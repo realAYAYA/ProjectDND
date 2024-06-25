@@ -28,10 +28,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "PorjectD")
 	FText Description;
 #endif
-
-	// 动画通知识别名，用于查找，响应AnimNotifyClass逻辑
-	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	FString AnimNotifyName;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	int32 Level = 1;
@@ -53,13 +49,24 @@ public:
 	// 被动触发技能很有用的函数
 	//virtual bool ShouldAbilityRespondToEvent(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayEventData* Payload) const;
 	
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	UFUNCTION(BlueprintCallable, Category = "ProjectD|Ability")
 	static ADCharacter* GetDCharacter(const FGameplayAbilityActorInfo& ActorInfo);
 
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	UFUNCTION(BlueprintCallable, Category = "ProjectD|Ability")
 	static UDAbilitySystemComponent* GetDAbilitySystemComponent(const FGameplayAbilityActorInfo& ActorInfo);
 	
 private:
 
 	TArray<FActiveGameplayEffectHandle> EffectHandlesRemoveOnEnd;
+
+
+	// Static
+
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	static AActor* ParseOneTargetTargetData(const FGameplayAbilityTargetDataHandle& TargetData);
+
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	static FVector ParseClickLocationTargetData(const FGameplayAbilityTargetDataHandle& TargetData);
 };

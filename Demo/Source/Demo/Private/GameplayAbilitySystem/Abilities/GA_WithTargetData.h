@@ -29,10 +29,10 @@ public:
 	TSubclassOf<ADTargetActor> TargetActorClass;
 
 	//  Can only be called on instanced abilities
-	UFUNCTION(BlueprintCallable, Category = "ProjctD")
+	UFUNCTION(BlueprintCallable, Category = "ProjctD|TragetActor")
 	static void BeginSpawningTargetActor(const TSubclassOf<ADTargetActor>& Class, APlayerController* PlayerController, const UDGameplayAbility* Ability, ADTargetActor*& OutTargetActor);
 
-	UFUNCTION(BlueprintCallable, Category = "ProjctD")
+	UFUNCTION(BlueprintCallable, Category = "ProjctD|TragetActor")
 	static void FinishSpawningTargetActor(ADTargetActor* Actor);
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
@@ -69,12 +69,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	UAnimMontage* Montage;
 	
-	
+	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc);
 
 protected:
 
 	UPROPERTY()
 	UDAbilityTask_PlayMontageAndWait* MontageTask;
-
-	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc);
 };

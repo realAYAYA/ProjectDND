@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "GameplayEffectTypes.h"
 #include "DAbilitySystemBlueprintLibrary.generated.h"
 
 struct FActiveGameplayEffectHandle;
@@ -19,11 +20,13 @@ class UDAbilitySystemBlueprintLibrary : public UBlueprintFunctionLibrary
 public:
 
 	/** Returns the total turn for a given GameplayEffect */
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	UFUNCTION(BlueprintCallable, Category = "ProjectD|GAS")
 	static int32 GetActiveGameplayEffectTotalTurn(FActiveGameplayEffectHandle ActiveHandle);
 
 	/** Returns the remaining turn for a given GameplayEffect */
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	UFUNCTION(BlueprintCallable, Category = "ProjectD|GAS")
 	static int32 GetActiveGameplayEffectRemainingTurn(FActiveGameplayEffectHandle ActiveHandle);
-	
+
+	UFUNCTION(BlueprintPure, Category = "ProjectD|EffectContext", Meta = (DisplayName = "HasCirtHit"))
+	static bool EffectContextHasCritHit(FGameplayEffectContextHandle EffectContext, float& CirtValue);
 };

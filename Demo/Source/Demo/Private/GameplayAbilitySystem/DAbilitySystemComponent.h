@@ -48,9 +48,7 @@ public:
 	// 根据给定Tag查找技能，因为单个Tag所以技能必须是InstancedPerActor的，否则查找失败
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	FGameplayAbilitySpecHandle FindAbilityWithTag(const FGameplayTag& Tag) const;
-	
-	FGameplayAbilitySpec* FindAbilitySpecFromNotifyName(const FString& InName) const;
-	
+
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	bool ConfirmTargetDataWithTag(const FGameplayTag& Tag, const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
@@ -66,21 +64,21 @@ public:
 	int32 GetActiveEffectRemainingTurn(const FActiveGameplayEffectHandle& ActiveHandle) const;
 
 	/** 回合制专用 GE施加, 确保在服务端逻辑调用 */
-	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta=(DisplayName = "ApplyTurnBasedGameplayEffectToSelf"))
+	UFUNCTION(BlueprintCallable, Category = "ProjectD|AbilityComponent", meta=(DisplayName = "ApplyTurnBasedGameplayEffectToSelf"))
 	FActiveGameplayEffectHandle K2_ApplyTurnBasedGameplayEffectToSelf(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, const int32 Level, const int32 CustomDuration, FGameplayEffectContextHandle EffectContext);
 	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectToSelf(const UDGameplayEffect *GameplayEffect, const int32 Level, const int32 CustomDuration, FGameplayEffectContextHandle EffectContext, const FPredictionKey& PredictionKey = FPredictionKey());
 	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectSpecToSelf(const FGameplayEffectSpec& Spec, const int32 CustomDuration = 0, const FPredictionKey& PredictionKey = FPredictionKey());
 
 	/** 回合制专用 GE施加, 确保在服务端逻辑调用 */
-	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta=(DisplayName = "ApplyTurnBasedGameplayEffectToTarget"))
+	UFUNCTION(BlueprintCallable, Category = "ProjectD|AbilityComponent", meta=(DisplayName = "ApplyTurnBasedGameplayEffectToTarget"))
 	FActiveGameplayEffectHandle K2_ApplyTurnBasedGameplayEffectToTarget(const TSubclassOf<UDGameplayEffect>& GameplayEffectClass, UDAbilitySystemComponent* Target, const int32 Level, const int32 CustomDuration, FGameplayEffectContextHandle EffectContext);
 	FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectToTarget(const UDGameplayEffect *GameplayEffect, UDAbilitySystemComponent* Target, const int32 Level, const int32 CustomDuration, const FGameplayEffectContextHandle& Context = FGameplayEffectContextHandle(), const FPredictionKey& PredictionKey = FPredictionKey()) const;
 	static FActiveGameplayEffectHandle ApplyTurnBasedGameplayEffectSpecToTarget(const FGameplayEffectSpec& Spec, UDAbilitySystemComponent *Target, const int32 CustomDuration, FPredictionKey PredictionKey = FPredictionKey());
 	
-	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta = (DisplayName = "ApplyTurnBasedGameplayEffectSpecToSelf", ScriptName = "ApplyGameplayEffectSpecToSelf"))
+	UFUNCTION(BlueprintCallable, Category = "ProjectD|AbilityComponent", meta = (DisplayName = "ApplyTurnBasedGameplayEffectSpecToSelf", ScriptName = "ApplyGameplayEffectSpecToSelf"))
 	FActiveGameplayEffectHandle BP_ApplyTurnBasedGameplayEffectSpecToSelf(const FGameplayEffectSpecHandle& SpecHandle, const int32 CustomDuration);
 	
-	UFUNCTION(BlueprintCallable, Category = "ProjectD", meta = (DisplayName = "ApplyTurnBasedGameplayEffectSpecToTarget", ScriptName = "ApplyGameplayEffectSpecToSelf"))
+	UFUNCTION(BlueprintCallable, Category = "ProjectD|AbilityComponent", meta = (DisplayName = "ApplyTurnBasedGameplayEffectSpecToTarget", ScriptName = "ApplyGameplayEffectSpecToSelf"))
 	static FActiveGameplayEffectHandle BP_ApplyTurnBasedGameplayEffectSpecToTarget(const FGameplayEffectSpecHandle& SpecHandle, UDAbilitySystemComponent* Target, const int32 CustomDuration);
 
 	// 回合制GE被移除机制；回合计数器过期导致移除GE或GE被其他力量移除导致移除回合计数器
@@ -109,5 +107,5 @@ private:
 
 public:
 
-	void OnNotifyReceived(const FString& NotifyName);
+	void OnNotifyReceived(const FString& NotifyName, const FGameplayTag& Tag);
 };

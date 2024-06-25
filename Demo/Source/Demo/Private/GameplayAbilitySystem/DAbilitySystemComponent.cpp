@@ -41,25 +41,6 @@ FGameplayAbilitySpecHandle UDAbilitySystemComponent::FindAbilityWithTag(const FG
 	return AbilitySpecHandles[0];
 }
 
-FGameplayAbilitySpec* UDAbilitySystemComponent::FindAbilitySpecFromNotifyName(const FString& InName) const
-{
-	//SCOPE_CYCLE_COUNTER(STAT_FindAbilitySpecFromHandle);
-
-	for (const FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
-	{
-		if (Spec.Ability == nullptr)
-		{
-			continue;
-		}
-
-		const auto* AbilityInstance = Cast<UDGameplayAbility>(Spec.Ability);
-		if (AbilityInstance && AbilityInstance->AnimNotifyName == InName)
-			return const_cast<FGameplayAbilitySpec*>(&Spec);
-	}
-
-	return nullptr;
-}
-
 bool UDAbilitySystemComponent::ConfirmTargetDataWithTag(const FGameplayTag& Tag, const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
 	const FGameplayAbilitySpecHandle AbilitySpecHandle = FindAbilityWithTag(Tag);
@@ -294,12 +275,13 @@ void UDAbilitySystemComponent::NotifyGameplayEffectRemovedToBP(const FActiveGame
 	OnGERemovedCallback.Broadcast(Effect.Spec.Def->GetAssetTags().First());
 }
 
-void UDAbilitySystemComponent::OnNotifyReceived(const FString& NotifyName)
+void UDAbilitySystemComponent::OnNotifyReceived(const FString& NotifyName, const FGameplayTag& Tag)
 {
 	if (!GetOwner()->HasAuthority())
 		return;
-	
-	if (const auto* Spec = FindAbilitySpecFromNotifyName(NotifyName))
+
+	const auto& Handle = FindAbilityWithTag(Tag);
+	if (const auto* Spec = FindAbilitySpecFromHandle(Handle))
 		if (auto* AbilityInstance = Cast<UGA_WithTargetData>(Spec->GetPrimaryInstance()))
 			AbilityInstance->OnReceiveAnimNotify(this);
 }

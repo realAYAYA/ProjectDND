@@ -32,3 +32,14 @@ int32 UDAbilitySystemBlueprintLibrary::GetActiveGameplayEffectRemainingTurn(FAct
 	
 	return 0;
 }
+
+bool UDAbilitySystemBlueprintLibrary::EffectContextHasCritHit(FGameplayEffectContextHandle EffectContext, float& CirtValue)
+{
+	CirtValue = 0;
+	if (const auto* CritParams = EffectContext.GetHitResult())
+	{
+		CirtValue = CritParams->Distance;
+	}
+
+	return false;
+}

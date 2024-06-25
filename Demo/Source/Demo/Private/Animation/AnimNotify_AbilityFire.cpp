@@ -13,12 +13,8 @@ void UAnimNotify_AbilityFire::Notify(
 {
 	if (const auto* Character = Cast<ADCharacter>(MeshComp->GetOwner()); Character && Character->GetDAbilitySystemComponent())
 	{
-		Character->GetDAbilitySystemComponent()->OnNotifyReceived(GetNotifyName());
+		Character->GetDAbilitySystemComponent()->OnNotifyReceived(GetNotifyName(), AbilityToNotify);
 	}
-
-/*#if WITH_EDITOR
-	UE_LOG(LogProjectD, Log, TEXT("技能组件收到动画通知: %s, 是否为服务器端? %d"), *this->GetNotifyName(), MeshComp->GetOwner()->HasAuthority());
-#endif*/
 	
 	Super::Notify(MeshComp, Animation, EventReference);
 }

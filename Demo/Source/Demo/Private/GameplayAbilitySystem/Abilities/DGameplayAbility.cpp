@@ -107,3 +107,23 @@ UDAbilitySystemComponent* UDGameplayAbility::GetDAbilitySystemComponent(const FG
 	
 	return nullptr;
 }
+
+AActor* UDGameplayAbility::ParseOneTargetTargetData(const FGameplayAbilityTargetDataHandle& TargetData)
+{
+	if (TargetData.IsValid(0) && TargetData.Get(0)->GetActors().Num() > 0)
+	{
+		return TargetData.Get(0)->GetActors()[0].Get();
+	}
+	
+	return nullptr;
+}
+
+FVector UDGameplayAbility::ParseClickLocationTargetData(const FGameplayAbilityTargetDataHandle& TargetData)
+{
+	if (TargetData.IsValid(0) && TargetData.Get(0)->HasHitResult())
+	{
+		return TargetData.Get(0)->GetHitResult()->Location;
+	}
+	
+	return FVector();
+}

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "AnimNotify_AbilityFire.generated.h"
 
@@ -17,6 +18,9 @@ class UAnimNotify_AbilityFire : public UAnimNotify
 
 public:
 
+	UPROPERTY(EditInstanceOnly, Category = "ProjectD|AnimNotify")
+	FGameplayTag AbilityToNotify;
+	
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 	
 };
