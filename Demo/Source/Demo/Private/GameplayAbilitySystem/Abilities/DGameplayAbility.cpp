@@ -127,3 +127,13 @@ FVector UDGameplayAbility::ParseClickLocationTargetData(const FGameplayAbilityTa
 	
 	return FVector();
 }
+
+float UDGameplayAbility::CalculateHitRate(const ADCharacter* Caster, const ADCharacter* Target)
+{
+	return 1.0f;
+}
+
+float UDGameplayAbility::CalculateCritRate(const ADCharacter* Caster, const ADCharacter* Target)
+{
+	return 0.0f;
+}

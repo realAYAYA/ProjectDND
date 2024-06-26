@@ -9,17 +9,22 @@
 struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdder
 {
 	FGameplayTag InBattle;
+	FGameplayTag State_MyTurn;
 	
 	// 机制类GameplayTag
 	FGameplayTag Event_BattleBegin;
 	FGameplayTag Event_BattleEnd;
 	FGameplayTag Event_MyTurn;
+	FGameplayTag Event_TurnEnd;
 	FGameplayTag Event_Hostility;// 敌对行为（例如，对中立目标进行攻击）
 
 	FGameplayTag Event_TakeHit;
+	FGameplayTag Event_Hit;
 	FGameplayTag CritHit;// 承受暴击
 	FGameplayTag MeleeHit;// 承受近战攻击
 	FGameplayTag RemoteHit;// 承受远程攻击
+	FGameplayTag Event_Dodge;// 闪避成功
+	FGameplayTag Event_BeingDodged;// 被闪避
 	
 	FGameplayTag Event_TakeDamage;
 
@@ -49,6 +54,7 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		Event_BattleBegin = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.BattleBegin"), TEXT("ProjectD"));
 		Event_BattleEnd = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.BattleEnd"), TEXT("ProjectD"));
 		Event_MyTurn = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.MyTurn"), TEXT("ProjectD"));
+		Event_TurnEnd = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TurnEnd"), TEXT("ProjectD"));
 		Event_Hostility = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HostilityBehavior"), TEXT("ProjectD"));
 
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HostilityBehavior"), TEXT("ProjectD"));
@@ -61,13 +67,16 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 
 		// 角色受到攻击
 		Event_TakeHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeHit"), TEXT("ProjectD"));
-		// 命中对方
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.Hit"), TEXT("ProjectD"));
+		
+		// 命中其他人
+		Event_Hit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.Hit"), TEXT("ProjectD"));
 
 		// 受击类型
 		MeleeHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HitType.Melee"), TEXT("ProjectD"));
 		RemoteHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HitType.Remote"), TEXT("ProjectD"));
 		CritHit = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.HitType.Crit"), TEXT("ProjectD"));
+		Event_Dodge = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.Dodge"), TEXT("ProjectD"));
+		Event_BeingDodged = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.BeingDodged"), TEXT("ProjectD"));
 		
 		// 角色受到伤害
 		Event_TakeDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage"), TEXT("ProjectD"));
@@ -106,10 +115,12 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.DamageType.Mind"), TEXT("ProjectD"));
 
 		// 全GE列表
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Moving"), TEXT("ProjectD"));
-		InBattle = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.InBattle"), TEXT("ProjectD"));
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Casting"), TEXT("ProjectD"));
-		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Attacking"), TEXT("ProjectD"));
+		InBattle = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.GameMachine.InBattle"), TEXT("ProjectD"));
+		State_MyTurn = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.GameMachine.MyTurn"), TEXT("ProjectD"));
+		
+		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Moving"), TEXT("ProjectD"));
+		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Casting"), TEXT("ProjectD"));
+		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Attacking"), TEXT("ProjectD"));
 
 		// 按消耗技能分类
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Ability.Category1.Action"), TEXT("ProjectD"));

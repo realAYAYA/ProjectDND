@@ -27,6 +27,10 @@ public:
 	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc) override;
 
 	// 根据TargetData, 执行命中逻辑
-	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "ProjectD")
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "ProjectD|GAS|Melee")
 	bool ReceiveHitTarget(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
+
+	virtual float CalculateHitRate(const ADCharacter* Caster, const ADCharacter* Target) override;
+
+	virtual float CalculateCritRate(const ADCharacter* Caster, const ADCharacter* Target) override;
 };

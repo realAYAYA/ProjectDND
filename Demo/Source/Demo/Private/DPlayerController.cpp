@@ -170,7 +170,6 @@ void ADPlayerController::Server_TurnEnd_Implementation()
 	auto* DCharacter = Cast<ADCharacter>(this->GetPawn());
 	if (DCharacter && DCharacter->BattleInstance)
 	{
-		DCharacter->bReadyTurnEnd = true;
 		DCharacter->BattleInstance->Server_TurnEnd(DCharacter);
 	}
 }

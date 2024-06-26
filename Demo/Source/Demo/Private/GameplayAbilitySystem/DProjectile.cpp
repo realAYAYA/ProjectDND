@@ -74,3 +74,13 @@ void ADProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 	}
 }
 
+void ADProjectile::Server_Detonate_Implementation()
+{
+	ReceiveDetonate();
+}
+
+bool ADProjectile::ReceiveDetonate_Implementation()
+{
+	return false;
+}
+

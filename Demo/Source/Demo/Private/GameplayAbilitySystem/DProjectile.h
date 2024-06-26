@@ -34,6 +34,18 @@ public:
 	/** called when projectile hits something */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	/** Sphere collision component */
+	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
+	float LifeSpanAfterExp;
+
+	// 投射物爆炸
+	UFUNCTION(NetMulticast, Reliable)
+	void Server_Detonate();
+
+	// 蓝图处理投射物爆炸表现
+	UFUNCTION(BlueprintNativeEvent, Category = "ProjectD")
+	bool ReceiveDetonate();
 	
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	ADCharacter* Caster;

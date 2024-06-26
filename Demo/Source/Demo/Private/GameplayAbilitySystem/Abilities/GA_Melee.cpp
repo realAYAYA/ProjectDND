@@ -22,26 +22,50 @@ void UGA_Melee::ReceiveTargetData(const FGameplayAbilityTargetDataHandle& Target
 
 void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 {
-	// Todo 施加近战攻击效果
-	// Todo 可能被闪避
-
-	// 30%可能性未命中
-	if (FMath::RandRange(1, 10) > 7)
+	const ADCharacter* Target = Cast<ADCharacter>(ParseOneTargetTargetData(CacheTargetData));
+	if (!Target)
 	{
+		ABILITY_LOG(Warning, TEXT("Ability %s error, no target"), *GetName());
+		return;
+	}
+	
+	// 30%可能被闪避
+	if (FMath::RandRange(1, 10) > CalculateHitRate(GetDCharacter(*CurrentActorInfo), Target) * 10)
+	{
+		// 目标闪避事件通知
+		{
+			const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_Dodge;
+			FGameplayEventData Payload;
+			Payload.EventTag = Tag;
+			Payload.Instigator = CurrentActorInfo->AvatarActor.Get();
+			Payload.Target = Target;
+			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
+			Target->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
+		}
+
+		// 攻击被闪避事件通知
+		{
+			const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_BeingDodged;
+			FGameplayEventData Payload;
+			Payload.EventTag = Tag;
+			Payload.Instigator = CurrentActorInfo->AvatarActor.Get();
+			Payload.Target = Target;
+			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
+			Asc->HandleGameplayEvent(Tag, &Payload);
+		}
+		
 		ReceiveHitTarget(CacheTargetData, Asc->GetOwner());
 		return;
 	}
-
-	// 30%可能性暴击
-	bool bCrit = FMath::RandRange(1, 10) > 7;
 	
-
-	// 施加命中GE
+	// 构造GE Context
 	FGameplayEffectContextHandle EffectContext = Asc->MakeEffectContext();
 	EffectContext.SetAbility(this);
 	EffectContext.AddInstigator(CurrentActorInfo->AvatarActor.Get(), CurrentActorInfo->AvatarActor.Get());
 	EffectContext.AddSourceObject(this);
 
+	// 30%可能性暴击
+	bool bCrit = FMath::RandRange(1, 10) <= CalculateHitRate(GetDCharacter(*CurrentActorInfo), Target) * 10;
 	if (bCrit)
 	{
 		// Todo 我们可以不用自己拓展新的参数，而是使用自带的参数解析成自己的
@@ -54,26 +78,63 @@ void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 		EffectContext.AddHitResult(CritParams);
 	}
 
-	if (const ADCharacter* Target = Cast<ADCharacter>(ParseOneTargetTargetData(CacheTargetData)))
+	// 目标受到攻击事件通知
 	{
-		for (TSubclassOf<UDGameplayEffect>& GameplayEffect : EffectsJustApplyOnStart)
-		{
-			if (!GameplayEffect.Get())
-				continue;
-		
-			FGameplayEffectSpecHandle SpecHandle = Asc->MakeOutgoingSpec(GameplayEffect, Level, EffectContext);
-			if (!SpecHandle.IsValid())
-				continue;
-
-			SpecHandle.Data->CapturedSourceTags;
-		
-			FActiveGameplayEffectHandle ActiveGEHandle = Target->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-			if (!ActiveGEHandle.WasSuccessfullyApplied())
-				ABILITY_LOG(Log, TEXT("Ability %s faild to apply Startup Effect %s"), *GetName(), *GetNameSafe(GameplayEffect));
-		}
+		const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_TakeHit;
+		FGameplayEventData Payload;
+		Payload.EventTag = Tag;
+		Payload.Instigator = CurrentActorInfo->AvatarActor.Get();
+		Payload.Target = Target;
+		Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
+		if (bCrit)
+			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().CritHit);
+		Target->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
 	}
 
+	// 近战攻击命中目标事件通知
+	{
+		const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_Hit;
+		FGameplayEventData Payload;
+		Payload.EventTag = Tag;
+		Payload.Instigator = CurrentActorInfo->AvatarActor.Get();
+		Payload.Target = Target;
+		Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
+		if (bCrit)
+			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().CritHit);
+		Asc->HandleGameplayEvent(Tag, &Payload);
+	}
+
+	// 对目标施加GE
+	for (TSubclassOf<UDGameplayEffect>& GameplayEffect : EffectsJustApplyOnStart)
+	{
+		if (!GameplayEffect.Get())
+			continue;
+		
+		FGameplayEffectSpecHandle SpecHandle = Asc->MakeOutgoingSpec(GameplayEffect, Level, EffectContext);
+		if (!SpecHandle.IsValid())
+			continue;
+
+		SpecHandle.Data->CapturedSourceTags;
+		
+		FActiveGameplayEffectHandle ActiveGEHandle = Target->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		if (!ActiveGEHandle.WasSuccessfullyApplied())
+			ABILITY_LOG(Log, TEXT("Ability %s faild to apply Startup Effect %s"), *GetName(), *GetNameSafe(GameplayEffect));
+	}
+	
 	ReceiveHitTarget(CacheTargetData, Asc->GetOwner());
+}
+
+float UGA_Melee::CalculateHitRate(const ADCharacter* Caster, const ADCharacter* Target)
+{
+	if (!Target)
+		return 0.0f;
+	
+	return 0.7f;
+}
+
+float UGA_Melee::CalculateCritRate(const ADCharacter* Caster, const ADCharacter* Target)
+{
+	return 0.3f;
 }
 
 bool UGA_Melee::ReceiveHitTarget_Implementation(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster)

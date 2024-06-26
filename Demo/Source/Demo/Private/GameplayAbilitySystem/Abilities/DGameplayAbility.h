@@ -64,9 +64,17 @@ private:
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	UFUNCTION(BlueprintCallable, Category = "ProjectD|GAS|TargetData")
 	static AActor* ParseOneTargetTargetData(const FGameplayAbilityTargetDataHandle& TargetData);
 
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	UFUNCTION(BlueprintCallable, Category = "ProjectD|GAS|TargetData")
 	static FVector ParseClickLocationTargetData(const FGameplayAbilityTargetDataHandle& TargetData);
+
+	// 命中率计算
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ProjectD|GAS|Ability")
+	virtual float CalculateHitRate(const ADCharacter* Caster, const ADCharacter* Target);
+
+	// 暴击率计算
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ProjectD|GAS|Ability")
+	virtual float CalculateCritRate(const ADCharacter* Caster, const ADCharacter* Target);
 };

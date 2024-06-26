@@ -151,7 +151,7 @@ public:
 
 	/** 持续回合数 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "PorjectD", meta=(EditCondition="DurationPolicy != EGameplayEffectDurationType::Instant", EditConditionHides))
-	int32 TurnDuration = 1;
+	int32 TurnDuration = 0;
 
 	/**
 	 * 周期触发，每多少回合触发一次. 0代表施加该GE后直到移除前持续有效

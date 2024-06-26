@@ -65,7 +65,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "ProjectD")
 	void BeginTurn();
 	
-	void Server_TurnEnd(const ADCharacter* InCharacter);
+	void Server_TurnEnd(ADCharacter* InCharacter);
 
 	void Server_YourTurn(ADCharacter* InCharacter);// 通知角色回合开始
 

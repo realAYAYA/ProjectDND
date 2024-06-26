@@ -89,11 +89,21 @@ void ATurnBasedBattleInstance::BeginTurn()
 #endif
 }
 
-void ATurnBasedBattleInstance::Server_TurnEnd(const ADCharacter* InCharacter)
+void ATurnBasedBattleInstance::Server_TurnEnd(ADCharacter* InCharacter)
 {
 	// 不是该角色的回合
 	if (!IsMyTurn(InCharacter))
 		return;
+
+	InCharacter->bReadyTurnEnd = true;
+	
+	// 技能事件通知：回合结束
+	{
+		const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_TurnEnd;
+		FGameplayEventData Payload;
+		Payload.EventTag = Tag;
+		InCharacter->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
+	}
 
 	// 检查所有可活动的角色是否都准备结束回合
 	for (const auto& CharacterId : CurrentTurnInfo.ActivatedCharacters)
