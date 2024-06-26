@@ -74,12 +74,22 @@ void ADProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 	}
 }
 
-void ADProjectile::Server_Detonate_Implementation()
+void ADProjectile::Server_Activate(const FProjectileParams& Params)
 {
-	ReceiveDetonate();
+	ReceiveOnActivateServerOnly(Params);
 }
 
-bool ADProjectile::ReceiveDetonate_Implementation()
+bool ADProjectile::ReceiveOnActivateServerOnly_Implementation(const FProjectileParams& Params)
+{
+	return false;
+}
+
+void ADProjectile::Multicast_Activate_Implementation(const FProjectileParams& Params)
+{
+	 ReceiveOnActivateNetMulticast(Params);
+}
+
+bool ADProjectile::ReceiveOnActivateNetMulticast_Implementation(const FProjectileParams& Params)
 {
 	return false;
 }

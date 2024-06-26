@@ -10,6 +10,28 @@
 class UGA_WithProjectile;
 class ADCharacter;
 
+// 自定义投射物参数集，网络同步消息通用结构
+USTRUCT(BlueprintType)
+struct FProjectileParams
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectD")
+	int32 D1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectD")
+	int32 D2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectD")
+	int64 N1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectD")
+	int64 N2;
+
+	UPROPERTY(EditAnywhere, Category = "ProjectD")
+	TArray<AActor*> Actors;
+};
+
 UCLASS()
 class ADProjectile : public AActor
 {
@@ -39,13 +61,21 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	float LifeSpanAfterExp;
 
-	// 投射物爆炸
-	UFUNCTION(NetMulticast, Reliable)
-	void Server_Detonate();
+	// 投射物激活，服务器专用
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "ProjectD")
+	void Server_Activate(const FProjectileParams& Params);
 
-	// 蓝图处理投射物爆炸表现
+	// 投射物激活，执行在服务器或主机端
 	UFUNCTION(BlueprintNativeEvent, Category = "ProjectD")
-	bool ReceiveDetonate();
+	bool ReceiveOnActivateServerOnly(const FProjectileParams& Params);
+	
+	// 激活表现，广播用
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+	void Multicast_Activate(const FProjectileParams& Params);
+
+	// 激活函数，网络广播
+	UFUNCTION(BlueprintNativeEvent, Category = "ProjectD")
+	bool ReceiveOnActivateNetMulticast(const FProjectileParams& Params);
 	
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	ADCharacter* Caster;
