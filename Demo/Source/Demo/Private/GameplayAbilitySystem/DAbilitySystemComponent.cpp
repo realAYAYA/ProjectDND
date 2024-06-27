@@ -277,13 +277,14 @@ void UDAbilitySystemComponent::NotifyGameplayEffectRemovedToBP(const FActiveGame
 
 void UDAbilitySystemComponent::OnNotifyReceived(const FString& NotifyName, const FGameplayTag& Tag)
 {
-	if (!GetOwner()->HasAuthority())
-		return;
-
 	const auto& Handle = FindAbilityWithTag(Tag);
 	if (const auto* Spec = FindAbilitySpecFromHandle(Handle))
+	{
 		if (auto* AbilityInstance = Cast<UGA_WithTargetData>(Spec->GetPrimaryInstance()))
+		{
 			AbilityInstance->OnReceiveAnimNotify(this);
+		}
+	}
 }
 
 void UDAbilitySystemComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const

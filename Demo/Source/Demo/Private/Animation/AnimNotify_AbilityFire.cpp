@@ -11,7 +11,8 @@ void UAnimNotify_AbilityFire::Notify(
 	UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference)
 {
-	if (const auto* Character = Cast<ADCharacter>(MeshComp->GetOwner()); Character && Character->GetDAbilitySystemComponent())
+	const auto* Character = Cast<ADCharacter>(MeshComp->GetOwner());
+	if (Character && Character->HasAuthority())
 	{
 		Character->GetDAbilitySystemComponent()->OnNotifyReceived(GetNotifyName(), AbilityToNotify);
 	}

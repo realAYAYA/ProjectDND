@@ -105,7 +105,7 @@ void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 	}
 
 	// 对目标施加GE
-	for (TSubclassOf<UDGameplayEffect>& GameplayEffect : EffectsJustApplyOnStart)
+	for (TSubclassOf<UDGameplayEffect>& GameplayEffect : EffectsApplyToTarget)
 	{
 		if (!GameplayEffect.Get())
 			continue;
@@ -113,8 +113,6 @@ void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 		FGameplayEffectSpecHandle SpecHandle = Asc->MakeOutgoingSpec(GameplayEffect, Level, EffectContext);
 		if (!SpecHandle.IsValid())
 			continue;
-
-		SpecHandle.Data->CapturedSourceTags;
 		
 		FActiveGameplayEffectHandle ActiveGEHandle = Target->GetDAbilitySystemComponent()->ApplyTurnBasedGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 		if (!ActiveGEHandle.WasSuccessfullyApplied())

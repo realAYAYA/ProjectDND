@@ -18,10 +18,6 @@ public:
 	
 	UGA_Melee();
 
-	/** 技能命中时，施加的GE*/
-	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	TArray<TSubclassOf<UDGameplayEffect>> EffectsOnHit;
-
 	virtual void ReceiveTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle) override;
 	
 	virtual void OnReceiveAnimNotify(UDAbilitySystemComponent* Asc) override;

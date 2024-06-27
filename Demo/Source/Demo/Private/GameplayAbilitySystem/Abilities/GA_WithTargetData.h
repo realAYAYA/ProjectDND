@@ -28,6 +28,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "ProjectD")
 	TSubclassOf<ADTargetActor> TargetActorClass;
 
+	/** 对目标施加*/
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "ProjectD")
+	TArray<TSubclassOf<UDGameplayEffect>> EffectsApplyToTarget;
+
 	//  Can only be called on instanced abilities
 	UFUNCTION(BlueprintCallable, Category = "ProjctD|TragetActor")
 	static void BeginSpawningTargetActor(const TSubclassOf<ADTargetActor>& Class, APlayerController* PlayerController, const UDGameplayAbility* Ability, ADTargetActor*& OutTargetActor);

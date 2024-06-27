@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GA_WithTargetData.h"
+#include "Character/DCharacter.h"
+#include "GameplayAbilitySystem/DProjectile.h"
 #include "GA_WithProjectile.generated.h"
 
 class UDAbilityTask_WithTargetData;
@@ -37,7 +39,13 @@ public:
 	static void FinishSpawningProjectile(ADProjectile* ProjectileActor);
 	
 	// 根据TargetData, 执行发射逻辑(Server Only)
-	UFUNCTION(BlueprintNativeEvent, BlueprintAuthorityOnly, Category = "ProjectD")
+	UFUNCTION(BlueprintNativeEvent, Category = "ProjectD")
 	bool FireProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
-	
+
+	UFUNCTION(BlueprintCallable, Category = "ProjctD")
+	virtual void ApplyGameplayEffectToTarget(ADCharacter* Caster, ADCharacter* Target, ADProjectile* Projectile);
+
+protected:
+
+	bool bDoOnceAnimNotify = false;// Todo FixMe: 联机下，客户端施法时，主机会触为其发两次动画通知
 };
