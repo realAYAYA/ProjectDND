@@ -40,11 +40,11 @@ class ADProjectile : public AActor
 public:
 
 	/** Sphere collision component */
-	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ProjectD")
 	class USphereComponent* CollisionComp;
 	
 	/** Projectile movement component */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ProjectM, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ProjectD", meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
 	
 	// Sets default values for this actor's properties
@@ -56,10 +56,16 @@ public:
 	/** called when projectile hits something */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	
+	UFUNCTION()
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	/** Sphere collision component */
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
-	float LifeSpanAfterExp;
+	float LifeSpanAfterActivate = 8;
 
 	// 投射物激活，服务器专用
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "ProjectD")

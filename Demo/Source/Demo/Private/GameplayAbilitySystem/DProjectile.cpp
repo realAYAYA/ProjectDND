@@ -21,8 +21,10 @@ ADProjectile::ADProjectile(const FObjectInitializer& ObjectInitializer)
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
-	CollisionComp->OnComponentHit.AddDynamic(this, &ADProjectile::OnHit);// set up a notification for when this component hits something blocking
-	//CollisionComp->OnComponentBeginOverlap.AddDynamic()
+	
+	//CollisionComp->OnComponentHit.AddDynamic(this, &ADProjectile::OnHit);// set up a notification for when this component hits something blocking
+	//CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ADProjectile::OnBeginOverlap);
+	//CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ADProjectile::OnEndOverlap);
 
 	// Players can't walk on it
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
@@ -66,17 +68,23 @@ void ADProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrim
 	if (OtherActor != nullptr && OtherActor != this && OtherComp != nullptr)
 	{
 		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-		ADCharacter* Character = Cast<ADCharacter>(OtherActor);
-		if (HasAuthority() && Character)
-		{
-			Destroy();
-		}
+		
 	}
+}
+
+void ADProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+}
+
+void ADProjectile::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
 }
 
 void ADProjectile::Server_Activate(const FProjectileParams& Params)
 {
 	ReceiveOnActivateServerOnly(Params);
+
+	SetLifeSpan(LifeSpanAfterActivate);
 }
 
 bool ADProjectile::ReceiveOnActivateServerOnly_Implementation(const FProjectileParams& Params)
