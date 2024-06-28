@@ -42,7 +42,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = "ProjectD")
 	bool FireProjectile(const FGameplayAbilityTargetDataHandle& TargetData, AActor* Caster);
 
-	UFUNCTION(BlueprintCallable, Category = "ProjctD")
+	UFUNCTION(BlueprintCallable, Category = "ProjctD|GA_WithProjectile")
 	virtual void ApplyGameplayEffectToTarget(ADCharacter* Caster, ADCharacter* Target, ADProjectile* Projectile);
 
 protected:

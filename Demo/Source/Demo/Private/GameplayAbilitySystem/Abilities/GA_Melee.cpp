@@ -39,6 +39,8 @@ void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 			Payload.EventTag = Tag;
 			Payload.Instigator = CurrentActorInfo->AvatarActor.Get();
 			Payload.Target = Target;
+			Payload.InstigatorTags = Asc->GetOwnedGameplayTags();
+			Payload.TargetTags = Target->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
 			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
 			Target->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
 		}
@@ -50,6 +52,8 @@ void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 			Payload.EventTag = Tag;
 			Payload.Instigator = CurrentActorInfo->AvatarActor.Get();
 			Payload.Target = Target;
+			Payload.InstigatorTags = Asc->GetOwnedGameplayTags();
+			Payload.TargetTags = Target->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
 			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
 			Asc->HandleGameplayEvent(Tag, &Payload);
 		}
@@ -85,6 +89,8 @@ void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 		Payload.EventTag = Tag;
 		Payload.Instigator = CurrentActorInfo->AvatarActor.Get();
 		Payload.Target = Target;
+		Payload.InstigatorTags = Asc->GetOwnedGameplayTags();
+		Payload.TargetTags = Target->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
 		Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
 		if (bCrit)
 			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().CritHit);
@@ -98,6 +104,8 @@ void UGA_Melee::OnReceiveAnimNotify(UDAbilitySystemComponent* Asc)
 		Payload.EventTag = Tag;
 		Payload.Instigator = CurrentActorInfo->AvatarActor.Get();
 		Payload.Target = Target;
+		Payload.InstigatorTags = Asc->GetOwnedGameplayTags();
+		Payload.TargetTags = Target->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
 		Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
 		if (bCrit)
 			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().CritHit);

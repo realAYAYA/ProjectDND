@@ -76,9 +76,10 @@ public:
 	UDAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 private:
+	
+	void OnMoveDistanceChange(const FOnAttributeChangeData& Data) const;// 角色移动力变成0时将无法移动
 
-	// 角色移动力变成0时将无法移动
-	void OnMoveDistanceChange(const FOnAttributeChangeData& Data) const;
+	void OnHealthChange(const FOnAttributeChangeData& Data) const;// 角色生命值变化
 
 	UPROPERTY(Transient)
 	UDAttributeSet* AttributeSet;
@@ -106,7 +107,7 @@ private:
 	UFUNCTION()
 	void OnRep_CharacterId();
 
-	// 当前角色的控制者Id, 对应角色的当前控制权归属, 它可以是SteamId或其它
+	// 当前角色的控制者Id, 对应角色的当前控制权归属
 	UPROPERTY(ReplicatedUsing = OnRep_ControllerId)
 	uint64 ControllerId = 0;
 
@@ -116,7 +117,7 @@ private:
 	// Only called by Server
 	virtual void Server_InitCharacterData();
 
-
+	
 	// 全局角色管理
 
 public:

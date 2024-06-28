@@ -24,6 +24,7 @@ ADCharacter::ADCharacter()
 
 	AttributeSet = CreateDefaultSubobject<UDAttributeSet>(TEXT("AttributeSet"));
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMoveDistanceAttribute()).AddUObject(this, &ADCharacter::OnMoveDistanceChange);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).AddUObject(this, &ADCharacter::OnHealthChange);
 }
 
 void ADCharacter::ReceivePostNetInit_Implementation()
@@ -135,6 +136,21 @@ void ADCharacter::OnMoveDistanceChange(const FOnAttributeChangeData& Data) const
 	}
 }
 
+void ADCharacter::OnHealthChange(const FOnAttributeChangeData& Data) const
+{
+	if (Data.NewValue <= 0 && HasAuthority())
+	{
+		const FGameplayTag& Tag = FGameplayAbilityGlobalTags::Get().Event_ZeroHp;
+		FGameplayEventData Payload;
+		Payload.EventTag = Tag;
+		Payload.Instigator = this;
+		Payload.InstigatorTags = AbilitySystemComponent->GetOwnedGameplayTags();
+		Payload.Target = this;
+		Payload.TargetTags = AbilitySystemComponent->GetOwnedGameplayTags();
+		AbilitySystemComponent->HandleGameplayEvent(Tag, &Payload);
+	}
+}
+
 void ADCharacter::OnBattleEnd()
 {
 	K2_BattleEnd();
@@ -175,7 +191,7 @@ void ADCharacter::Server_InitCharacterData()
 	{
 		if (!AbilityClass)
 			continue;
-			
+		
 		FGameplayAbilitySpec GameplayAbilitySpec = FGameplayAbilitySpec(AbilityClass);
 		const auto Handle = AbilitySystemComponent->GiveAbility(GameplayAbilitySpec);
 		if (!Handle.IsValid())
@@ -195,7 +211,7 @@ void ADCharacter::Server_InitCharacterData()
 		const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(Effect, 1, EffectContextHandle);
 		if (SpecHandle.IsValid())
 		{
-			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			AbilitySystemComponent->ApplyTurnBasedGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 		}
 	}
 }

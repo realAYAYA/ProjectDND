@@ -63,6 +63,9 @@ void UGA_WithProjectile::FinishSpawningProjectile(ADProjectile* ProjectileActor)
 
 void UGA_WithProjectile::ApplyGameplayEffectToTarget(ADCharacter* Caster, ADCharacter* Target, ADProjectile* Projectile)
 {
+	if (!Caster || !Target || !Projectile || !Caster->HasAuthority())
+		return;
+	
 	// 30%可能被闪避(抵抗）
 	if (FMath::RandRange(1, 10) > CalculateHitRate(Caster, Target) * 10)
 	{
@@ -73,6 +76,8 @@ void UGA_WithProjectile::ApplyGameplayEffectToTarget(ADCharacter* Caster, ADChar
 			Payload.EventTag = Tag;
 			Payload.Instigator = Caster;
 			Payload.Target = Target;
+			Payload.InstigatorTags = Caster->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
+			Payload.TargetTags = Target->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
 			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
 			Target->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
 		}
@@ -84,6 +89,8 @@ void UGA_WithProjectile::ApplyGameplayEffectToTarget(ADCharacter* Caster, ADChar
 			Payload.EventTag = Tag;
 			Payload.Instigator = Caster;
 			Payload.Target = Target;
+			Payload.InstigatorTags = Caster->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
+			Payload.TargetTags = Target->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
 			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().RemoteHit);
 			Caster->GetDAbilitySystemComponent()->HandleGameplayEvent(Tag, &Payload);
 		}
@@ -118,6 +125,8 @@ void UGA_WithProjectile::ApplyGameplayEffectToTarget(ADCharacter* Caster, ADChar
 		Payload.EventTag = Tag;
 		Payload.Instigator = Caster;
 		Payload.Target = Target;
+		Payload.InstigatorTags = Caster->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
+		Payload.TargetTags = Target->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
 		Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
 		if (bCrit)
 			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().CritHit);
@@ -131,6 +140,8 @@ void UGA_WithProjectile::ApplyGameplayEffectToTarget(ADCharacter* Caster, ADChar
 		Payload.EventTag = Tag;
 		Payload.Instigator = Caster;
 		Payload.Target = Target;
+		Payload.InstigatorTags = Caster->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
+		Payload.TargetTags = Target->GetDAbilitySystemComponent()->GetOwnedGameplayTags();
 		Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().MeleeHit);
 		if (bCrit)
 			Payload.InstigatorTags.AddTag(FGameplayAbilityGlobalTags::Get().CritHit);

@@ -27,6 +27,7 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	FGameplayTag Event_BeingDodged;// 被闪避
 	
 	FGameplayTag Event_TakeDamage;
+	FGameplayTag Event_ZeroHp;
 
 	// 能显示在玩家界面的GE标签
 	
@@ -41,6 +42,8 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 	FGameplayTag Root;
 	
 	FGameplayTag Silence;
+
+	FGameplayTag Dead;
 	
 	// 行为标签
 	
@@ -80,6 +83,9 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		
 		// 角色受到伤害
 		Event_TakeDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.TakeDamage"), TEXT("ProjectD"));
+
+		// 生命值归零
+		Event_ZeroHp = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.ZeroHp"), TEXT("ProjectD"));
 		
 		// 角色受到任何控制
 		UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.Event.bRestricted.bRooted"), TEXT("ProjectD"));
@@ -117,6 +123,7 @@ struct DEMO_API FGameplayAbilityGlobalTags final : public FGameplayTagNativeAdde
 		// 全GE列表
 		InBattle = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.GameMachine.InBattle"), TEXT("ProjectD"));
 		State_MyTurn = UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.GameMachine.MyTurn"), TEXT("ProjectD"));
+		Dead	= UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.GameMachine.Dead"), TEXT("ProjectD"));
 		
 		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Moving"), TEXT("ProjectD"));
 		//UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("GAS.GE.List.Casting"), TEXT("ProjectD"));

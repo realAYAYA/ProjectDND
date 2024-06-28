@@ -62,10 +62,20 @@ public:
 
 	UFUNCTION()
 	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+public:
 
-	/** Sphere collision component */
 	UPROPERTY(EditDefaultsOnly, Category = "ProjectD")
 	float LifeSpanAfterActivate = 8;
+
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
+	ADCharacter* Caster;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
+	FGameplayAbilityTargetDataHandle TargetData;
+
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
+	UGA_WithProjectile* AbilityInstance;
 
 	// 投射物激活，服务器专用
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "ProjectD")
@@ -82,25 +92,4 @@ public:
 	// 激活函数，网络广播
 	UFUNCTION(BlueprintNativeEvent, Category = "ProjectD")
 	bool ReceiveOnActivateNetMulticast(const FProjectileParams& Params);
-	
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
-	ADCharacter* Caster;
-
-	// 如果Target为空，有可能是对应技能采用的是坐标位置作为目标
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
-	FGameplayAbilityTargetDataHandle TargetData;
-
-	UPROPERTY()
-	UGA_WithProjectile* AbilityInstance;
-
-	//void ApplyGameplayEffectToTarget(AActor* Target);
-
-protected:
-	
-	// Called when the game starts or when spawned
-	//virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	//virtual void Tick(float DeltaTime) override;
 };

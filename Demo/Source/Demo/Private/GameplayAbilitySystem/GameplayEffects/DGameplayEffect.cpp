@@ -87,8 +87,8 @@ FTurnBasedActiveGameplayEffect* FTurnBasedActiveGameplayEffectsContainer::ApplyA
 	const UDGameplayEffect* GameplayEffect,
 	int32 CustomDuration)
 {
-	if (CustomDuration == 0)
-		CustomDuration = GameplayEffect->TurnDuration;
+	// 0为采用GE预设值
+	CustomDuration = CustomDuration == 0 ? GameplayEffect->TurnDuration : CustomDuration;
 	
 	FTurnBasedActiveGameplayEffect* TurnBasedActiveGameplayEffect = GetActiveGameplayEffect(Handle);
 	if (!TurnBasedActiveGameplayEffect)
