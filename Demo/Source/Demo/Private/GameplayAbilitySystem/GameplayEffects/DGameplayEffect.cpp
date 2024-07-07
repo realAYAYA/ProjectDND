@@ -8,16 +8,6 @@
 
 FGameplayAbilityGlobalTags FGameplayAbilityGlobalTags::GasTags;
 
-/*
-FTurnBasedActiveGameplayEffect& FTurnBasedActiveGameplayEffect::operator=(FTurnBasedActiveGameplayEffect&& Other) noexcept
-{
-	return *this;
-}
-
-FTurnBasedActiveGameplayEffect& FTurnBasedActiveGameplayEffect::operator=(const FTurnBasedActiveGameplayEffect& Other)
-{
-	return *this;
-}*/
 
 void FTurnBasedActiveGameplayEffect::PreReplicatedRemove(const FTurnBasedActiveGameplayEffectsContainer& InArray)
 {

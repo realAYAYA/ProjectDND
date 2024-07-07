@@ -61,7 +61,10 @@ FShopGoodsItem UShopBase::InternalRemove(const int32 Index)
 	for (; i < Goods.Num(); i++)
 	{
 		if (Goods[i].Index == Index)
+		{
 			Out = Goods[i];
+			break;
+		}
 	}
 
 	if (i < Goods.Num())
@@ -73,7 +76,16 @@ FShopGoodsItem UShopBase::InternalRemove(const int32 Index)
 void UShopBase::InternalRemove(const FShopGoodsItem* Item)
 {
 	if (Item)
-		Goods.RemoveSwap(*Item);
+	{
+		int32 i = 0;
+		for (; i < Goods.Num(); i++)
+		{
+			if (Goods[i].Index == Item->Index) break;
+		}
+
+		if (i < Goods.Num())
+			Goods.RemoveAtSwap(i, 1, false);
+	}
 }
 
 void UShopBase::Reset()

@@ -2,7 +2,7 @@
 #include "CoreMinimal.h"
 #include "GameCounter.generated.h"
 
-// 计数器层级1
+// 单层计数器
 USTRUCT()
 struct GAMESHARED_API FCounterLayer1
 {
@@ -20,9 +20,19 @@ struct GAMESHARED_API FCounterLayer1
 			Map.Add(Key, Num);
 		}
 	}
+
+	void Set(const int32 Key, const int64 Num)
+	{
+		if (Map.Contains(Key))
+			*Map.Find(Num) = Num;
+		else
+		{
+			Map.Add(Key, Num);
+		}
+	}
 };
 
-// 计数器层级2
+// 2层计数器
 USTRUCT()
 struct GAMESHARED_API FCounterLayer2
 {
@@ -40,9 +50,19 @@ struct GAMESHARED_API FCounterLayer2
 			Map.Add(Key1).Add(Key2, Num);
 		}
 	}
+
+	void Set(const int32 Key1, const int32 Key2, const int64 Num)
+	{
+		if (Map.Contains(Key1))
+			Map.Find(Key1)->Set(Key2, Num);
+		else
+		{
+			Map.Add(Key1).Add(Key2, Num);
+		}
+	}
 };
 
-// 计数器层级3
+// 3层计数器
 USTRUCT()
 struct GAMESHARED_API FGameplayCounterLayer3
 {

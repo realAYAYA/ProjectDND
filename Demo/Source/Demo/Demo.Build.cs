@@ -17,7 +17,9 @@ public class Demo : ModuleRules
 			"GameplayTasks",
 			"NetCore", 
 			"AIModule",
-			"NavigationSystem"
+			"NavigationSystem",
+			
+			"GameShared"
 		});
 
 		// Uncomment if you are using Slate UI
