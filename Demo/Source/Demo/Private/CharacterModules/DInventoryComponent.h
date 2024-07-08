@@ -29,6 +29,18 @@ USTRUCT()
 struct FDInventoryItemsContainer : public FFastArraySerializer
 {
 	GENERATED_USTRUCT_BODY();
+
+	FDInventoryItemsContainer()
+	{
+		
+	}
+	
+	explicit FDInventoryItemsContainer(UDInventoryComponent* Owner): Owner(Owner)
+	{
+		
+	}
+
+	void SetOwner(UDInventoryComponent* InOwner);
 	
 	void PreReplicatedRemove(const TArrayView<int32>& RemovedIndices, int32 FinalSize);
 	void PostReplicatedAdd(const TArrayView<int32>& AddedIndices, int32 FinalSize);
@@ -44,25 +56,15 @@ struct FDInventoryItemsContainer : public FFastArraySerializer
 	void Remove(FDInventoryItem* Item);
 	void RemoveWithIndex(const int32 Index);
 
-	FDInventoryItem* GetItem();
-	int32 GetItemIndex();
-	
+	FDInventoryItem* GetItem(const int32 Id);
+	int32 GetItemIndex(const FDInventoryItem* Item);
+	int32 GetItemIndexWithId(const int32 Id);
 	
 	UPROPERTY()
 	TArray<FDInventoryItem>	Items_Internal;
 
 	UPROPERTY()
 	UDInventoryComponent* Owner = nullptr;
-
-	/*//增加元素
-	int index = Items.Add(FExampleItemEntry());
-	MarkItemDirty(Items[index]);
-	//修改元素
-	Items[index].ExampleIntProperty = NewExampleIntProperty;
-	MarkItemDirty(Items[index]);
-	//删除元素
-	Items.RemoveAt(index);
-	MarkArrayDirty();*/
 };
 
 template<>
@@ -72,15 +74,25 @@ struct TStructOpsTypeTraits<FDInventoryItemsContainer> : public TStructOpsTypeTr
 };
 
 
+// 容器组件：口袋，背包，背心
 UCLASS()
 class UDInventoryComponent : public UObject, public FInventoryBase
 {
 	GENERATED_BODY()
-	
-public:
 
+
+	
+	
+protected:
 	
 	UPROPERTY(Replicated)
 	FDInventoryItemsContainer ItemArray;
-	
+
+	// 容器布局，比如塔科夫的口袋就是4个'1x1'
+	UPROPERTY(Replicated)
+	TArray<FVector2D> ContainerSize;// 2 x 2
+
+	// 容器配置Id，配置中可以含有更多表现相关的参数（比如决定UI的样式）
+	UPROPERTY(Replicated);
+	int32 ConfigId = 0;
 };

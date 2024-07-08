@@ -1,5 +1,6 @@
-﻿#include "D:\Codes\54\UnrealEngine\Engine\Intermediate\Build\Win64\x64\UnrealEditorGPF\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h"
-#include "DInventoryComponent.h"
+﻿#include "DInventoryComponent.h"
+
+#include "Net/UnrealNetwork.h"
 
 void FDInventoryItem::PreReplicatedRemove(const FDInventoryItemsContainer& InArray)
 {
@@ -11,6 +12,12 @@ void FDInventoryItem::PostReplicatedAdd(const FDInventoryItemsContainer& InArray
 
 void FDInventoryItem::PostReplicatedChange(const FDInventoryItemsContainer& InArray)
 {
+	
+}
+
+void FDInventoryItemsContainer::SetOwner(UDInventoryComponent* InOwner)
+{
+	this->Owner = InOwner;
 }
 
 void FDInventoryItemsContainer::PreReplicatedRemove(const TArrayView<int32>& RemovedIndices, int32 FinalSize)
@@ -27,23 +34,64 @@ void FDInventoryItemsContainer::PostReplicatedChange(const TArrayView<int32>& Ch
 
 FDInventoryItem* FDInventoryItemsContainer::Add()
 {
-	return nullptr;
+	const int32 Index = Items_Internal.AddZeroed();
+	MarkItemDirty(Items_Internal[Index]);
+	return &Items_Internal[Index];
 }
 
 void FDInventoryItemsContainer::Remove(FDInventoryItem* Item)
 {
+	const int32 Index = GetItemIndex(Item);
+	Items_Internal.RemoveAtSwap(Index);
+	MarkArrayDirty();
 }
 
 void FDInventoryItemsContainer::RemoveWithIndex(const int32 Index)
 {
+	Items_Internal.RemoveAtSwap(Index);
+	MarkArrayDirty();
 }
 
-FDInventoryItem* FDInventoryItemsContainer::GetItem()
+FDInventoryItem* FDInventoryItemsContainer::GetItem(const int32 Id)
 {
+	for (int32 i = 0; i < Items_Internal.Num(); i++)
+		if (Id == Items_Internal[i].Uid)
+			return &Items_Internal[i];
+	
 	return nullptr;
 }
 
-int32 FDInventoryItemsContainer::GetItemIndex()
+int32 FDInventoryItemsContainer::GetItemIndex(const FDInventoryItem* Item)
 {
-	return 0;
+	if (!Item)
+		return INDEX_NONE;
+	
+	for (int32 i = 0; i < Items_Internal.Num(); i++)
+		if (Item->Uid == Items_Internal[i].Uid)
+			return i;
+	
+	return INDEX_NONE;
+}
+
+int32 FDInventoryItemsContainer::GetItemIndexWithId(const int32 Id)
+{
+	for (int32 i = 0; i < Items_Internal.Num(); i++)
+		if (Id == Items_Internal[i].Uid)
+			return i;
+	
+	return INDEX_NONE;
+}
+
+
+void UDInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	FDoRepLifetimeParams SharedParams;
+	SharedParams.bIsPushBased = true;
+	
+	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UDInventoryComponent, ItemArray, SharedParams);
+	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UDInventoryComponent, ContainerSize, SharedParams);
+	
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
