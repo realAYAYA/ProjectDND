@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
+#include "DGameTypes.h"
 #include "InventoryBase.h"
 #include "Net/Serialization/FastArraySerializer.h"
 #include "DInventoryComponent.generated.h"
@@ -76,23 +77,67 @@ struct TStructOpsTypeTraits<FDInventoryItemsContainer> : public TStructOpsTypeTr
 
 // 容器组件：口袋，背包，背心
 UCLASS()
-class UDInventoryComponent : public UObject, public FInventoryBase
+class UDInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+public:
 
+	UDInventoryComponent();
+
+	// 移动道具，同一容器中移动，不同容器之间移动
+	bool MoveItem(const int32 ItemId, const FVector2D NewPosition);
 	
+	// 穿装备 脱装备
+	bool PutOn(const int32 ItemId, const int32 Slot);
+	bool TakeOff(const int32 ItemId);
+	
+	void LoadData(const FDRoleInventoryData& InData);// Todo 如果有一天容器或道具属性配置被修改，如何检测，变为非法的道具或容器应作何处理
+	void SaveData(FDRoleInventoryData* OutData);
+
+	FDInventoryItem* GetItem(const int32 Id);
+
+	int64 GetItemNumWithCfgId(const int32 CfgId) const;
+
+	// 删除道具，根据数量不一定是移除道具
+	void DeleteItem(const int32 Id, const int32 Num, const FString& Reason);
+	void DeleteItemWithCfgId(const int32 CfgId, const int32 Num, const FString& Reason);
+
+	bool AddItem(FDInventoryItem* Item, const FString& Reason);
+	bool AddItemWithCfgId(const int32 CfgId, const int32 Num, const FString& Reason);
+
+	void RemoveItem(const int32 Id);
 	
 protected:
 	
-	UPROPERTY(Replicated)
-	FDInventoryItemsContainer ItemArray;
+	// 容器配置Id，配置中可以含有更多表现相关的参数（比如决定UI的样式）
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Replicated);
+	int32 VestId = 0;
+
+	// 口袋容器Id
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Replicated);
+	int32 PocketId = 0;
+	
+	// 背包容器Id
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Replicated);
+	int32 BackPackId = 0;
 
 	// 容器布局，比如塔科夫的口袋就是4个'1x1'
-	UPROPERTY(Replicated)
-	TArray<FVector2D> ContainerSize;// 2 x 2
+	TMap<int32, TArray<FVector2D>> ContainerLayout;
 
-	// 容器配置Id，配置中可以含有更多表现相关的参数（比如决定UI的样式）
-	UPROPERTY(Replicated);
-	int32 ConfigId = 0;
+	// 装备栏位
+	UPROPERTY(Replicated)
+	FDInventoryItemsContainer Equipments;
+	
+	// 背心道具栏位
+	UPROPERTY(Replicated)
+	FDInventoryItemsContainer ItemArray_Vest;
+	
+	// 口袋栏位
+	UPROPERTY(Replicated)
+	FDInventoryItemsContainer ItemArray_Pocket;
+
+	// 背包道具栏位
+	UPROPERTY(Replicated)
+	FDInventoryItemsContainer ItemArray_BackPack;
 };

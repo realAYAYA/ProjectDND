@@ -74,6 +74,4 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void ServerSendPlayerInfo();
-
-	static TMap<uint64, FDPlayerData> PlayerMap;
 };

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InventoryBase.h"
+#include "GameFramework/SaveGame.h"
 #include "DGameTypes.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogProjectD, Log, All);
@@ -33,17 +35,74 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FDPlayerData
+struct FDGameSettings
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category = "ProjectD")
+	float TotalAudioVolume = 1;
+	
+};
+
+USTRUCT(BlueprintType)
+struct FDRoleInventoryData
+{
+	GENERATED_USTRUCT_BODY()
+
+	// 仓库中的道具
+	UPROPERTY()
+	TArray<FInventoryItemBase> ItemsInStore;
+
+	// 背包中的道具
+	UPROPERTY()
+	TArray<FInventoryItemBase> ItemsInBackPack;
+
+	// 口袋中的道具
+	UPROPERTY()
+	TArray<FInventoryItemBase> ItemsInPocket;
+
+	// 背心中的道具
+	UPROPERTY()
+	TArray<FInventoryItemBase> ItemsInVest;
+
+	// 身上穿戴的装备
+	UPROPERTY()
+	TArray<FInventoryItemBase> Equipments;
+};
+
+USTRUCT(BlueprintType)
+struct FDRoleData
+{
+	GENERATED_USTRUCT_BODY()
+
+	// 背包数据
+	UPROPERTY()
+	FDRoleInventoryData InventoryData;
+	
+	// 商店数据
+	// 技能数据
+	// 外观数据
+	// 副职业数据 例如烹饪，工程，炼金，
+};
+
+USTRUCT(BlueprintType)
+struct FDGameSaveData
 {
 	GENERATED_USTRUCT_BODY()
 
 	// Steam Ps4 Xbox
 	UPROPERTY()
-	uint64 PlayerId = 0;
+	int64 PlayerId = 0;
 
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	FString Name;
 
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectD")
 	FString PlatformId;// SteamId | PS4 | Xbox ...
+};
+
+USTRUCT(BlueprintType)
+struct FDGameAchievements
+{
+	GENERATED_USTRUCT_BODY()
 };
