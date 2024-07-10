@@ -75,6 +75,67 @@ struct TStructOpsTypeTraits<FDInventoryItemsContainer> : public TStructOpsTypeTr
 };
 
 
+
+UENUM()
+enum EDContainerType
+{
+	None,
+	Pocket,
+	Vest,
+	Backpack,
+};
+
+USTRUCT(BlueprintType)
+struct FIntArray2D
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY()
+	TArray<TArray<int32>> Matrix;
+
+	FIntVector GetLength() const
+	{
+		FIntVector LW(0);
+		LW.Y = Matrix.Num();
+		LW.X = LW.Y == 0 ? 0 : Matrix[0].Num();
+		return LW;
+	}
+
+	int32 Get(const int32 X, const int32 Y) const
+	{
+		if (Matrix.IsValidIndex(Y) && Matrix[Y].IsValidIndex(X))
+			return Matrix[Y][X];
+
+		return -1;
+	}
+
+	void Set(const int32 X, const int32 Y, const int32 Num)
+	{
+		if (Matrix.IsValidIndex(Y) && Matrix[Y].IsValidIndex(X))
+			Matrix[Y][X] = Num;
+	}
+
+	void Init(const int32 LengthX, const int32 LengthY)
+	{
+		Matrix.Empty();
+		Matrix.SetNum(LengthY);
+		for (auto& Row : Matrix)
+			Row.Init(0, LengthX);
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FDContainerLayout
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FVector2D> Layouts;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FIntArray2D> Spaces;
+};
+
 // 容器组件：口袋，背包，背心
 UCLASS()
 class UDInventoryComponent : public UActorComponent
@@ -84,17 +145,17 @@ class UDInventoryComponent : public UActorComponent
 public:
 
 	UDInventoryComponent();
+	
+	void LoadData(const FDRoleInventoryData& InData);// Todo 如果有一天容器或道具属性配置被修改，如何检测，变为非法的道具或容器应作何处理
+	void SaveData(FDRoleInventoryData* OutData);
 
 	// 移动道具，同一容器中移动，不同容器之间移动
-	bool MoveItem(const int32 ItemId, const FVector2D NewPosition);
+	bool MoveItem(const int32 ItemId, const FIntVector3 NewPosition);
 	
 	// 穿装备 脱装备
 	bool PutOn(const int32 ItemId, const int32 Slot);
 	bool TakeOff(const int32 ItemId);
 	
-	void LoadData(const FDRoleInventoryData& InData);// Todo 如果有一天容器或道具属性配置被修改，如何检测，变为非法的道具或容器应作何处理
-	void SaveData(FDRoleInventoryData* OutData);
-
 	FDInventoryItem* GetItem(const int32 Id);
 
 	int64 GetItemNumWithCfgId(const int32 CfgId) const;
@@ -110,8 +171,12 @@ public:
 	
 protected:
 	
+	// 道具数组
+	UPROPERTY(Replicated)
+	FDInventoryItemsContainer ItemArray;
+
 	// 容器配置Id，配置中可以含有更多表现相关的参数（比如决定UI的样式）
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Replicated);
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, ReplicatedUsing = OnContainerChange);
 	int32 VestId = 0;
 
 	// 口袋容器Id
@@ -119,25 +184,19 @@ protected:
 	int32 PocketId = 0;
 	
 	// 背包容器Id
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Replicated);
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, ReplicatedUsing = OnContainerChange);
 	int32 BackPackId = 0;
 
-	// 容器布局，比如塔科夫的口袋就是4个'1x1'
-	TMap<int32, TArray<FVector2D>> ContainerLayout;
+	// 容器布局
+	UPROPERTY(BlueprintReadOnly)
+	FDContainerLayout Layout_Vest;
 
-	// 装备栏位
-	UPROPERTY(Replicated)
-	FDInventoryItemsContainer Equipments;
+	UPROPERTY(BlueprintReadOnly)
+	FDContainerLayout Layout_Pocket;// 比如塔科夫的口袋就是4个'1x1'
 	
-	// 背心道具栏位
-	UPROPERTY(Replicated)
-	FDInventoryItemsContainer ItemArray_Vest;
-	
-	// 口袋栏位
-	UPROPERTY(Replicated)
-	FDInventoryItemsContainer ItemArray_Pocket;
+	UPROPERTY(BlueprintReadOnly)
+	FDContainerLayout Layout_BackPack;
 
-	// 背包道具栏位
-	UPROPERTY(Replicated)
-	FDInventoryItemsContainer ItemArray_BackPack;
+	UFUNCTION()
+	void OnContainerChange(const bool bBackpack);
 };

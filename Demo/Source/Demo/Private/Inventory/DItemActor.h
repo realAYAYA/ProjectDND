@@ -29,15 +29,19 @@ protected:
 
 	// 容器布局Id
 	UPROPERTY(Replicated)
-	int32 ContainerLayout = 0;
+	int32 ContainerLayoutId = 0;
 
 	// 空间布局
 	UPROPERTY()
-	TArray<FVector2D> Spaces;
+	FDContainerLayout Layout;
 
 	// 容器内道具
 	UPROPERTY(Replicated)
 	FDInventoryItemsContainer ItemArray;
+
+	void AddItem(const int32 Id, const int32 Num);
+	void DeleteItem(const int32 Id, const int32 Num);
+	void RemoveItem();
 
 	virtual void PostNetInit() override;
 };

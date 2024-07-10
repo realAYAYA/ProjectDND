@@ -53,21 +53,9 @@ struct FDRoleInventoryData
 	UPROPERTY()
 	TArray<FInventoryItemBase> ItemsInStore;
 
-	// 背包中的道具
+	// 角色身上的道具，装备、背包、口袋、背心
 	UPROPERTY()
-	TArray<FInventoryItemBase> ItemsInBackPack;
-
-	// 口袋中的道具
-	UPROPERTY()
-	TArray<FInventoryItemBase> ItemsInPocket;
-
-	// 背心中的道具
-	UPROPERTY()
-	TArray<FInventoryItemBase> ItemsInVest;
-
-	// 身上穿戴的装备
-	UPROPERTY()
-	TArray<FInventoryItemBase> Equipments;
+	TArray<FInventoryItemBase> ItemsOnRole;
 };
 
 USTRUCT(BlueprintType)
