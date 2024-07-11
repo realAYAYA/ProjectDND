@@ -17,13 +17,21 @@ struct FDInventoryItemsContainer;
 */
 
 USTRUCT(BlueprintType)
-struct FDInventoryItem : public FFastArraySerializerItem, public FInventoryItemBase
+struct FDInventoryItem : public FFastArraySerializerItem
 {
 	GENERATED_USTRUCT_BODY()
 	
 	void PreReplicatedRemove(const FDInventoryItemsContainer &InArray);
 	void PostReplicatedAdd(const FDInventoryItemsContainer &InArray);
 	void PostReplicatedChange(const FDInventoryItemsContainer &InArray);
+
+	FDInventoryItem& operator=(const FInventoryItemBase& Other): BaseData(Other)
+	{
+		return *this;
+	}
+
+	UPROPERTY()
+	FInventoryItemBase BaseData;
 };
 
 USTRUCT()
@@ -53,8 +61,9 @@ struct FDInventoryItemsContainer : public FFastArraySerializer
 	}
 
 	FDInventoryItem* Add();
+	void Add(const FDInventoryItem& InItem);
 
-	void Remove(FDInventoryItem* Item);
+	void Remove(const FDInventoryItem* Item);
 	void RemoveWithIndex(const int32 Index);
 
 	FDInventoryItem* GetItem(const int32 Id);
@@ -66,6 +75,9 @@ struct FDInventoryItemsContainer : public FFastArraySerializer
 
 	UPROPERTY()
 	UDInventoryComponent* Owner = nullptr;
+
+	UPROPERTY()
+	int64 SerialId = 0;
 };
 
 template<>
@@ -115,12 +127,58 @@ struct FIntArray2D
 			Matrix[Y][X] = Num;
 	}
 
-	void Init(const int32 LengthX, const int32 LengthY)
+	void Reset(const int32 LengthX, const int32 LengthY)
 	{
 		Matrix.Empty();
 		Matrix.SetNum(LengthY);
 		for (auto& Row : Matrix)
 			Row.Init(0, LengthX);
+	}
+
+	// 检测是否可以将一个给定Size和Pos的地块完成塞入，并返回塞入过程中的具体情况
+	bool OverlapTest(const FIntVector2 BeginPos, const FIntVector2 Size, TArray<FIntVector>& HitResult) const
+	{
+		bool bOk = true;
+		for (int32 Y = BeginPos.Y; Y < Size.Y; Y++)
+		{
+			for (int32 X = BeginPos.X; X < Size.X; X++)
+			{
+				const int32 Value = Get(X, Y);
+				if (Value != 0)
+					bOk = false;
+
+				HitResult.Add(FIntVector(X, Y, Value));
+			}
+		}
+
+		return bOk;
+	}
+
+	// 快速检测是否可以将一个给定Size和Pos的地块完成塞入
+	bool OverlapTestFast(const FIntVector2 BeginPos, const FIntVector2 Size) const
+	{
+		for (int32 Y = BeginPos.Y; Y < Size.Y; Y++)
+		{
+			for (int32 X = BeginPos.X; X < Size.X; X++)
+			{
+				const int32 Value = Get(X, Y);
+				if (Value != 0)
+					return false;
+			}
+		}
+		
+		return true;
+	}
+
+	void DoOverlap(const FIntVector2 BeginPos, const FIntVector2 Size, const int32 Value)
+	{
+		for (int32 Y = BeginPos.Y; Y < Size.Y; Y++)
+		{
+			for (int32 X = BeginPos.X; X < Size.X; X++)
+			{
+				Set(X, Y, Value);
+			}
+		}
 	}
 };
 
@@ -134,6 +192,31 @@ struct FDContainerLayout
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FIntArray2D> Spaces;
+
+	// 检测是否可以将一个给定Size的地块完成塞入，并返回塞入过程中的具体情况
+	bool OverlapTest(const int32 SlotIndex, const FIntVector2 BeginPos, const FIntVector2 Size, TArray<FIntVector>& HitResult) const
+	{
+		HitResult.Reset();
+		if (Spaces.IsValidIndex(SlotIndex))
+			return Spaces[SlotIndex].OverlapTest(BeginPos, Size, HitResult);
+
+		return false;
+	}
+
+	// 快速检测是否可以将一个给定Size的地块完成塞入
+	bool OverlapTestFast(const int32 SlotIndex, const FIntVector2 BeginPos, const FIntVector2 Size) const
+	{
+		if (Spaces.IsValidIndex(SlotIndex))
+			return Spaces[SlotIndex].OverlapTestFast(BeginPos, Size);
+
+		return false;
+	}
+
+	void DoOverlap(const int32 SlotIndex, const FIntVector2 BeginPos, const FIntVector2 Size, const int32 Value)
+	{
+		if (Spaces.IsValidIndex(SlotIndex))
+			Spaces[SlotIndex].DoOverlap(BeginPos, Size, Value);
+	}
 };
 
 // 容器组件：口袋，背包，背心
@@ -146,7 +229,7 @@ public:
 
 	UDInventoryComponent();
 	
-	void LoadData(const FDRoleInventoryData& InData);// Todo 如果有一天容器或道具属性配置被修改，如何检测，变为非法的道具或容器应作何处理
+	void LoadData(const FDRoleInventoryData& InData);
 	void SaveData(FDRoleInventoryData* OutData);
 
 	// 移动道具，同一容器中移动，不同容器之间移动
@@ -164,12 +247,16 @@ public:
 	void DeleteItem(const int32 Id, const int32 Num, const FString& Reason);
 	void DeleteItemWithCfgId(const int32 CfgId, const int32 Num, const FString& Reason);
 
+	bool AutoAddItem(FDInventoryItem* Item, const FString& Reason);
 	bool AddItem(FDInventoryItem* Item, const FString& Reason);
 	bool AddItemWithCfgId(const int32 CfgId, const int32 Num, const FString& Reason);
+	
 
 	void RemoveItem(const int32 Id);
 	
 protected:
+
+	void InternalAddItem();
 	
 	// 道具数组
 	UPROPERTY(Replicated)
@@ -198,5 +285,5 @@ protected:
 	FDContainerLayout Layout_BackPack;
 
 	UFUNCTION()
-	void OnContainerChange(const bool bBackpack);
+	void OnContainerChange();
 };

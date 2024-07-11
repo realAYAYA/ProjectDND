@@ -35,14 +35,27 @@ void FDInventoryItemsContainer::PostReplicatedChange(const TArrayView<int32>& Ch
 FDInventoryItem* FDInventoryItemsContainer::Add()
 {
 	const int32 Index = Items_Internal.AddZeroed();
+	Items_Internal[Index].BaseData.Uid = ++SerialId;
 	MarkItemDirty(Items_Internal[Index]);
 	return &Items_Internal[Index];
 }
 
-void FDInventoryItemsContainer::Remove(FDInventoryItem* Item)
+void FDInventoryItemsContainer::Add(const FDInventoryItem& InItem)
+{
+	const int32 Index = Items_Internal.Emplace(InItem);
+	Items_Internal[Index].BaseData.Uid = ++SerialId;
+	MarkItemDirty(Items_Internal[Index]);
+}
+
+void FDInventoryItemsContainer::Remove(const FDInventoryItem* Item)
 {
 	const int32 Index = GetItemIndex(Item);
 	Items_Internal.RemoveAtSwap(Index);
+	if (Items_Internal.Num() == 0)
+	{
+		SerialId = 0;
+	}
+	
 	MarkArrayDirty();
 }
 
@@ -55,7 +68,7 @@ void FDInventoryItemsContainer::RemoveWithIndex(const int32 Index)
 FDInventoryItem* FDInventoryItemsContainer::GetItem(const int32 Id)
 {
 	for (int32 i = 0; i < Items_Internal.Num(); i++)
-		if (Id == Items_Internal[i].Uid)
+		if (Id == Items_Internal[i].BaseData.Uid)
 			return &Items_Internal[i];
 	
 	return nullptr;
@@ -67,7 +80,7 @@ int32 FDInventoryItemsContainer::GetItemIndex(const FDInventoryItem* Item)
 		return INDEX_NONE;
 	
 	for (int32 i = 0; i < Items_Internal.Num(); i++)
-		if (Item->Uid == Items_Internal[i].Uid)
+		if (Item->BaseData.Uid == Items_Internal[i].BaseData.Uid)
 			return i;
 	
 	return INDEX_NONE;
@@ -76,7 +89,7 @@ int32 FDInventoryItemsContainer::GetItemIndex(const FDInventoryItem* Item)
 int32 FDInventoryItemsContainer::GetItemIndexWithId(const int32 Id)
 {
 	for (int32 i = 0; i < Items_Internal.Num(); i++)
-		if (Id == Items_Internal[i].Uid)
+		if (Id == Items_Internal[i].BaseData.Uid)
 			return i;
 	
 	return INDEX_NONE;
@@ -89,6 +102,8 @@ UDInventoryComponent::UDInventoryComponent()
 
 void UDInventoryComponent::LoadData(const FDRoleInventoryData& InData)
 {
+	// Todo 如果有一天容器或道具属性配置被修改，如何检测，变为非法的道具或容器应作何处理
+	
 	// 初始化容器布局配置Id，来自角色及其装备上提供的配置
 	VestId = PocketId = BackPackId = 0;
 	Layout_Vest;
@@ -104,7 +119,7 @@ void UDInventoryComponent::LoadData(const FDRoleInventoryData& InData)
 		
 		for (int32 i = 0; i < Layout->Layouts.Num(); i++)
 		{
-			Layout->Spaces[i].Init(Layout->Layouts[i].X, Layout->Layouts[i].Y);
+			Layout->Spaces[i].Reset(Layout->Layouts[i].X, Layout->Layouts[i].Y);
 		}
 	}
 
@@ -127,9 +142,17 @@ void UDInventoryComponent::LoadData(const FDRoleInventoryData& InData)
 		FIntVector2 Pos(Item.Position.X, Item.Position.Y);
 		int32 SlotIndex = Item.Position.W;
 		
-		// CanAddItem(Layout, Pos, Size, Slot)
+		bool bCanAdd = Layout ? false : Layout->OverlapTestFast(SlotIndex, Pos, Size);
+		if (!bCanAdd)
 		{
-			
+			// 发送到邮箱或仓库
+		}
+		else
+		{
+			// 进组
+			Layout->DoOverlap(SlotIndex, Pos, Size, Item.Uid);
+			auto* NewItem = ItemArray.Add();
+			*NewItem = Item;
 		}
 	}
 }
