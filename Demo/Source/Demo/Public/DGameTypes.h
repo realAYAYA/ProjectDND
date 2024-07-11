@@ -1,8 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryBase.h"
+#include "Net/Serialization/FastArraySerializer.h"
 #include "GameFramework/SaveGame.h"
+
+#include "InventoryBase.h"
 #include "DGameTypes.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogProjectD, Log, All);
@@ -44,6 +46,90 @@ struct FDGameSettings
 	
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct FDInventoryItemsContainer;
+
+/*
+	三个函数只有客户端才能调用
+	void PreReplicatedRemove(const FDInventoryItemsContainer &InArray);
+	void PostReplicatedAdd(const FDInventoryItemsContainer &InArray);
+	void PostReplicatedChange(const FDInventoryItemsContainer &InArray);
+	如果一个元素是被删除，之后又添加了新的，不一定会调PreReplicatedRemove()以及PostReplicatedAdd()，有可能只有一个PostReplicatedChange()
+*/
+
+USTRUCT(BlueprintType)
+struct FDInventoryItem : public FFastArraySerializerItem
+{
+	GENERATED_USTRUCT_BODY()
+	
+	void PreReplicatedRemove(const FDInventoryItemsContainer &InArray);
+	void PostReplicatedAdd(const FDInventoryItemsContainer &InArray);
+	void PostReplicatedChange(const FDInventoryItemsContainer &InArray);
+
+	FDInventoryItem& operator=(const FInventoryItemBase& Other): BaseData(Other)
+	{
+		return *this;
+	}
+
+	int64 Uid() const { return BaseData.Uid; }
+	void SetUid(const int64 Id) { BaseData.Uid = Id; }
+
+	UPROPERTY()
+	FInventoryItemBase BaseData;
+};
+
+USTRUCT()
+struct FDInventoryItemsContainer : public FFastArraySerializer
+{
+	GENERATED_USTRUCT_BODY();
+
+	FDInventoryItemsContainer()
+	{
+		
+	}
+	
+	explicit FDInventoryItemsContainer(UDInventoryComponent* Owner): Owner(Owner)
+	{
+		
+	}
+
+	void SetOwner(UDInventoryComponent* InOwner);
+	
+	void PreReplicatedRemove(const TArrayView<int32>& RemovedIndices, int32 FinalSize);
+	void PostReplicatedAdd(const TArrayView<int32>& AddedIndices, int32 FinalSize);
+	void PostReplicatedChange(const TArrayView<int32>& ChangedIndices, int32 FinalSize);
+
+	bool NetDeltaSerialize(FNetDeltaSerializeInfo & DeltaParams)
+	{
+		return FFastArraySerializer::FastArrayDeltaSerialize<FDInventoryItem, FDInventoryItemsContainer>( Items_Internal, DeltaParams, *this );
+	}
+
+	FDInventoryItem* Add();
+	void Add(const FDInventoryItem& InItem);
+
+	void Remove(const FDInventoryItem* Item);
+	void RemoveWithIndex(const int32 Index);
+
+	FDInventoryItem* GetItem(const int32 Id);
+	int32 GetItemIndex(const FDInventoryItem* Item);
+	int32 GetItemIndexWithId(const int32 Id);
+	
+	UPROPERTY()
+	TArray<FDInventoryItem>	Items_Internal;
+
+	UPROPERTY()
+	UDInventoryComponent* Owner = nullptr;
+
+	UPROPERTY()
+	int64 SerialId = 0;
+};
+
+template<>
+struct TStructOpsTypeTraits<FDInventoryItemsContainer> : public TStructOpsTypeTraitsBase2<FDInventoryItemsContainer>
+{
+	enum { WithNetDeltaSerializer = true };
+};
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 USTRUCT(BlueprintType)
 struct FDRoleInventoryData
 {
