@@ -36,15 +36,7 @@ public:
 	FDCharacterGasData GasData;
 };
 
-USTRUCT(BlueprintType)
-struct FDGameSettings
-{
-	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(BlueprintReadWrite, Category = "ProjectD")
-	float TotalAudioVolume = 1;
-	
-};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct FDInventoryItemsContainer;
@@ -129,7 +121,19 @@ struct TStructOpsTypeTraits<FDInventoryItemsContainer> : public TStructOpsTypeTr
 {
 	enum { WithNetDeltaSerializer = true };
 };
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// 装备所处容器
+UENUM()
+enum EDContainerType
+{
+	None,
+	Pocket,
+	Vest,
+	Backpack,
+};
+
 USTRUCT(BlueprintType)
 struct FDRoleInventoryData
 {
