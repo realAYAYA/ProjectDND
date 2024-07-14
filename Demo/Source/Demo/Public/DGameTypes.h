@@ -63,8 +63,19 @@ struct FDInventoryItem : public FFastArraySerializerItem
 		return *this;
 	}
 
-	int64 Uid() const { return BaseData.Uid; }
-	void SetUid(const int64 Id) { BaseData.Uid = Id; }
+	int32 Uid() const { return BaseData.Uid; }
+	void SetUid(const int32 Id) { BaseData.Uid = Id; }
+	
+	int64 CfgId() const { return BaseData.ConfigId; }
+	void SetCfgId(const int32 Id) { BaseData.ConfigId = Id; }
+
+	int64 Num() const { return BaseData.Num; }
+	void AddNum(const int32 InNum, const bool bOverride = false)
+	{
+		BaseData.Num =  bOverride ? InNum : BaseData.Num + InNum;
+	}
+
+	
 
 	UPROPERTY()
 	FInventoryItemBase BaseData;
@@ -102,6 +113,7 @@ struct FDInventoryItemsContainer : public FFastArraySerializer
 	void Remove(const FDInventoryItem* Item);
 	void RemoveWithIndex(const int32 Index);
 
+	const FDInventoryItem* GetItem(const int32 Id) const;
 	FDInventoryItem* GetItem(const int32 Id);
 	int32 GetItemIndex(const FDInventoryItem* Item);
 	int32 GetItemIndexWithId(const int32 Id);
@@ -146,6 +158,15 @@ struct FDRoleInventoryData
 	// 角色身上的道具，装备、背包、口袋、背心
 	UPROPERTY()
 	TArray<FInventoryItemBase> ItemsOnRole;
+
+	UPROPERTY()
+	int32 PocketId = 0;
+	
+	UPROPERTY()
+	int32 VestId = 0;
+	
+	UPROPERTY()
+	int32 BackPackId = 0;
 };
 
 USTRUCT(BlueprintType)

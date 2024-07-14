@@ -41,6 +41,14 @@ struct FDContainerLayout
 		if (Spaces.IsValidIndex(SlotIndex))
 			Spaces[SlotIndex].DoOverlap(BeginPos, Size, Value);
 	}
+
+	int32 GetValue(const int32 SlotIndex, const FIntVector2 Pos) const
+	{
+		if (Spaces.IsValidIndex(SlotIndex))
+			return Spaces[SlotIndex].Get(Pos.X, Pos.Y);
+
+		return -1;
+	}
 };
 
 // 容器组件：口袋，背包，背心
@@ -56,38 +64,20 @@ public:
 	void LoadData(const FDRoleInventoryData& InData);
 	void SaveData(FDRoleInventoryData* OutData);
 
-	// 移动道具，同一容器中移动，不同容器之间移动
-	bool MoveItem(const int32 ItemId, const FIntVector3 NewPosition);
-	
-	// 穿装备 脱装备
-	bool PutOn(const int32 ItemId, const int32 Slot);
-	bool TakeOff(const int32 ItemId);
-	
-	FDInventoryItem* GetItem(const int32 Id);
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	bool CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos) const;
 
-	int64 GetItemNumWithCfgId(const int32 CfgId) const;
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	bool CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos, TArray<FIntVector>& HitResult) const;
 
-	// 删除道具，根据数量不一定是移除道具
-	void DeleteItem(const int32 Id, const int32 Num, const FString& Reason);
-	void DeleteItemWithCfgId(const int32 CfgId, const int32 Num, const FString& Reason);
-
-	bool AutoAddItem(FDInventoryItem* Item, const FString& Reason);
-	bool AddItem(FDInventoryItem* Item, const FString& Reason);
-	bool AddItemWithCfgId(const int32 CfgId, const int32 Num, const FString& Reason);
-	
-
-	void RemoveItem(const int32 Id);
-	
 protected:
-
-	void InternalAddItem();
 	
 	// 道具数组
 	UPROPERTY(Replicated)
 	FDInventoryItemsContainer ItemArray;
 
 	// 容器配置Id，配置中可以含有更多表现相关的参数（比如决定UI的样式）
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, ReplicatedUsing = OnContainerChange);
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, ReplicatedUsing = OnVestChange);
 	int32 VestId = 0;
 
 	// 口袋容器Id
@@ -95,7 +85,7 @@ protected:
 	int32 PocketId = 0;
 	
 	// 背包容器Id
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, ReplicatedUsing = OnContainerChange);
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, ReplicatedUsing = OnBackPackChange);
 	int32 BackPackId = 0;
 
 	// 容器布局
@@ -108,6 +98,21 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	FDContainerLayout Layout_BackPack;
 
+	const FDContainerLayout* SwitchContainer(const EDContainerType Container) const;
+	FDContainerLayout* SwitchContainer(const EDContainerType Container);
+
+	const FDInventoryItem* GetItem(const int32 Id) const;
+	const FDInventoryItem* GetItemWithPos(const EDContainerType Container, const int32 Slot, const FIntVector2 Pos) const;
+	
 	UFUNCTION()
-	void OnContainerChange();
+	void OnVestChange();
+
+	UFUNCTION()
+	void OnBackPackChange();
+
+private:
+
+	void InternalAddItem();
+	
 };
+

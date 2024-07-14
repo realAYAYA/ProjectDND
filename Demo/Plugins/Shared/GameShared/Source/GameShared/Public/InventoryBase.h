@@ -21,7 +21,7 @@ struct GAMESHARED_API FInventoryItemBase
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	int64 Uid = 0;
+	int32 Uid = 0;
 	
 	// 堆叠数量
 	UPROPERTY(BlueprintReadOnly)

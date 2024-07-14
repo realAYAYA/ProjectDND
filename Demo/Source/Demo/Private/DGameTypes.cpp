@@ -64,6 +64,15 @@ void FDInventoryItemsContainer::RemoveWithIndex(const int32 Index)
 	MarkArrayDirty();
 }
 
+const FDInventoryItem* FDInventoryItemsContainer::GetItem(const int32 Id) const
+{
+	for (int32 i = 0; i < Items_Internal.Num(); i++)
+		if (Id == Items_Internal[i].Uid())
+			return &Items_Internal[i];
+	
+	return nullptr;
+}
+
 FDInventoryItem* FDInventoryItemsContainer::GetItem(const int32 Id)
 {
 	for (int32 i = 0; i < Items_Internal.Num(); i++)
@@ -93,3 +102,4 @@ int32 FDInventoryItemsContainer::GetItemIndexWithId(const int32 Id)
 	
 	return INDEX_NONE;
 }
+
