@@ -39,9 +39,11 @@ protected:
 	UPROPERTY(Replicated)
 	FDInventoryItemsContainer ItemArray;
 
+	/*
 	void AddItem(const int32 Id, const int32 Num);
 	void DeleteItem(const int32 Id, const int32 Num);
 	void RemoveItem();
+	*/
 
 	virtual void PostNetInit() override;
 };

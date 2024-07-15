@@ -14,11 +14,6 @@ void FDInventoryItem::PostReplicatedChange(const FDInventoryItemsContainer& InAr
 	
 }
 
-void FDInventoryItemsContainer::SetOwner(UDInventoryComponent* InOwner)
-{
-	this->Owner = InOwner;
-}
-
 void FDInventoryItemsContainer::PreReplicatedRemove(const TArrayView<int32>& RemovedIndices, int32 FinalSize)
 {
 }
@@ -34,7 +29,7 @@ void FDInventoryItemsContainer::PostReplicatedChange(const TArrayView<int32>& Ch
 FDInventoryItem* FDInventoryItemsContainer::Add()
 {
 	const int32 Index = Items_Internal.AddZeroed();
-	Items_Internal[Index].SetUid(++SerialId);
+	Items_Internal[Index].SetUid(GenerateItemId());
 	MarkItemDirty(Items_Internal[Index]);
 	return &Items_Internal[Index];
 }
@@ -42,7 +37,7 @@ FDInventoryItem* FDInventoryItemsContainer::Add()
 void FDInventoryItemsContainer::Add(const FDInventoryItem& InItem)
 {
 	const int32 Index = Items_Internal.Emplace(InItem);
-	Items_Internal[Index].SetUid(++SerialId);
+	Items_Internal[Index].SetUid(GenerateItemId());
 	MarkItemDirty(Items_Internal[Index]);
 }
 

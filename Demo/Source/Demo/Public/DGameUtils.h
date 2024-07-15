@@ -6,8 +6,7 @@ USTRUCT(BlueprintType)
 struct FIntArray2D
 {
 	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY()
+	
 	TArray<TArray<int32>> Matrix;
 
 	FIntVector GetLength() const

@@ -4,6 +4,7 @@
 #include "DGameUtils.h"
 #include "DInventoryComponent.generated.h"
 
+class ADCharacter;
 class UDInventoryComponent;
 
 USTRUCT(BlueprintType)
@@ -65,10 +66,10 @@ public:
 	void SaveData(FDRoleInventoryData* OutData);
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	bool CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos) const;
+	bool CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector Pos) const;
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	bool CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos, TArray<FIntVector>& HitResult) const;
+	bool CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector Pos, TArray<FIntVector>& HitResult) const;
 
 protected:
 	
@@ -102,7 +103,9 @@ protected:
 	FDContainerLayout* SwitchContainer(const EDContainerType Container);
 
 	const FDInventoryItem* GetItem(const int32 Id) const;
+	FDInventoryItem* GetItem(const int32 Id);
 	const FDInventoryItem* GetItemWithPos(const EDContainerType Container, const int32 Slot, const FIntVector2 Pos) const;
+	FDInventoryItem* GetItemWithPos(const EDContainerType Container, const int32 Slot, const FIntVector2 Pos);
 	
 	UFUNCTION()
 	void OnVestChange();
@@ -110,9 +113,10 @@ protected:
 	UFUNCTION()
 	void OnBackPackChange();
 
+	ADCharacter* GetCharacter() const;
+		
 private:
 
-	void InternalAddItem();
-	
+	FDInventoryItem* InternalAddItem(const EDContainerType Container, const int32 Slot, const FIntVector2 Pos, const int32 CfgId, const int32 Num);
 };
 

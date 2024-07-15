@@ -58,15 +58,16 @@ struct FDInventoryItem : public FFastArraySerializerItem
 	void PostReplicatedAdd(const FDInventoryItemsContainer &InArray);
 	void PostReplicatedChange(const FDInventoryItemsContainer &InArray);
 
-	FDInventoryItem& operator=(const FInventoryItemBase& Other): BaseData(Other)
+	FDInventoryItem& operator=(const FInventoryItemBase& Other)
 	{
+		BaseData = Other;
 		return *this;
 	}
 
 	int32 Uid() const { return BaseData.Uid; }
 	void SetUid(const int32 Id) { BaseData.Uid = Id; }
 	
-	int64 CfgId() const { return BaseData.ConfigId; }
+	int32 CfgId() const { return BaseData.ConfigId; }
 	void SetCfgId(const int32 Id) { BaseData.ConfigId = Id; }
 
 	int64 Num() const { return BaseData.Num; }
@@ -75,11 +76,11 @@ struct FDInventoryItem : public FFastArraySerializerItem
 		BaseData.Num =  bOverride ? InNum : BaseData.Num + InNum;
 	}
 
-	
-
 	UPROPERTY()
 	FInventoryItemBase BaseData;
 };
+
+class UDInventoryComponent;
 
 USTRUCT()
 struct FDInventoryItemsContainer : public FFastArraySerializer
@@ -90,13 +91,6 @@ struct FDInventoryItemsContainer : public FFastArraySerializer
 	{
 		
 	}
-	
-	explicit FDInventoryItemsContainer(UDInventoryComponent* Owner): Owner(Owner)
-	{
-		
-	}
-
-	void SetOwner(UDInventoryComponent* InOwner);
 	
 	void PreReplicatedRemove(const TArrayView<int32>& RemovedIndices, int32 FinalSize);
 	void PostReplicatedAdd(const TArrayView<int32>& AddedIndices, int32 FinalSize);
@@ -126,6 +120,8 @@ struct FDInventoryItemsContainer : public FFastArraySerializer
 
 	UPROPERTY()
 	int64 SerialId = 0;
+
+	int32 GenerateItemId() { return ++SerialId; }
 };
 
 template<>
