@@ -29,7 +29,7 @@ void FDInventoryItemsContainer::PostReplicatedChange(const TArrayView<int32>& Ch
 FDInventoryItem* FDInventoryItemsContainer::Add()
 {
 	const int32 Index = Items_Internal.AddZeroed();
-	Items_Internal[Index].SetUid(GenerateItemId());
+	Items_Internal[Index].Uid = GenerateItemId();
 	MarkItemDirty(Items_Internal[Index]);
 	return &Items_Internal[Index];
 }
@@ -37,7 +37,7 @@ FDInventoryItem* FDInventoryItemsContainer::Add()
 void FDInventoryItemsContainer::Add(const FDInventoryItem& InItem)
 {
 	const int32 Index = Items_Internal.Emplace(InItem);
-	Items_Internal[Index].SetUid(GenerateItemId());
+	Items_Internal[Index].Uid = GenerateItemId();
 	MarkItemDirty(Items_Internal[Index]);
 }
 
@@ -62,7 +62,7 @@ void FDInventoryItemsContainer::RemoveWithIndex(const int32 Index)
 const FDInventoryItem* FDInventoryItemsContainer::GetItem(const int32 Id) const
 {
 	for (int32 i = 0; i < Items_Internal.Num(); i++)
-		if (Id == Items_Internal[i].Uid())
+		if (Id == Items_Internal[i].Uid)
 			return &Items_Internal[i];
 	
 	return nullptr;
@@ -71,7 +71,7 @@ const FDInventoryItem* FDInventoryItemsContainer::GetItem(const int32 Id) const
 FDInventoryItem* FDInventoryItemsContainer::GetItem(const int32 Id)
 {
 	for (int32 i = 0; i < Items_Internal.Num(); i++)
-		if (Id == Items_Internal[i].Uid())
+		if (Id == Items_Internal[i].Uid)
 			return &Items_Internal[i];
 	
 	return nullptr;
@@ -83,7 +83,7 @@ int32 FDInventoryItemsContainer::GetItemIndex(const FDInventoryItem* Item)
 		return INDEX_NONE;
 	
 	for (int32 i = 0; i < Items_Internal.Num(); i++)
-		if (Item->Uid() == Items_Internal[i].Uid())
+		if (Item->Uid == Items_Internal[i].Uid)
 			return i;
 	
 	return INDEX_NONE;
@@ -92,7 +92,7 @@ int32 FDInventoryItemsContainer::GetItemIndex(const FDInventoryItem* Item)
 int32 FDInventoryItemsContainer::GetItemIndexWithId(const int32 Id)
 {
 	for (int32 i = 0; i < Items_Internal.Num(); i++)
-		if (Id == Items_Internal[i].Uid())
+		if (Id == Items_Internal[i].Uid)
 			return i;
 	
 	return INDEX_NONE;

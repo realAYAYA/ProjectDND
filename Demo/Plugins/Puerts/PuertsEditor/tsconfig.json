@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "commonjs",
+    "jsx": "react",
+    "sourceMap": true,
+    "typeRoots": [
+      "../../../Typing",
+    ],
+    "outDir": "../Content/Javascript/PuertsEditor"
+  },
+}

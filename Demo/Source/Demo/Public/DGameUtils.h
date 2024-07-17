@@ -9,9 +9,9 @@ struct FIntArray2D
 	
 	TArray<TArray<int32>> Matrix;
 
-	FIntVector GetLength() const
+	FIntVector2 GetLength() const
 	{
-		FIntVector LW(0);
+		FIntVector2 LW(0);
 		LW.Y = Matrix.Num();
 		LW.X = LW.Y == 0 ? 0 : Matrix[0].Num();
 		return LW;
@@ -81,6 +81,19 @@ struct FIntArray2D
 			for (int32 X = BeginPos.X; X < Size.X; X++)
 			{
 				Set(X, Y, Value);
+			}
+		}
+	}
+
+	void SetWithValue(const int32 OldValue, const int32 NewValue)
+	{
+		const auto LW = GetLength();
+		for (int32 Y = 0; Y < LW.Y; Y++)
+		{
+			for (int32 X = 0; X < LW.X; X++)
+			{
+				if (Get(X, Y) == OldValue)
+					Set(X, Y, NewValue);
 			}
 		}
 	}

@@ -19,41 +19,47 @@ struct FDContainerLayout
 	TArray<FIntArray2D> Spaces;
 
 	// 检测是否可以将一个给定Size的地块完成塞入，并返回塞入过程中的具体情况
-	bool OverlapTest(const int32 SlotIndex, const FIntVector2 BeginPos, const FIntVector2 Size, TArray<FIntVector>& HitResult) const
+	bool OverlapTest(const int32 Slot, const FIntVector2 BeginPos, const FIntVector2 Size, TArray<FIntVector>& HitResult) const
 	{
 		HitResult.Reset();
-		if (Spaces.IsValidIndex(SlotIndex))
-			return Spaces[SlotIndex].OverlapTest(BeginPos, Size, HitResult);
+		if (Spaces.IsValidIndex(Slot))
+			return Spaces[Slot].OverlapTest(BeginPos, Size, HitResult);
 
 		return false;
 	}
 
 	// 快速检测是否可以将一个给定Size的地块完成塞入
-	bool OverlapTestFast(const int32 SlotIndex, const FIntVector2 BeginPos, const FIntVector2 Size) const
+	bool OverlapTestFast(const int32 Slot, const FIntVector2 BeginPos, const FIntVector2 Size) const
 	{
-		if (Spaces.IsValidIndex(SlotIndex))
-			return Spaces[SlotIndex].OverlapTestFast(BeginPos, Size);
+		if (Spaces.IsValidIndex(Slot))
+			return Spaces[Slot].OverlapTestFast(BeginPos, Size);
 
 		return false;
 	}
 
-	void DoOverlap(const int32 SlotIndex, const FIntVector2 BeginPos, const FIntVector2 Size, const int32 Value)
+	void DoOverlap(const int32 Slot, const FIntVector2 BeginPos, const FIntVector2 Size, const int32 Value)
 	{
-		if (Spaces.IsValidIndex(SlotIndex))
-			Spaces[SlotIndex].DoOverlap(BeginPos, Size, Value);
+		if (Spaces.IsValidIndex(Slot))
+			Spaces[Slot].DoOverlap(BeginPos, Size, Value);
 	}
 
-	int32 GetValue(const int32 SlotIndex, const FIntVector2 Pos) const
+	int32 GetValue(const int32 Slot, const FIntVector2 Pos) const
 	{
-		if (Spaces.IsValidIndex(SlotIndex))
-			return Spaces[SlotIndex].Get(Pos.X, Pos.Y);
+		if (Spaces.IsValidIndex(Slot))
+			return Spaces[Slot].Get(Pos.X, Pos.Y);
 
 		return -1;
+	}
+	
+	void ClearWithValue(const int32 Slot, const int32 Value)
+	{
+		if (Spaces.IsValidIndex(Slot))
+			Spaces[Slot].SetWithValue(Value, 0);
 	}
 };
 
 // 容器组件：口袋，背包，背心
-UCLASS()
+UCLASS(BlueprintType)
 class UDInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -65,11 +71,17 @@ public:
 	void LoadData(const FDRoleInventoryData& InData);
 	void SaveData(FDRoleInventoryData* OutData);
 
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	bool CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector Pos) const;
+	//UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	//bool k2_CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FVector2D Pos) const;
 
-	UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	bool CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector Pos, TArray<FIntVector>& HitResult) const;
+	
+	bool CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos) const;
+
+	//UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	//bool K2_CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FVector2D Pos, TArray<FIntVector>& HitResult) const;
+
+	
+	bool CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos, TArray<FIntVector>& HitResult) const;
 
 protected:
 	
@@ -106,6 +118,8 @@ protected:
 	FDInventoryItem* GetItem(const int32 Id);
 	const FDInventoryItem* GetItemWithPos(const EDContainerType Container, const int32 Slot, const FIntVector2 Pos) const;
 	FDInventoryItem* GetItemWithPos(const EDContainerType Container, const int32 Slot, const FIntVector2 Pos);
+
+	void RemoveItemWithCfgId(const int32 CfgId, const int32 Num);
 	
 	UFUNCTION()
 	void OnVestChange();
@@ -118,5 +132,7 @@ protected:
 private:
 
 	FDInventoryItem* InternalAddItem(const EDContainerType Container, const int32 Slot, const FIntVector2 Pos, const int32 CfgId, const int32 Num);
+
+	void InternalRemoveItem(const int32 Id);
 };
 

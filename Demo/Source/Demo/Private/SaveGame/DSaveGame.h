@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DGameTypes.h"
+#include "GameFramework/SaveGame.h"
 #include "DSaveGame.generated.h"
 
 /*

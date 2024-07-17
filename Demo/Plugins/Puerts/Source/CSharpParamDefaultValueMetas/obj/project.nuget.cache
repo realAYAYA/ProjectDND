@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "rNTfL17YLJfHjKoN/rBSU407yVgw+eWxGEaXQX31nSgFp6kLZbzFCgNAfJcjUinosPAQVGt4Dy2eyETsFjbuZg==",
+  "success": true,
+  "projectFilePath": "D:\\ProjectDND\\Demo\\Plugins\\Puerts\\Source\\CSharpParamDefaultValueMetas\\CSharpParamDefaultValueMetas.ubtplugin.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\liudong\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512"
+  ],
+  "logs": []
+}

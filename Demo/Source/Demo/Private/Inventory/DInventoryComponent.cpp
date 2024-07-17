@@ -47,10 +47,7 @@ void UDInventoryComponent::LoadData(const FDRoleInventoryData& InData)
 		// 选中容器
 		FDContainerLayout* Layout = SwitchContainer(Container);
 		
-		FIntVector2 Pos(Item.Position.X, Item.Position.Y);
-		int32 Slot = Item.Position.W;
-		
-		bool bCanAdd = CheckItemCanAddFast(Item.ConfigId, Item.Num, Container, Slot, FIntVector3(Pos.X, Pos.Y, 0));
+		bool bCanAdd = CheckItemCanAddFast(Item.ConfigId, Item.Num, Container, Item.GetSlot(), Item.GetPos());
 		if (!bCanAdd)
 		{
 			// 发送到邮箱或仓库
@@ -59,7 +56,7 @@ void UDInventoryComponent::LoadData(const FDRoleInventoryData& InData)
 		}
 		else
 		{
-			InternalAddItem(Container, Slot, Pos, Item.ConfigId, Item.Num);
+			InternalAddItem(Container, Item.GetSlot(), Item.GetPos(), Item.ConfigId, Item.Num);
 		}
 	}
 }
@@ -68,12 +65,12 @@ void UDInventoryComponent::SaveData(FDRoleInventoryData* OutData)
 {
 }
 
-bool UDInventoryComponent::CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector Pos) const
+bool UDInventoryComponent::CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos) const
 {
-	if (const auto* CurrentItem = GetItemWithPos(Container, Slot, FIntVector2(Pos.X, Pos.Y)))
+	if (const auto* CurrentItem = GetItemWithPos(Container, Slot, Pos))
 	{
 		const int32 MaxStack = 100;// Todo 从配置中获知最大堆叠
-		if (CurrentItem->Num() + Num > MaxStack)
+		if (CurrentItem->Num + Num > MaxStack)
 			return false;
 	}
 	else
@@ -91,13 +88,13 @@ bool UDInventoryComponent::CheckItemCanAddFast(const int32 CfgId, const int32 Nu
 	return true;
 }
 
-bool UDInventoryComponent::CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector Pos, TArray<FIntVector>& HitResult) const
+bool UDInventoryComponent::CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos, TArray<FIntVector>& HitResult) const
 {
 	HitResult.Empty();
 	if (const auto* CurrentItem = GetItemWithPos(Container, Slot, FIntVector2(Pos.X, Pos.Y)))
 	{
 		const int32 MaxStack = 100;// Todo 从配置中获知最大堆叠
-		if (CurrentItem->Num() + Num > MaxStack)
+		if (CurrentItem->Num + Num > MaxStack)
 			return false;
 	}
 	else
@@ -197,7 +194,6 @@ ADCharacter* UDInventoryComponent::GetCharacter() const
 FDInventoryItem* UDInventoryComponent::InternalAddItem(const EDContainerType Container, const int32 Slot, const FIntVector2 Pos, const int32 CfgId, const int32 Num)
 {
 	// 检测配置
-	
 	{
 		UE_LOG(LogProjectD, Error, TEXT("[InventoryModule]: 无效的道具配置, CfgId=%d"), CfgId);
 	}
@@ -207,7 +203,7 @@ FDInventoryItem* UDInventoryComponent::InternalAddItem(const EDContainerType Con
 	auto* CurrentItem = GetItemWithPos(Container, Slot, Pos);
 	if (CurrentItem)
 	{
-		UE_LOG(LogProjectD, Log, TEXT("[InventoryModule]: 道具堆叠, ItemId=%d CfgId=%d"), CurrentItem->Uid(), CfgId);
+		UE_LOG(LogProjectD, Log, TEXT("[InventoryModule]: 道具堆叠, ItemId=%d CfgId=%d"), CurrentItem->Uid, CfgId);
 		CurrentItem->AddNum(Num);
 	}
 	else 
@@ -215,10 +211,14 @@ FDInventoryItem* UDInventoryComponent::InternalAddItem(const EDContainerType Con
 		if (auto* Layout = SwitchContainer(Container))
 		{
 			CurrentItem = ItemArray.Add();
-			CurrentItem->SetCfgId(CfgId);
-			Layout->DoOverlap(Slot, Pos, Size, CurrentItem->Uid());// 空间填充
+			CurrentItem->ConfigId = CfgId;
+			CurrentItem->SetContainer(Container);
+			CurrentItem->SetSlot(Slot);
+			CurrentItem->SetPos(Pos);
+			
+			Layout->DoOverlap(Slot, Pos, Size, CurrentItem->Uid);// 空间填充
 		
-			UE_LOG(LogProjectD, Log, TEXT("[InventoryModule]: 新增道具, ItemId=%d CfgId=%d"), CurrentItem->Uid(), CfgId);
+			UE_LOG(LogProjectD, Log, TEXT("[InventoryModule]: 新增道具, ItemId=%d CfgId=%d"), CurrentItem->Uid, CfgId);
 		}
 	}
 
@@ -228,6 +228,18 @@ FDInventoryItem* UDInventoryComponent::InternalAddItem(const EDContainerType Con
 	}
 
 	return CurrentItem;
+}
+
+void UDInventoryComponent::InternalRemoveItem(const int32 Id)
+{
+	if (const auto Item = GetItem(Id))
+	{
+		// 先清理布局
+		if (const auto Layout = SwitchContainer(Item->GetContainer()))
+			Layout->ClearWithValue(Item->GetSlot(), Id);
+		
+		ItemArray.Remove(Item);// 再移除元素
+	}
 }
 
 void UDInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

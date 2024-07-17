@@ -2,9 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Net/Serialization/FastArraySerializer.h"
-#include "GameFramework/SaveGame.h"
 
-#include "InventoryBase.h"
 #include "DGameTypes.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogProjectD, Log, All);
@@ -37,6 +35,15 @@ public:
 };
 
 
+// 装备所处容器
+UENUM()
+enum EDContainerType
+{
+	None,
+	Pocket,
+	Vest,
+	Backpack,
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct FDInventoryItemsContainer;
@@ -58,27 +65,56 @@ struct FDInventoryItem : public FFastArraySerializerItem
 	void PostReplicatedAdd(const FDInventoryItemsContainer &InArray);
 	void PostReplicatedChange(const FDInventoryItemsContainer &InArray);
 
-	FDInventoryItem& operator=(const FInventoryItemBase& Other)
-	{
-		BaseData = Other;
-		return *this;
-	}
-
-	int32 Uid() const { return BaseData.Uid; }
-	void SetUid(const int32 Id) { BaseData.Uid = Id; }
-	
-	int32 CfgId() const { return BaseData.ConfigId; }
-	void SetCfgId(const int32 Id) { BaseData.ConfigId = Id; }
-
-	int64 Num() const { return BaseData.Num; }
 	void AddNum(const int32 InNum, const bool bOverride = false)
 	{
-		BaseData.Num =  bOverride ? InNum : BaseData.Num + InNum;
+		if (bOverride)
+			Num = InNum;
+		else
+		{
+			Num += InNum;
+		}
 	}
 
-	UPROPERTY()
-	FInventoryItemBase BaseData;
+	FIntVector2 GetPos() const { return FIntVector2(Position.X, Position.Y); }
+	void SetPos(const FIntVector2 Pos)
+	{
+		Position.X = Pos.X;
+		Position.Y = Pos.Y;
+	}
+
+	int32 GetSlot() const { return Position.W; }
+	void SetSlot(const int32 Slot) { Position.W = Slot; }
+
+	EDContainerType GetContainer() const { return static_cast<EDContainerType>(Position.Z); }
+	void SetContainer(const EDContainerType Container) { Position.Z = static_cast<int32>(Container); }
+	
+	UPROPERTY(BlueprintReadOnly)
+	int32 Uid = 0;
+	
+	// 堆叠数量
+	UPROPERTY(BlueprintReadOnly)
+	int64 Num = 0;
+
+	// 生成日期
+	UPROPERTY(BlueprintReadOnly)
+	int64 BeginDate = 0;
+
+	// 道具配置Id
+	UPROPERTY(BlueprintReadOnly)
+	int32 ConfigId = 0;
+
+	// 背包中的位置，zw变量可根据需求解析，例如位于背心中的某个插槽
+	UPROPERTY(BlueprintReadOnly)
+	FIntVector4 Position;
+
+	// 如果是容器则可能内含道具
+	//UPROPERTY(BlueprintReadOnly)
+	//TArray<FDInventoryItem> ItemsInContainer;
+
+	// Todo Extensions 装备数据 强化 附魔
 };
+
+// Todo 设计：背包系统支持在“背包或口袋或背心中装入其它容器，但除此之外的容器之前不允许套娃！
 
 class UDInventoryComponent;
 
@@ -132,15 +168,6 @@ struct TStructOpsTypeTraits<FDInventoryItemsContainer> : public TStructOpsTypeTr
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// 装备所处容器
-UENUM()
-enum EDContainerType
-{
-	None,
-	Pocket,
-	Vest,
-	Backpack,
-};
 
 USTRUCT(BlueprintType)
 struct FDRoleInventoryData
@@ -149,11 +176,11 @@ struct FDRoleInventoryData
 
 	// 仓库中的道具
 	UPROPERTY()
-	TArray<FInventoryItemBase> ItemsInStore;
+	TArray<FDInventoryItem> ItemsInStore;
 
 	// 角色身上的道具，装备、背包、口袋、背心
 	UPROPERTY()
-	TArray<FInventoryItemBase> ItemsOnRole;
+	TArray<FDInventoryItem> ItemsOnRole;
 
 	UPROPERTY()
 	int32 PocketId = 0;
