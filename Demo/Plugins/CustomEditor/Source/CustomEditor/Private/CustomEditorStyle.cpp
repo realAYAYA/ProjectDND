@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "DEditorStyle.h"
-#include "DEditor.h"
+#include "CustomEditorStyle.h"
+#include "CustomEditor.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Styling/SlateStyleRegistry.h"
 #include "Slate/SlateGameResources.h"
@@ -10,9 +10,9 @@
 
 #define RootToContentDir Style->RootToContentDir
 
-TSharedPtr<FSlateStyleSet> FDEditorStyle::StyleInstance = nullptr;
+TSharedPtr<FSlateStyleSet> FCustomEditorStyle::StyleInstance = nullptr;
 
-void FDEditorStyle::Initialize()
+void FCustomEditorStyle::Initialize()
 {
 	if (!StyleInstance.IsValid())
 	{
@@ -21,14 +21,14 @@ void FDEditorStyle::Initialize()
 	}
 }
 
-void FDEditorStyle::Shutdown()
+void FCustomEditorStyle::Shutdown()
 {
 	FSlateStyleRegistry::UnRegisterSlateStyle(*StyleInstance);
 	ensure(StyleInstance.IsUnique());
 	StyleInstance.Reset();
 }
 
-FName FDEditorStyle::GetStyleSetName()
+FName FCustomEditorStyle::GetStyleSetName()
 {
 	static FName StyleSetName(TEXT("DEditorStyle"));
 	return StyleSetName;
@@ -38,16 +38,16 @@ FName FDEditorStyle::GetStyleSetName()
 const FVector2D Icon16x16(16.0f, 16.0f);
 const FVector2D Icon20x20(20.0f, 20.0f);
 
-TSharedRef< FSlateStyleSet > FDEditorStyle::Create()
+TSharedRef< FSlateStyleSet > FCustomEditorStyle::Create()
 {
-	TSharedRef< FSlateStyleSet > Style = MakeShareable(new FSlateStyleSet("DEditorStyle"));
-	Style->SetContentRoot(IPluginManager::Get().FindPlugin("DEditor")->GetBaseDir() / TEXT("Resources"));
+	TSharedRef< FSlateStyleSet > Style = MakeShareable(new FSlateStyleSet("CustomEditorStyle"));
+	Style->SetContentRoot(IPluginManager::Get().FindPlugin("CustomEditor")->GetBaseDir() / TEXT("Resources"));
 
-	Style->Set("DEditor.PluginAction", new IMAGE_BRUSH_SVG(TEXT("PlaceholderButtonIcon"), Icon20x20));
+	Style->Set("CustomEditor.PluginAction", new IMAGE_BRUSH_SVG(TEXT("PlaceholderButtonIcon"), Icon20x20));
 	return Style;
 }
 
-void FDEditorStyle::ReloadTextures()
+void FCustomEditorStyle::ReloadTextures()
 {
 	if (FSlateApplication::IsInitialized())
 	{
@@ -55,7 +55,7 @@ void FDEditorStyle::ReloadTextures()
 	}
 }
 
-const ISlateStyle& FDEditorStyle::Get()
+const ISlateStyle& FCustomEditorStyle::Get()
 {
 	return *StyleInstance;
 }

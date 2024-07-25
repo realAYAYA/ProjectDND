@@ -104,7 +104,7 @@ def main():
     platform = get_ue_platform_name()
     excel_dir = '../../GameDesignData/Excel'
     gdd_dir = '../../Content/GDD'
-    ts_dir = '../../TypeScript/GameTables'
+    ts_dir = '../../TypeScript/game_tables'
     ts_typing_dir = '../../Typing'
     if platform == 'Win64':
         py_cmd = f'{engine_dir}/Binaries/ThirdParty/Python3/{platform}/python.exe'

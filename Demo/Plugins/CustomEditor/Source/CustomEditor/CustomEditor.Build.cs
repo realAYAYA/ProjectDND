@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class DEditor : ModuleRules
+public class CustomEditor : ModuleRules
 {
-	public DEditor(ReadOnlyTargetRules Target) : base(Target)
+	public CustomEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
@@ -42,7 +42,11 @@ public class DEditor : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore",
+				"SlateCore", 
+				
+				"UMG",
+				
+				"GameTables",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

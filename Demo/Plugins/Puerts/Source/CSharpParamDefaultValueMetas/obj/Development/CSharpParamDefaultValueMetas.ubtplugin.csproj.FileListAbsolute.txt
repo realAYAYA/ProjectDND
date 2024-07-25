@@ -20,3 +20,14 @@ D:\Codes\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\
 D:\Codes\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\Development\CSharpParamDefaultValueMetas.dll
 D:\Codes\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\Development\refint\CSharpParamDefaultValueMetas.dll
 D:\Codes\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\Development\CSharpParamDefaultValueMetas.pdb
+D:\code-check\ProjectDND\Demo\Binaries\DotNET\UnrealBuildTool\Plugins\CSharpParamDefaultValueMetas\CSharpParamDefaultValueMetas.deps.json
+D:\code-check\ProjectDND\Demo\Binaries\DotNET\UnrealBuildTool\Plugins\CSharpParamDefaultValueMetas\CSharpParamDefaultValueMetas.dll
+D:\code-check\ProjectDND\Demo\Binaries\DotNET\UnrealBuildTool\Plugins\CSharpParamDefaultValueMetas\ref\CSharpParamDefaultValueMetas.dll
+D:\code-check\ProjectDND\Demo\Binaries\DotNET\UnrealBuildTool\Plugins\CSharpParamDefaultValueMetas\CSharpParamDefaultValueMetas.pdb
+D:\code-check\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\Development\CSharpParamDefaultValueMetas.ubtplugin.csproj.AssemblyReference.cache
+D:\code-check\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\Development\CSharpParamDefaultValueMetas.ubtplugin.GeneratedMSBuildEditorConfig.editorconfig
+D:\code-check\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\Development\CSharpParamDefaultValueMetas.ubtplugin.csproj.CoreCompileInputs.cache
+D:\code-check\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\Development\CSharpParamDefaultValueMetas.ubtplugin.csproj.CopyComplete
+D:\code-check\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\Development\CSharpParamDefaultValueMetas.dll
+D:\code-check\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\Development\refint\CSharpParamDefaultValueMetas.dll
+D:\code-check\ProjectDND\Demo\Plugins\Puerts\Source\CSharpParamDefaultValueMetas\obj\Development\CSharpParamDefaultValueMetas.pdb

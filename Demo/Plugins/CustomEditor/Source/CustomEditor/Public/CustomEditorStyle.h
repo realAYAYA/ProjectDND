@@ -5,8 +5,9 @@
 #include "CoreMinimal.h"
 #include "Styling/SlateStyle.h"
 
-class FDEditorStyle
+class FCustomEditorStyle
 {
+	
 public:
 
 	static void Initialize();
