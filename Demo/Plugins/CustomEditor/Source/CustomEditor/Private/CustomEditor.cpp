@@ -65,7 +65,7 @@ bool GeneratePerforceConfig()
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 	if (IFileHandle* FileHandle = PlatformFile.OpenWrite(*P4ConfigFile))
 	{
-		auto Body = FString::Printf(
+		const auto Body = FString::Printf(
 			TEXT("P4PORT=%s\nP4USER=%s\nP4CLIENT=%s\nP4CHARSET=utf8\n"), *P4Port, *P4User, *P4Client);
 		FileHandle->Write(reinterpret_cast<const uint8*>(TCHAR_TO_ANSI(*Body)), Body.Len());
 
@@ -73,7 +73,7 @@ bool GeneratePerforceConfig()
 	}
 	else
 	{
-		const FString Text = FString::Printf(TEXT("创建P4配置文件失败! %s"), *P4ConfigFile);
+		const FString Text = FString::Printf(TEXT("创建P4配置文件失败! %s"), *P4ConfigFile); 
 		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Text));
 		return false;
 	}
@@ -472,4 +472,4 @@ void FZEditorToolbar::UpdatePb_Executed()
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FCustomEditorModule, DEditor)
+IMPLEMENT_MODULE(FCustomEditorModule, CustomEditor)
