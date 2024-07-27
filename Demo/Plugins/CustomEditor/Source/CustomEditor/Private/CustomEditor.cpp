@@ -14,6 +14,82 @@
 
 DEFINE_LOG_CATEGORY(LogCustomEditor);
 
+
+//static const FName CustomEditorTabName("CustomEditor");
+
+#define LOCTEXT_NAMESPACE "FCustomEditorModule"
+
+void FCustomEditorModule::StartupModule()
+{
+	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+	
+	FCustomEditorStyle::Initialize();
+	FCustomEditorStyle::ReloadTextures();
+
+	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FCustomEditorModule::RegisterMenus));
+}
+
+void FCustomEditorModule::ShutdownModule()
+{
+	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
+	// we call this function before unloading the module.
+
+	UToolMenus::UnRegisterStartupCallback(this);
+
+	UToolMenus::UnregisterOwner(this);
+
+	FCustomEditorStyle::Shutdown();
+
+	FCustomEditorCommands::Unregister();
+}
+
+
+void FCustomEditorModule::RegisterMenus()
+{
+	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner
+	FToolMenuOwnerScoped OwnerScoped(this);
+
+	// 添加到上方Window下拉菜单栏下
+	{
+		/*UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Window");
+		{
+			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
+			Section.AddMenuEntryWithCommandList(FCustomEditorCommands::Get().PluginAction, PluginCommands);
+		}*/
+	}
+	
+	// 添加到关卡编辑器下
+	{
+		UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar.PlayToolBar");
+		{
+			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("CustomEditor");
+			{
+				const FCustomEditorCommands& Commands = FCustomEditorCommands::Get();
+				
+				FToolMenuEntry BlueprintEntry = FToolMenuEntry::InitComboButton(
+					"CustomEditor",
+					FUIAction(),
+					FOnGetContent::CreateStatic(&FCustomEditorToolbar::GenerateMenuContent, CommandList),
+					LOCTEXT("CustomEditor_Label", "Label"),
+					LOCTEXT("CustomEditor_ToolTip", "ToolTip"),
+					FSlateIcon("CustomEditor", TEXT("CustomEditor"))
+				);
+	
+				BlueprintEntry.StyleNameOverride = "CustomEditorToolbar";
+
+				// 模仿引擎插件写法，UE官方提供了ExtendMenu方法给插件拓展Editor
+				Section = ToolbarMenu->AddSection("CustomEditor");
+				Section.AddEntry(BlueprintEntry);
+			}
+		}
+	}
+}
+
+
+
+
+
+
 bool GeneratePerforceConfig()
 {
 	FString SCCProvider;
@@ -131,76 +207,53 @@ bool ExecutePyScript(const FString& Params, const FString& WorkDir)
 	return ReturnCode == 0;
 }
 
-//static const FName CustomEditorTabName("CustomEditor");
 
-#define LOCTEXT_NAMESPACE "FCustomEditorModule"
-
-void FCustomEditorModule::StartupModule()
+void FCustomEditorToolbar::BindCommands()
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	
-	FCustomEditorStyle::Initialize();
-	FCustomEditorStyle::ReloadTextures();
-
 	FCustomEditorCommands::Register();
 	
-	PluginCommands = MakeShareable(new FUICommandList);
+	CommandList = MakeShareable(new FUICommandList);
 
-	PluginCommands->MapAction(
+	CommandList->MapAction(
 		FCustomEditorCommands::Get().ShowGddInFileExplorer,
-		FExecuteAction::CreateRaw(this, &FCustomEditorModule::ShowGddInFileExplorer_Executed),
+		FExecuteAction::CreateRaw(this, &FCustomEditorToolbar::ShowGddInFileExplorer_Executed),
 		FCanExecuteAction());
 
-	PluginCommands->MapAction(
+	CommandList->MapAction(
 		FCustomEditorCommands::Get().ShowExcelInFileExplorer,
-		FExecuteAction::CreateRaw(this, &FCustomEditorModule::ShowExcelInFileExplorer_Executed),
+		FExecuteAction::CreateRaw(this, &FCustomEditorToolbar::ShowExcelInFileExplorer_Executed),
 		FCanExecuteAction());
 
-	PluginCommands->MapAction(
+	CommandList->MapAction(
 		FCustomEditorCommands::Get().UpdateGdd,
-		FExecuteAction::CreateRaw(this, &FCustomEditorModule::UpdateGdd_Executed),
+		FExecuteAction::CreateRaw(this, &FCustomEditorToolbar::UpdateGdd_Executed),
 		FCanExecuteAction());
 	
-	PluginCommands->MapAction(
+	CommandList->MapAction(
 		FCustomEditorCommands::Get().ReloadGdd,
-		FExecuteAction::CreateRaw(this, &FCustomEditorModule::ReloadGdd_Executed),
+		FExecuteAction::CreateRaw(this, &FCustomEditorToolbar::ReloadGdd_Executed),
 		FCanExecuteAction());
 
-	PluginCommands->MapAction(
+	CommandList->MapAction(
 		FCustomEditorCommands::Get().GenerateWidgetTsFile,
-		FExecuteAction::CreateRaw(this, &FCustomEditorModule::GenerateWidgetTsFile_Executed),
+		FExecuteAction::CreateRaw(this, &FCustomEditorToolbar::GenerateWidgetTsFile_Executed),
 		FCanExecuteAction());
-
-	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FCustomEditorModule::RegisterMenus));
 }
 
-void FCustomEditorModule::ShutdownModule()
-{
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
 
-	UToolMenus::UnRegisterStartupCallback(this);
-
-	UToolMenus::UnregisterOwner(this);
-
-	FCustomEditorStyle::Shutdown();
-
-	FCustomEditorCommands::Unregister();
-}
-
-void FCustomEditorModule::ShowGddInFileExplorer_Executed()
+void FCustomEditorToolbar::ShowGddInFileExplorer_Executed()
 {
 	const FString Dir = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir() + TEXT("GDD"));
 	FPlatformProcess::ExploreFolder(*Dir);
 }
 
-void FCustomEditorModule::ShowExcelInFileExplorer_Executed()
+void FCustomEditorToolbar::ShowExcelInFileExplorer_Executed()
 {
 	const FString Dir = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir() + TEXT("../GameDesignData/Excel"));
 	FPlatformProcess::ExploreFolder(*Dir);
 }
 
-void FCustomEditorModule::UpdateGdd_Executed()
+void FCustomEditorToolbar::UpdateGdd_Executed()
 {
 	if (!GeneratePerforceConfig()) // 重新生成P4配置文件
 	{
@@ -267,7 +320,7 @@ void FCustomEditorModule::UpdateGdd_Executed()
 	}
 }
 
-void FCustomEditorModule::ReloadGdd_Executed()
+void FCustomEditorToolbar::ReloadGdd_Executed()
 {
 	const auto GameTables = FGameTablesModule::Get().GetGameTables();
 	GameTables->Init(true);
@@ -278,7 +331,7 @@ void FCustomEditorModule::ReloadGdd_Executed()
 	}
 }
 
-void FCustomEditorModule::GenerateWidgetTsFile_Executed()
+void FCustomEditorToolbar::GenerateWidgetTsFile_Executed()
 {
 	const auto* Blueprint = Cast<UBaseWidgetBlueprint>(ContextObject);
 	if (!Blueprint)
@@ -348,68 +401,6 @@ void FCustomEditorModule::GenerateWidgetTsFile_Executed()
 	}
 }
 
-void FCustomEditorModule::RegisterMenus()
-{
-	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner
-	FToolMenuOwnerScoped OwnerScoped(this);
-
-	// 添加到上方Window下拉菜单栏下
-	{
-		/*UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Window");
-		{
-			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
-			Section.AddMenuEntryWithCommandList(FCustomEditorCommands::Get().PluginAction, PluginCommands);
-		}*/
-	}
-
-	
-	// 添加到关卡编辑器下
-	{
-		UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar.PlayToolBar");
-		{
-			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("CustomEditor");
-			{
-				const FCustomEditorCommands& Commands = FCustomEditorCommands::Get();
-				
-				{
-					// Todo Server about
-				}
-				
-				{
-					Section.AddSeparator(TEXT("SeparatorGDD"));
-					Section.AddMenuEntry(Commands.ShowExcelInFileExplorer);
-					Section.AddMenuEntry(Commands.ShowGddInFileExplorer);
-					Section.AddMenuEntry(Commands.UpdateGdd);
-					Section.AddMenuEntry(Commands.ReloadGdd);
-				}
-
-				{
-					// Todo Pb about
-				}
-
-				if (const auto* Blueprint = Cast<UBaseWidgetBlueprint>(ContextObject))
-				{
-					if (Blueprint->ParentClass->IsChildOf(UUserWidget::StaticClass()))
-					{
-						Section.AddSeparator(TEXT("SeparatorTs"));
-						Section.AddMenuEntry(Commands.GenerateWidgetTsFile);
-					}
-				}
-				
-				/*FToolMenuEntry& Entry = Section.AddSubMenu(FToolMenuEntry::InitSubMenu(
-					FName(),
-					LOCTEXT("1", "2"),
-					LOCTEXT("3", "4"),
-					FNewToolMenuDelegate::CreateStatic(&FCustomEditorModule::BuildToolbar));
-				
-				//Entry.InitSeparator("ssss");
-				Entry.SetCommandList(PluginCommands);*/
-			}
-		}
-	}
-}
-
-
 /*
 void FZEditorToolbar::UpdatePb_Executed()
 {
@@ -469,6 +460,61 @@ void FZEditorToolbar::UpdatePb_Executed()
 	}
 	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Text));
 }*/
+
+TSharedRef<SWidget> FCustomEditorToolbar::GenerateMenuContent(const TSharedPtr<FUICommandList>& InCommandList) const
+{
+	const FCustomEditorCommands& Commands = FCustomEditorCommands::Get();
+	FMenuBuilder MenuBuilder(true, InCommandList);
+	
+	{
+		// Todo Server about
+	}
+				
+	{
+		MenuBuilder.AddSeparator(TEXT("SeparatorGDD"));
+		MenuBuilder.AddMenuEntry(Commands.ShowExcelInFileExplorer);
+		MenuBuilder.AddMenuEntry(Commands.ShowGddInFileExplorer);
+		MenuBuilder.AddMenuEntry(Commands.UpdateGdd);
+		MenuBuilder.AddMenuEntry(Commands.ReloadGdd);
+	}
+
+	{
+		// Todo Pb about
+	}
+
+	if (const auto* Blueprint = Cast<UBaseWidgetBlueprint>(ContextObject))
+	{
+		if (Blueprint->ParentClass->IsChildOf(UUserWidget::StaticClass()))
+		{
+			MenuBuilder.AddSeparator(TEXT("SeparatorTs"));
+			MenuBuilder.AddMenuEntry(Commands.GenerateWidgetTsFile);
+		}
+	}
+			
+	return MenuBuilder.MakeWidget();
+}
+
+void FCustomEditorToolbar::BuildToolbar(FToolBarBuilder& ToolbarBuilder, UObject* InContextObject)
+{
+	// InContextObject 在关卡模式为 nullptr， 在蓝图模式下则为当前蓝图对象
+
+	ToolbarBuilder.BeginSection(NAME_None);
+
+	ToolbarBuilder.AddComboButton(
+		FUIAction(),
+		FOnGetContent::CreateLambda([&, InContextObject]()
+		{
+			ContextObject = InContextObject;
+			
+			return GenerateMenuContent(CommandList);
+		}),
+		LOCTEXT("CustomEditor_Label", "Label"),
+		LOCTEXT("CustomEditor_ToolTip", "ToolTip"),
+		FSlateIcon("CustomEditorStyle", TEXT("CustomEditorStyle"))
+	);
+
+	ToolbarBuilder.EndSection();
+}
 
 #undef LOCTEXT_NAMESPACE
 	

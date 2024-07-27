@@ -30,7 +30,7 @@ void FCustomEditorStyle::Shutdown()
 
 FName FCustomEditorStyle::GetStyleSetName()
 {
-	static FName StyleSetName(TEXT("DEditorStyle"));
+	static FName StyleSetName(TEXT("CustomEditorStyle"));
 	return StyleSetName;
 }
 
