@@ -1,7 +1,11 @@
 #pragma once
+#include "CustomEditorToolbar.h"
 
-class LevelToolbar
+class FLevelToolbar : FCustomEditorToolbar
 {
+	
 public:
+	
+	virtual void Initialize() override;
 	
 };

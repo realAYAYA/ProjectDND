@@ -5,10 +5,14 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+
 DECLARE_LOG_CATEGORY_EXTERN(LogCustomEditor, Log, All);
 
 class FToolBarBuilder;
 class FMenuBuilder;
+
+class FBlueprintToolbar;
+class FLevelToolbar;
 
 class FCustomEditorModule : public IModuleInterface
 {
@@ -22,6 +26,9 @@ private:
 
 	void RegisterMenus();
 
+	void OnPostEngineInit();
+
 	TSharedPtr<FLevelToolbar> LevelToolbar;
 	TSharedPtr<FBlueprintToolbar> BlueprintToolbar;
+	FDelegateHandle OnPostEngineInitHandle;
 };

@@ -1,5 +1,5 @@
 #pragma once
-
+#include "CoreMinimal.h"
 
 class FCustomEditorToolbar
 {
@@ -7,10 +7,12 @@ class FCustomEditorToolbar
 public:
 
 	virtual ~FCustomEditorToolbar() = default;
-	FCustomEditorToolbar()
+	FCustomEditorToolbar() : CommandList(new FUICommandList)
 	{
 		ContextObject = nullptr;
 	}
+
+	virtual void Initialize();
 	
 	void BindCommands();
 	
@@ -30,12 +32,13 @@ public:
 		return CommandList;
 	}
 
-private:
-	
-	TSharedRef<SWidget> GenerateMenuContent(const TSharedPtr<FUICommandList>& InCommandList) const;
-	void BuildToolbar(FToolBarBuilder& ToolbarBuilder, UObject* InContextObject);
+protected:
 
-	TSharedPtr<FUICommandList> CommandList;
+	static TSharedRef<SWidget> GenerateMenuContent(TSharedRef<FUICommandList> InCommandList, UObject* Context);
+
+	const TSharedRef<FUICommandList> CommandList;
+
+	void BuildToolbar(FToolBarBuilder& ToolbarBuilder, UObject* InContextObject);
 
 	UObject* ContextObject = nullptr;// 当前操作文件（蓝图）上下文
 };
