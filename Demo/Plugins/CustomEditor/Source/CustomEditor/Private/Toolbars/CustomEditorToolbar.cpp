@@ -431,8 +431,8 @@ void FCustomEditorToolbar::BuildToolbar(FToolBarBuilder& ToolbarBuilder, UObject
 			
 			return GenerateMenuContent(CommandList, ContextObject);
 		}),
-		LOCTEXT("CustomEditor_Label", "Label"),
-		LOCTEXT("CustomEditor_ToolTip", "ToolTip"),
+		LOCTEXT("CustomEditor_Label", "CustomEditor"),
+		LOCTEXT("CustomEditor_ToolTip", "效率"),
 		FSlateIcon("CustomEditorStyle", TEXT("CustomEditorStyle"))
 	);
 
