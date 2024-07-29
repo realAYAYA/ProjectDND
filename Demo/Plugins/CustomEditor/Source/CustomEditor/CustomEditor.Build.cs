@@ -46,7 +46,8 @@ public class CustomEditor : ModuleRules
 				
 				"UMG",
 				
-				"GameTables",
+				"GameTables", 
+				"DeclarationGenerator",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

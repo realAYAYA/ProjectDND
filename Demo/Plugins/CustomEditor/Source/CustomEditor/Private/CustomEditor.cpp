@@ -5,6 +5,7 @@
 #include "CustomEditorCommands.h"
 #include "Toolbars/BlueprintToolbar.h"
 #include "Toolbars/LevelToolbar.h"
+#include "CustomFileWatcher.h"
 
 #include "Misc/MessageDialog.h"
 #include "ToolMenus.h"
@@ -30,6 +31,11 @@ void FCustomEditorModule::StartupModule()
 	OnPostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddRaw(this, &FCustomEditorModule::OnPostEngineInit);
 
 	//OnPostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddRaw(this, &FCustomEditorModule::OnPostEngineInit);
+
+	// Todo 侦测文件变更导致的脚本编译
+	ProtocolFileWatcher = MakeUnique<FCustomFileWatcher>();
+	//ProtocolFileWatcher->WatchDir(FZProtocolModule::Get().GetJsDir());
+	//ProtocolFileWatcher->GenProtocolTsDeclaration();
 }
 
 void FCustomEditorModule::ShutdownModule()
