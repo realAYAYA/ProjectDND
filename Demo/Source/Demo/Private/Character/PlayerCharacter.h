@@ -6,6 +6,7 @@
 #include "DCharacter.h"
 #include "PlayerCharacter.generated.h"
 
+class UDInventoryComponent;
 /**
  * 
  */
@@ -16,6 +17,11 @@ class ADPlayerCharacter : public ADCharacter
 
 public:
 
+	ADPlayerCharacter();
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UDInventoryComponent* InventoryComponent;
 };

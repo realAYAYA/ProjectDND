@@ -173,7 +173,7 @@ bool ATurnBasedBattleInstance::IsMyTurn(const ADCharacter* InCharacter) const
 	return false;
 }
 
-void ATurnBasedBattleInstance::SomeoneDied(const ADCharacter* InCharacter)
+void ATurnBasedBattleInstance::OnCharacterDied(const ADCharacter* InCharacter)
 {
 	// Todo 检查数据，是否结束战斗
 }
@@ -202,6 +202,11 @@ void ATurnBasedBattleInstance::OnTurnInfoChanged()
 void ATurnBasedBattleInstance::MergeBattle(ATurnBasedBattleInstance* In)
 {
 	// Todo 合并两场战斗
+}
+
+void ATurnBasedBattleInstance::BreakUpBattle(const ADCharacter* InCharacter)
+{
+	// Todo 脱离战斗
 }
 
 int32 ATurnBasedBattleInstance::FindCharacter(const int32 Id, ADCharacter*& Out) const

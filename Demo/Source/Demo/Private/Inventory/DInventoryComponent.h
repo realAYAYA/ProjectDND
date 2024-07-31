@@ -13,7 +13,7 @@ struct FDContainerLayout
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FVector2D> Layouts;
+	TArray<FIntVector> Layouts;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FIntArray2D> Spaces;
@@ -71,17 +71,23 @@ public:
 	void LoadData(const FDRoleInventoryData& InData);
 	void SaveData(FDRoleInventoryData* OutData);
 
-	//UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	//bool k2_CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FVector2D Pos) const;
-
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	bool CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector Pos) const;
 	
-	bool CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos) const;
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	bool CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector Pos, TArray<FIntVector>& HitResult) const;
 
-	//UFUNCTION(BlueprintCallable, Category = "ProjectD")
-	//bool K2_CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FVector2D Pos, TArray<FIntVector>& HitResult) const;
-
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	int32 GetItemIdWithPos(const EDContainerType Container, const int32 Slot, const FIntVector Pos) const;
 	
-	bool CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos, TArray<FIntVector>& HitResult) const;
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void DebugSetBackpack(const int32 X, const int32 Y);
+	
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	bool DebugCheckItemCanAdd(const FIntVector Pos, const FIntVector Size, TArray<FIntVector>& HitResult);
+
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void DebugAddItem(const int32 ItemUid, const FIntVector Pos, const FIntVector Size);
 
 protected:
 	
@@ -130,7 +136,7 @@ protected:
 	ADCharacter* GetCharacter() const;
 		
 private:
-
+	
 	FDInventoryItem* InternalAddItem(const EDContainerType Container, const int32 Slot, const FIntVector2 Pos, const int32 CfgId, const int32 Num);
 
 	void InternalRemoveItem(const int32 Id);

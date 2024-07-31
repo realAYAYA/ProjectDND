@@ -71,7 +71,7 @@ public:
 
 	bool IsMyTurn(const ADCharacter* InCharacter) const;// 查询当前回合是否为当前角色
 
-	void SomeoneDied(const ADCharacter* InCharacter);
+	void OnCharacterDied(const ADCharacter* InCharacter);
 
 	UFUNCTION()
 	void OnRep_CharacterList();
@@ -81,6 +81,8 @@ public:
 
 	// 合并两场战斗
 	void MergeBattle(ATurnBasedBattleInstance* In);
+
+	void BreakUpBattle(const ADCharacter* InCharacter);
 
 protected:
 	

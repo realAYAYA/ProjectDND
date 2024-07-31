@@ -47,7 +47,7 @@ void UDInventoryComponent::LoadData(const FDRoleInventoryData& InData)
 		// 选中容器
 		FDContainerLayout* Layout = SwitchContainer(Container);
 		
-		bool bCanAdd = CheckItemCanAddFast(Item.ConfigId, Item.Num, Container, Item.GetSlot(), Item.GetPos());
+		bool bCanAdd = CheckItemCanAddFast(Item.ConfigId, Item.Num, Container, Item.GetSlot(), FIntVector(Item.GetPos().X, Item.GetPos().Y, 0));
 		if (!bCanAdd)
 		{
 			// 发送到邮箱或仓库
@@ -65,9 +65,9 @@ void UDInventoryComponent::SaveData(FDRoleInventoryData* OutData)
 {
 }
 
-bool UDInventoryComponent::CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos) const
+bool UDInventoryComponent::CheckItemCanAddFast(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector Pos) const
 {
-	if (const auto* CurrentItem = GetItemWithPos(Container, Slot, Pos))
+	if (const auto* CurrentItem = GetItemWithPos(Container, Slot, FIntVector2(Pos.X, Pos.Y)))
 	{
 		const int32 MaxStack = 100;// Todo 从配置中获知最大堆叠
 		if (CurrentItem->Num + Num > MaxStack)
@@ -88,7 +88,7 @@ bool UDInventoryComponent::CheckItemCanAddFast(const int32 CfgId, const int32 Nu
 	return true;
 }
 
-bool UDInventoryComponent::CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector2 Pos, TArray<FIntVector>& HitResult) const
+bool UDInventoryComponent::CheckItemCanAdd(const int32 CfgId, const int32 Num, const EDContainerType Container, const int32 Slot, const FIntVector Pos, TArray<FIntVector>& HitResult) const
 {
 	HitResult.Empty();
 	if (const auto* CurrentItem = GetItemWithPos(Container, Slot, FIntVector2(Pos.X, Pos.Y)))
@@ -105,11 +105,68 @@ bool UDInventoryComponent::CheckItemCanAdd(const int32 CfgId, const int32 Num, c
 		
 		// 当前位置没有道具
 		const FIntVector2 Size = FIntVector2(1);// Todo 通过配置获取物品大小
-		if (Layout->OverlapTest(Slot, FIntVector2(Pos.X, Pos.Y), Size, HitResult))
+		if (!Layout->OverlapTest(Slot, FIntVector2(Pos.X, Pos.Y), Size, HitResult))
 			return false;
 	}
 	
 	return true;
+}
+
+int32 UDInventoryComponent::GetItemIdWithPos(const EDContainerType Container, const int32 Slot, const FIntVector Pos) const
+{
+	const FDContainerLayout* Layout = SwitchContainer(Container);
+	if (!Layout)
+		return 0;// 未指定容器
+
+	const int32 CurrentItemId = Layout->GetValue(Slot, FIntVector2(Pos.X, Pos.Y));
+
+	return CurrentItemId > 0 ? CurrentItemId : 0;
+}
+
+void UDInventoryComponent::DebugSetBackpack(const int32 X, const int32 Y)
+{
+	FDContainerLayout* Layout = SwitchContainer(EDContainerType::Backpack);
+	if (!Layout->Layouts.IsValidIndex(0))
+		Layout->Layouts.AddZeroed();
+	
+	Layout->Layouts[0].X = X;
+	Layout->Layouts[0].Y = Y;
+
+	while (!Layout->Spaces.IsValidIndex(0))
+	{
+		Layout->Spaces.AddZeroed();
+	}
+	
+	Layout->Spaces[0].Reset(Layout->Layouts[0].X, Layout->Layouts[0].Y);
+}
+
+bool UDInventoryComponent::DebugCheckItemCanAdd(const FIntVector Pos, const FIntVector Size, TArray<FIntVector>& HitResult)
+{
+	const FDContainerLayout* Layout = SwitchContainer(EDContainerType::Backpack);
+	if (!Layout)
+		return false;// 未指定容器
+		
+	// 当前位置没有道具
+	if (!Layout->OverlapTest(0, FIntVector2(Pos.X, Pos.Y), FIntVector2(Size.X, Size.Y), HitResult))
+	{
+		UE_LOG(LogProjectD, Warning, TEXT("[InventoryModule]: 空间不足"));
+		return false;
+	}
+
+	return true;
+}
+
+void UDInventoryComponent::DebugAddItem(const int32 ItemUid, const FIntVector Pos, const FIntVector Size)
+{
+	FDContainerLayout* Layout = SwitchContainer(EDContainerType::Backpack);
+	if (!Layout)
+		return;// 未指定容器
+
+	TArray<FIntVector> HitResult;
+	if (!DebugCheckItemCanAdd(Pos, Size, HitResult))
+		return;
+	
+	Layout->DoOverlap(0, FIntVector2(Pos.X, Pos.Y), FIntVector2(Size.X, Size.Y), ItemUid);// 空间填充
 }
 
 const FDContainerLayout* UDInventoryComponent::SwitchContainer(const EDContainerType Container) const
@@ -176,6 +233,10 @@ FDInventoryItem* UDInventoryComponent::GetItemWithPos(const EDContainerType Cont
 	}
 
 	return CurrentItem;
+}
+
+void UDInventoryComponent::RemoveItemWithCfgId(const int32 CfgId, const int32 Num)
+{
 }
 
 void UDInventoryComponent::OnVestChange()
