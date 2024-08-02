@@ -14,6 +14,21 @@ void ADItemActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 }
 
 
+ADItemActor::ADItemActor()
+{
+	bUsing = false;
+}
+
+void ADItemActor::Use()
+{
+}
+
+void ADItemActor::BP_Use_Implementation()
+{
+	
+}
+
+
 ADContainerActor::ADContainerActor()
 {
 }
@@ -21,6 +36,42 @@ ADContainerActor::ADContainerActor()
 void ADContainerActor::PostNetInit()
 {
 	Super::PostNetInit();
+}
+
+void ADContainerActor::Open()
+{
+	bUsing = true;
+}
+
+void ADContainerActor::Cancel()
+{
+	bUsing = false;
+}
+
+void ADContainerActor::BP_Open_Implementation()
+{
+	
+}
+
+void ADContainerActor::LoadData()
+{
+}
+
+void ADContainerActor::SaveData()
+{
+}
+
+void ADContainerActor::AddItem()
+{
+}
+
+void ADContainerActor::RemoveItem()
+{
+}
+
+void ADContainerActor::OnLayoutChange()
+{
+	
 }
 
 void ADContainerActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

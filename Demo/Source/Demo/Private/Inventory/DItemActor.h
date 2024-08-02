@@ -12,8 +12,20 @@ class ADItemActor : public AActor
 
 public:
 
+	ADItemActor();
+
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	void Use();
+
+	// 使用场景中容器触发事件
+	UFUNCTION(BlueprintNativeEvent)
+	void BP_Use();
+
 	UPROPERTY(Replicated)
 	int32 ItemId = 0;
+
+	UPROPERTY(Replicated)
+	bool bUsing;
 };
 
 
@@ -22,15 +34,39 @@ UCLASS()
 class ADContainerActor : public ADItemActor
 {
 	GENERATED_BODY()
-
-protected:
-
+	
+public:
+	
 	ADContainerActor();
 
 	// 容器布局Id
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnLayoutChange)
 	int32 ContainerLayoutId = 0;
 
+	virtual void PostNetInit() override;
+
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	void Open();
+
+	UFUNCTION(BlueprintCallable, Category = "ProjectD")
+	void Cancel();
+
+	// 开启场景中容器触发事件
+	UFUNCTION(BlueprintNativeEvent)
+	void BP_Open();
+
+	void LoadData();
+	void SaveData();
+	
+	void AddItem();
+
+	void RemoveItem();
+
+protected:
+
+	UFUNCTION()
+	void OnLayoutChange();
+	
 	// 空间布局
 	UPROPERTY()
 	FDContainerLayout Layout;
@@ -38,12 +74,4 @@ protected:
 	// 容器内道具
 	UPROPERTY(Replicated)
 	FDInventoryItemsContainer ItemArray;
-
-	/*
-	void AddItem(const int32 Id, const int32 Num);
-	void DeleteItem(const int32 Id, const int32 Num);
-	void RemoveItem();
-	*/
-
-	virtual void PostNetInit() override;
 };

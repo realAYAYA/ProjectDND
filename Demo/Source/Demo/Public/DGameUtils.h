@@ -43,10 +43,12 @@ struct FIntArray2D
 	bool OverlapTest(const FIntVector2 BeginPos, const FIntVector2 Size, TArray<FIntVector>& HitResult) const
 	{
 		bool bOk = true;
-		for (int32 Y = BeginPos.Y; Y < Size.Y; Y++)
+		for (int32 i = 0; i < Size.Y; i++)
 		{
-			for (int32 X = BeginPos.X; X < Size.X; X++)
+			for (int32 j = 0; j < Size.X; j++)
 			{
+				const int32 X = BeginPos.X + j;
+				const int32 Y = BeginPos.Y + i;
 				const int32 Value = Get(X, Y);
 				if (Value != 0)
 					bOk = false;
@@ -61,12 +63,11 @@ struct FIntArray2D
 	// 快速检测是否可以将一个给定Size和Pos的地块完成塞入
 	bool OverlapTestFast(const FIntVector2 BeginPos, const FIntVector2 Size) const
 	{
-		for (int32 Y = BeginPos.Y; Y < Size.Y; Y++)
+		for (int32 i = 0; i < Size.Y; i++)
 		{
-			for (int32 X = BeginPos.X; X < Size.X; X++)
+			for (int32 j = 0; j < Size.X; j++)
 			{
-				const int32 Value = Get(X, Y);
-				if (Value != 0)
+				if (Get(BeginPos.X + j, BeginPos.Y + i) != 0)
 					return false;
 			}
 		}
@@ -76,11 +77,11 @@ struct FIntArray2D
 
 	void DoOverlap(const FIntVector2 BeginPos, const FIntVector2 Size, const int32 Value)
 	{
-		for (int32 Y = BeginPos.Y; Y < Size.Y; Y++)
+		for (int32 i = 0; i < Size.Y; i++)
 		{
-			for (int32 X = BeginPos.X; X < Size.X; X++)
+			for (int32 j = 0; j < Size.X; j++)
 			{
-				Set(X, Y, Value);
+				Set(BeginPos.X + j, BeginPos.Y + i, Value);
 			}
 		}
 	}
