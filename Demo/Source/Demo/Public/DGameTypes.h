@@ -108,11 +108,12 @@ struct FDInventoryItem : public FFastArraySerializerItem
 	FIntVector4 Position;
 
 	// 如果是容器则可能内含道具
-	//UPROPERTY(BlueprintReadOnly)
-	//TArray<FDInventoryItem> ItemsInContainer;
+	UPROPERTY(BlueprintReadOnly)
+	TArray<int32> ItemIdsInContainer;
 
 	// Todo Extensions 装备数据 强化 附魔
 };
+
 
 // Todo 设计：背包系统支持在“背包或口袋或背心中装入其它容器，但除此之外的容器之前不允许套娃！
 

@@ -45,8 +45,6 @@ void UDInventoryComponent::LoadData(const FDRoleInventoryData& InData)
 		const EDContainerType Container = static_cast<EDContainerType>(Item.Position.Z);
 
 		// 选中容器
-		FDContainerLayout* Layout = SwitchContainer(Container);
-		
 		bool bCanAdd = CheckItemCanAddFast(Item.ConfigId, Item.Num, Container, Item.GetSlot(), FIntVector(Item.GetPos().X, Item.GetPos().Y, 0));
 		if (!bCanAdd)
 		{

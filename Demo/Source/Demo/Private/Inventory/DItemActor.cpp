@@ -9,6 +9,7 @@ void ADItemActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	
 	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
 	DOREPLIFETIME_WITH_PARAMS_FAST(ADItemActor, ItemId, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ADItemActor, bUsing, SharedParams);
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
@@ -23,9 +24,24 @@ void ADItemActor::Use()
 {
 }
 
-void ADItemActor::BP_Use_Implementation()
+bool ADItemActor::BP_OnUse_Implementation()
 {
-	
+	return true;
+}
+
+bool ADItemActor::BP_OnPickUp_Implementation()
+{
+	return true;
+}
+
+bool ADItemActor::BP_CanUse_Implementation()
+{
+	return true;
+}
+
+bool ADItemActor::BP_CanPickUp_Implementation()
+{
+	return true;
 }
 
 
@@ -48,9 +64,14 @@ void ADContainerActor::Cancel()
 	bUsing = false;
 }
 
-void ADContainerActor::BP_Open_Implementation()
+bool ADContainerActor::BP_OnOpen_Implementation()
 {
-	
+	return true;
+}
+
+bool ADContainerActor::BP_CanOpen_Implementation()
+{
+	return true;
 }
 
 void ADContainerActor::LoadData()
@@ -80,6 +101,7 @@ void ADContainerActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	SharedParams.bIsPushBased = true;
 	
 	SharedParams.RepNotifyCondition = REPNOTIFY_OnChanged;
+	DOREPLIFETIME_WITH_PARAMS_FAST(ADContainerActor, bLock, SharedParams);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ADContainerActor, ContainerLayoutId, SharedParams);
 	DOREPLIFETIME_WITH_PARAMS_FAST(ADContainerActor, ItemArray, SharedParams);
 	

@@ -17,15 +17,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	void Use();
 
-	// 使用场景中容器触发事件
-	UFUNCTION(BlueprintNativeEvent)
-	void BP_Use();
+	// 使用(蓝图覆写)
+	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "OnUse"), Category = "ProjectD")
+	bool BP_OnUse();
 
-	UPROPERTY(Replicated)
+	// 拾取(蓝图覆写)
+	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "OnPickUp"), Category = "ProjectD")
+	bool BP_OnPickUp();
+
+	// 能否使用(蓝图覆写)
+	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "CanUse"), Category = "ProjectD")
+	bool BP_CanUse();
+
+	// 能否拾取(蓝图覆写)
+	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "CanPickUp"), Category = "ProjectD")
+	bool BP_CanPickUp();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "ProjectD")
 	int32 ItemId = 0;
 
-	UPROPERTY(Replicated)
-	bool bUsing;
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	bool bUsing = false;
 };
 
 
@@ -39,10 +51,6 @@ public:
 	
 	ADContainerActor();
 
-	// 容器布局Id
-	UPROPERTY(ReplicatedUsing = OnLayoutChange)
-	int32 ContainerLayoutId = 0;
-
 	virtual void PostNetInit() override;
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
@@ -51,9 +59,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	void Cancel();
 
-	// 开启场景中容器触发事件
-	UFUNCTION(BlueprintNativeEvent)
-	void BP_Open();
+	// 开启成功时触发
+	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "OnOpen"), Category = "ProjectD")
+	bool BP_OnOpen();
+
+	// 能否打开(蓝图覆写)
+	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "CanOpen"), Category = "ProjectD")
+	bool BP_CanOpen();
 
 	void LoadData();
 	void SaveData();
@@ -61,6 +73,13 @@ public:
 	void AddItem();
 
 	void RemoveItem();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "ProjectD")
+	bool bLock = false;
+
+	// 容器布局Id
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, ReplicatedUsing = OnLayoutChange, Category = "ProjectD")
+	int32 ContainerLayoutId = 0;
 
 protected:
 
