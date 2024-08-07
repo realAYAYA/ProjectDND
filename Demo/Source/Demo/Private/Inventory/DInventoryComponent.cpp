@@ -42,19 +42,19 @@ void UDInventoryComponent::LoadData(const FDRoleInventoryData& InData)
 	// 接着尝试将背包数据中的道具一个个塞进各自容器中，可能存在非法数据，或配置变更导致道具无法塞进原在的空间中，因此需要鉴定并特殊处理（邮件补发）
 	for (const auto& Item : InData.ItemsOnRole)
 	{
-		const EDContainerType Container = static_cast<EDContainerType>(Item.Position.Z);
+		const EDContainerType Container = Item.GetContainer();
 
 		// 选中容器
-		bool bCanAdd = CheckItemCanAddFast(Item.ConfigId, Item.Num, Container, Item.GetSlot(), FIntVector(Item.GetPos().X, Item.GetPos().Y, 0));
+		bool bCanAdd = CheckItemCanAddFast(Item.CfgId(), Item.Num(), Container, Item.GetSlot(), FIntVector(Item.GetPos().X, Item.GetPos().Y, 0));
 		if (!bCanAdd)
 		{
 			// 发送到邮箱或仓库
 			// Todo 给玩家发送屏幕消息
-			UE_LOG(LogProjectD, Warning, TEXT("[InventoryModule]: 道具CfgId %d 无法正常进包, 背包格子布局与实际背包内容不匹配, 可能是更新之后配置发生变化. 已移送至仓库"), Item.ConfigId);
+			UE_LOG(LogProjectD, Warning, TEXT("[InventoryModule]: 道具CfgId %d 无法正常进包, 背包格子布局与实际背包内容不匹配, 可能是更新之后配置发生变化. 已移送至仓库"), Item.CfgId());
 		}
 		else
 		{
-			InternalAddItem(Container, Item.GetSlot(), Item.GetPos(), Item.ConfigId, Item.Num);
+			InternalAddItem(Container, Item.GetSlot(), Item.GetPos(), Item.CfgId(), Item.Num());
 		}
 	}
 }
@@ -68,7 +68,7 @@ bool UDInventoryComponent::CheckItemCanAddFast(const int32 CfgId, const int32 Nu
 	if (const auto* CurrentItem = GetItemWithPos(Container, Slot, FIntVector2(Pos.X, Pos.Y)))
 	{
 		const int32 MaxStack = 100;// Todo 从配置中获知最大堆叠
-		if (CurrentItem->Num + Num > MaxStack)
+		if (CurrentItem->Num() + Num > MaxStack)
 			return false;
 	}
 	else
@@ -92,7 +92,7 @@ bool UDInventoryComponent::CheckItemCanAdd(const int32 CfgId, const int32 Num, c
 	if (const auto* CurrentItem = GetItemWithPos(Container, Slot, FIntVector2(Pos.X, Pos.Y)))
 	{
 		const int32 MaxStack = 100;// Todo 从配置中获知最大堆叠
-		if (CurrentItem->Num + Num > MaxStack)
+		if (CurrentItem->Num() + Num > MaxStack)
 			return false;
 	}
 	else
@@ -262,7 +262,7 @@ FDInventoryItem* UDInventoryComponent::InternalAddItem(const EDContainerType Con
 	auto* CurrentItem = GetItemWithPos(Container, Slot, Pos);
 	if (CurrentItem)
 	{
-		UE_LOG(LogProjectD, Log, TEXT("[InventoryModule]: 道具堆叠, ItemId=%d CfgId=%d"), CurrentItem->Uid, CfgId);
+		UE_LOG(LogProjectD, Log, TEXT("[InventoryModule]: 道具堆叠, ItemId=%d CfgId=%d"), CurrentItem->Uid(), CfgId);
 		CurrentItem->AddNum(Num);
 	}
 	else 
@@ -270,14 +270,14 @@ FDInventoryItem* UDInventoryComponent::InternalAddItem(const EDContainerType Con
 		if (auto* Layout = SwitchContainer(Container))
 		{
 			CurrentItem = ItemArray.Add();
-			CurrentItem->ConfigId = CfgId;
+			CurrentItem->SetCfgId(CfgId);
 			CurrentItem->SetContainer(Container);
 			CurrentItem->SetSlot(Slot);
 			CurrentItem->SetPos(Pos);
 			
-			Layout->DoOverlap(Slot, Pos, Size, CurrentItem->Uid);// 空间填充
+			Layout->DoOverlap(Slot, Pos, Size, CurrentItem->Uid());// 空间填充
 		
-			UE_LOG(LogProjectD, Log, TEXT("[InventoryModule]: 新增道具, ItemId=%d CfgId=%d"), CurrentItem->Uid, CfgId);
+			UE_LOG(LogProjectD, Log, TEXT("[InventoryModule]: 新增道具, ItemId=%d CfgId=%d"), CurrentItem->Uid(), CfgId);
 		}
 	}
 

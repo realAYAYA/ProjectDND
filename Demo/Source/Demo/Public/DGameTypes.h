@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InventoryBase.h"
 #include "Net/Serialization/FastArraySerializer.h"
 
 #include "DGameTypes.generated.h"
@@ -47,6 +48,7 @@ enum EDContainerType
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct FDInventoryItemsContainer;
+struct FDInventoryItem;
 
 /*
 	三个函数只有客户端才能调用
@@ -65,53 +67,43 @@ struct FDInventoryItem : public FFastArraySerializerItem
 	void PostReplicatedAdd(const FDInventoryItemsContainer &InArray);
 	void PostReplicatedChange(const FDInventoryItemsContainer &InArray);
 
-	void AddNum(const int32 InNum, const bool bOverride = false)
+	void AddNum(const int32 InNum, const bool bOverwrite = false)
 	{
-		if (bOverride)
-			Num = InNum;
+		if (bOverwrite)
+			ItemData.Num = InNum;
 		else
 		{
-			Num += InNum;
+			ItemData.Num += InNum;
 		}
 	}
+	int32 Num() const { return ItemData.Num; }
 
-	FIntVector2 GetPos() const { return FIntVector2(Position.X, Position.Y); }
+	FIntVector2 GetPos() const { return FIntVector2(ItemData.Position.X, ItemData.Position.Y); }
 	void SetPos(const FIntVector2 Pos)
 	{
-		Position.X = Pos.X;
-		Position.Y = Pos.Y;
+		ItemData.Position.X = Pos.X;
+		ItemData.Position.Y = Pos.Y;
 	}
 
-	int32 GetSlot() const { return Position.W; }
-	void SetSlot(const int32 Slot) { Position.W = Slot; }
+	int32 GetSlot() const { return ItemData.Position.W; }
+	void SetSlot(const int32 Slot) { ItemData.Position.W = Slot; }
 
-	EDContainerType GetContainer() const { return static_cast<EDContainerType>(Position.Z); }
-	void SetContainer(const EDContainerType Container) { Position.Z = static_cast<int32>(Container); }
+	EDContainerType GetContainer() const { return static_cast<EDContainerType>(ItemData.Position.Z); }
+	void SetContainer(const EDContainerType Container) { ItemData.Position.Z = static_cast<int32>(Container); }
+	
+	int32 GetContainerId() const { return ItemData.Position.Z; }
+	void SetContainerId(const int32 Id) { ItemData.Position.Z = Id; }
+
+	int32 Uid() const { return ItemData.Uid; }
+	void SetUid(const int32 Id) { ItemData.Uid = Id; }
+
+	int32 CfgId() const { return ItemData.ConfigId; }
+	void SetCfgId(const int32 Id) { ItemData.ConfigId = Id; }
 	
 	UPROPERTY(BlueprintReadOnly)
-	int32 Uid = 0;
-	
-	// 堆叠数量
-	UPROPERTY(BlueprintReadOnly)
-	int64 Num = 0;
+	FInventoryItemBase ItemData;// 实际道具数据
 
-	// 生成日期
-	UPROPERTY(BlueprintReadOnly)
-	int64 BeginDate = 0;
-
-	// 道具配置Id
-	UPROPERTY(BlueprintReadOnly)
-	int32 ConfigId = 0;
-
-	// 背包中的位置，zw变量可根据需求解析，例如位于背心中的某个插槽
-	UPROPERTY(BlueprintReadOnly)
-	FIntVector4 Position;
-
-	// 如果是容器则可能内含道具
-	UPROPERTY(BlueprintReadOnly)
-	TArray<int32> ItemIdsInContainer;
-
-	// Todo Extensions 装备数据 强化 附魔
+	FDInventoryItemsContainer* Container;
 };
 
 
@@ -156,9 +148,14 @@ struct FDInventoryItemsContainer : public FFastArraySerializer
 	UDInventoryComponent* Owner = nullptr;
 
 	UPROPERTY()
-	int64 SerialId = 0;
+	int32 SerialId = 0;
 
-	int32 GenerateItemId() { return ++SerialId; }
+	int32 GenerateItemId()
+	{
+		if (Items_Internal.Num() == 0)
+			SerialId = 100;
+		return ++SerialId;
+	}
 };
 
 template<>

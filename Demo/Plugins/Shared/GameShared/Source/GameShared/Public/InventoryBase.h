@@ -39,8 +39,12 @@ struct GAMESHARED_API FInventoryItemBase
 	UPROPERTY(BlueprintReadOnly)
 	FIntVector4 Position;
 
+	// Todo Extensions 装备数据 强化 附魔
 	UPROPERTY()
 	FCustomItemParams CustomParams;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TArray<int32> Container;
 };
 
 class GAMESHARED_API FInventoryBase/* : public UObject*/
