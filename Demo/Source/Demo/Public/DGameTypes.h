@@ -89,7 +89,7 @@ struct FDInventoryItem : public FFastArraySerializerItem
 	void SetSlot(const int32 Slot) { ItemData.Position.W = Slot; }
 
 	EDContainerType GetContainer() const { return static_cast<EDContainerType>(ItemData.Position.Z); }
-	void SetContainer(const EDContainerType Container) { ItemData.Position.Z = static_cast<int32>(Container); }
+	void SetContainer(const EDContainerType In) { ItemData.Position.Z = static_cast<int32>(In); }
 	
 	int32 GetContainerId() const { return ItemData.Position.Z; }
 	void SetContainerId(const int32 Id) { ItemData.Position.Z = Id; }

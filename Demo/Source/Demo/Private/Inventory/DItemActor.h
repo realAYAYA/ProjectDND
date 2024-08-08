@@ -17,11 +17,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	void Use();
 
-	// 使用(蓝图覆写)
+	// 使用(蓝图覆写), 该逻辑仅执行在服务器
 	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "OnUse"), Category = "ProjectD")
 	bool BP_OnUse();
 
-	// 拾取(蓝图覆写)
+	// 拾取(蓝图覆写), 该逻辑仅执行在服务器
 	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "OnPickUp"), Category = "ProjectD")
 	bool BP_OnPickUp();
 
@@ -59,7 +59,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ProjectD")
 	void Cancel();
 
-	// 开启成功时触发
+	// 开启成功时触发, 该逻辑仅执行在服务器
 	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "OnOpen"), Category = "ProjectD")
 	bool BP_OnOpen();
 
